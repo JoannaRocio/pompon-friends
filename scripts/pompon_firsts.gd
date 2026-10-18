@@ -45,6 +45,9 @@ const TEXTS := {
 	"room": {"stat": "comodidad",
 		"first": "Hoy conocí {x}: {r}",
 		"first_r": ["¡es enorme!", "huele a nuevo", "me dio un poquito de miedo", "¡me encantó!"]},
+	"sleep": {"stat": "sueno",
+		"first": "Hoy dormí por primera vez en mi camita: {r}",
+		"first_r": ["soñé cosas lindas", "me dio un poquito de miedo la oscuridad", "estaba muy calentit{a}", "¡qué rico se duerme!"]},
 	"friend": {"stat": "amistad",
 		"first": "Hoy conocí a {x}: {r}",
 		"first_r": ["al principio me dio vergüenza", "nos olimos y ya somos amigos", "¡me cayó muy bien!"],
@@ -83,6 +86,10 @@ static func experience(p: Pompon, kind: String, subject: String, label: String, 
 	var key := "%s:%s" % [kind, subject]
 	var count := int(d.get(key, 0)) + 1
 	d[key] = count
+	if count == 1:  # cuando fue (para el album de recuerdos)
+		if not p.tastes.has("firsts_at"):
+			p.tastes["firsts_at"] = {}
+		p.tastes["firsts_at"][key] = now
 	var info: Dictionary = TEXTS.get(kind, {})
 	if count > 1:
 		if kind != "food" and not info.has("again"):

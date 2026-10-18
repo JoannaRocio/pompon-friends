@@ -89,6 +89,8 @@ var _night_trip := Vector2.ZERO
 var _wake_t := 0.0                 # despierto un ratito porque lo tocaron
 var _night_seen := false           # ya paso por la noche en esta sesion (si no, aparece directo en la cama)
 var _night_notice: BigNotice
+var _album_panel: AlbumPanel
+var _album_check := 2.0
 var _clock_label: Label
 var _clock_icon: Control
 var _pet_ready := false
@@ -150,6 +152,7 @@ func _process(delta: float) -> void:
 	_update_practice(delta)
 	_update_growth(delta)
 	_update_night(delta)
+	_update_album(delta)
 	_update_prehatch(delta)
 	_check_news()
 	_refresh()
@@ -403,7 +406,7 @@ func _play_hatch() -> void:
 ## Avisos importantes: el Pompon crecio / nacio, o se fue de casa.
 func _any_modal() -> bool:
 	return _gift_panel != null or _note_panel != null or _name_panel != null \
-		or _food_panel != null or _hatch_layer != null or _journal_panel != null or _profile_panel != null 		or _night_notice != null
+		or _food_panel != null or _hatch_layer != null or _journal_panel != null or _profile_panel != null 		or _night_notice != null or _album_panel != null
 
 
 func _check_news() -> void:
@@ -1240,6 +1243,17 @@ func _show_journal() -> void:
 	sub.add_theme_font_size_override("font_size", 22)
 	sub.add_theme_color_override("font_color", Color("a0527a"))
 	box.add_child(sub)
+	var prog := PomponAlbum.progress(GameState.pompon, int(Time.get_unix_time_from_system()))
+	var album := Button.new()
+	album.text = "Álbum de recuerdos (%d/%d)" % [prog["won"], prog["total"]]
+	album.custom_minimum_size = Vector2(0, 68)
+	album.focus_mode = Control.FOCUS_NONE
+	Hud.style_primary(album, 26, Color("ffb938"))
+	album.pressed.connect(func():
+		_journal_panel.queue_free()
+		_journal_panel = null
+		_show_album())
+	box.add_child(album)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -2018,6 +2032,7 @@ func _enter_night() -> void:
 		_pet_pos = _night_pos
 		_night_state = "sleep"
 		_night_t = randf_range(25.0, 45.0)
+		_slept()
 	_night_seen = true
 	room.center_on(_night_pos.x)
 	_follow_pause = 1.0
@@ -2073,6 +2088,7 @@ func _night_wander(delta: float) -> void:
 				_night_state = "sleep"
 				_night_t = randf_range(25.0, 45.0)
 				pet.facing = 1.0
+				_slept()
 		"sleep":
 			pet.sleep_props = _night_props
 			pet.sleeping = _wake_t <= 0.0
@@ -2104,6 +2120,76 @@ func _night_wander(delta: float) -> void:
 			pet.walking = false
 			if _night_t <= 0.0:
 				_night_state = "back"
+
+
+## Album de recuerdos (desde el diario).
+func _show_album() -> void:
+	if _album_panel != null or GameState.pompon == null:
+		return
+	_album_panel = AlbumPanel.new().setup(GameState.pompon)
+	_album_panel.closed.connect(func():
+		_album_panel.queue_free()
+		_album_panel = null)
+	add_child(_album_panel)
+
+
+## Cada tanto mira si gano una figurita nueva y la festeja con un aviso.
+func _update_album(delta: float) -> void:
+	_album_check -= delta
+	if _album_check > 0.0:
+		return
+	_album_check = 2.0
+	var p := GameState.pompon
+	if not _is_born(p) or _edit:
+		return
+	for s in PomponAlbum.new_ones(p, int(Time.get_unix_time_from_system())):
+		_sticker_toast(s)
+		break   # de a una: las demas en la proxima vuelta
+
+
+func _sticker_toast(s: Dictionary) -> void:
+	var chip := PanelContainer.new()
+	chip.add_theme_stylebox_override("panel", Hud.card(Color("fffaf0"), 30, Color("f2c94c"), 4, 10))
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	chip.add_child(row)
+	var icon := Control.new()
+	icon.custom_minimum_size = Vector2(52, 52)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var tint: Color = s["color"]
+	var kind: String = s["icon"]
+	icon.draw.connect(func():
+		icon.draw_circle(icon.size * 0.5, 26.0, tint)
+		Hud.draw_icon(icon, kind, icon.size * 0.5, 34.0, Color.WHITE, tint.darkened(0.25)))
+	row.add_child(icon)
+	var texts := VBoxContainer.new()
+	texts.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(texts)
+	var t1 := Label.new()
+	t1.text = "¡Figurita nueva!"
+	t1.add_theme_font_size_override("font_size", 20)
+	t1.add_theme_color_override("font_color", Color("b87400"))
+	texts.add_child(t1)
+	var t2 := Label.new()
+	t2.text = s["title"]
+	t2.add_theme_font_size_override("font_size", 26)
+	t2.add_theme_color_override("font_color", Hud.INK)
+	texts.add_child(t2)
+	add_child(chip)
+	chip.position = Vector2((size.x - chip.get_combined_minimum_size().x) * 0.5, -120.0)
+	Audio.play("ding")
+	var tw := chip.create_tween()
+	tw.tween_property(chip, "position:y", 330.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)   # sobre el cuarto, sin tapar la tarjeta
+	tw.tween_interval(2.6)
+	tw.tween_property(chip, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(chip.queue_free)
+
+
+## Se acosto a dormir: la primera noche en su camita queda en el diario (y en el album).
+func _slept() -> void:
+	_log_first(PomponFirsts.experience(GameState.pompon, "sleep", "", "", int(Time.get_unix_time_from_system()), _mood_rng))
 
 
 ## Tocarlo de noche: se despierta un poquito y vuelve a dormir.

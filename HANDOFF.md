@@ -16,7 +16,7 @@ Todo el arte se dibuja por código (`_draw`). No hay imágenes de personajes ni 
 - Finales de línea LF forzados (`.gitattributes` + `core.autocrlf=false` en este repo): con CRLF los textos de varias líneas del juego muestran una línea vacía de más.
 
 ## Cómo correr y probar
-- Tests (sin ventana): `powershell -ExecutionPolicy Bypass -File tests/run_all.ps1` (respalda y restaura la partida guardada). Hoy pasan todos (~36; `test_neighbors_screen` tarda ~25 s porque espera las animaciones).
+- Tests (sin ventana): `powershell -ExecutionPolicy Bypass -File tests/run_all.ps1` (respalda y restaura la partida guardada). Hoy pasan todos (~37; `test_neighbors_screen` tarda ~25 s porque espera las animaciones).
 - Cada test es `tests/test_*.gd` y **imprime** resultados; el script solo falla si hay `SCRIPT ERROR`/`Parse Error`. Hay que mirar la salida para validar.
 - Los tests `--script` no resuelven autoloads (`GameState`, `Audio`) al compilar: cargar scripts en runtime (`load(...)`) y no referenciar clases que usen `GameState` desde el cuerpo del test (p. ej. `RoomView.CONST` rompe la compilación; usar `instancia.CONST`).
 - Un `Control` nuevo en un test se achica a 0 tras un frame: darle `custom_minimum_size`.
@@ -65,6 +65,8 @@ Todo el arte se dibuja por código (`_draw`). No hay imágenes de personajes ni 
 **Diario** (`PomponThoughts`): pensamientos/sentimientos/frases con coherencia al juego (necesidades, hora, habitación, muebles, ropa, eventos recientes). Espontáneo cada 4–7 min, mín. 45 s entre entradas, urgencias cada 20 min. "Dijo" sale en el globo; "pensó/sintió" en la píldora. Guarda 120 entradas.
 
 **Primeras veces** (`PomponFirsts`, cuenta en `tastes["firsts"]`): la primera vez que prueba una comida, se baña, toma agua, recibe un mimo, juega un minijuego, usa un objeto de práctica, estrena ropa, conoce una habitación o un vecino, se anota SIEMPRE en el diario con una reacción al azar. Las repeticiones se anotan con 45 % / 30 % / 12 % / 4 % (2.ª, 3.ª, 4.ª–6.ª, 7.ª en adelante) y como mucho una cada 8 min; las habitaciones solo la primera vez. Lo que pasa fuera de la casa va a `pending_thoughts`.
+
+**Álbum de recuerdos** (`PomponAlbum`, `AlbumPanel`; botón dorado en el diario): 33 figuritas en 4 páginas (Primeras veces, Comidas, Lugares y amigos, Creciendo). Se ganan con las primeras veces (`PomponFirsts`, que ahora guarda la fecha en `tastes["firsts_at"]`), con lo que ya guardaban las partidas viejas (comidas, juegos, habitaciones, amistad) y al crecer. Las que faltan muestran un "?" y una pista. Aviso "¡Figurita nueva!" de a una; la primera vez que se mira una partida vieja no avisa nada (`tastes["album_seen"]`).
 
 **Actividad actual** (`PomponActivity`): cuadro bajo la tarjeta, cambia cada 8–14 s.
 
