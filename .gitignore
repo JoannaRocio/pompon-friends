@@ -1,0 +1,23 @@
+# Godot: cache del editor e importaciones (se regeneran solos)
+.godot/
+*.tmp
+
+# Plantilla de compilacion de Android (1,2 GB): se reinstala desde Godot con
+# Proyecto > Instalar plantilla de compilacion de Android
+android/
+
+# APK, AAB y web generados (se vuelven a exportar)
+build/
+
+# Claves de firma: nunca al repositorio
+*.keystore
+*.jks
+export_credentials.cfg
+
+# Ajustes locales de herramientas
+.claude/settings.local.json
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini

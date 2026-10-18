@@ -1,0 +1,14 @@
+# Todo el texto con finales de linea LF (Godot usa LF; con CRLF los textos de varias lineas del
+# juego muestran una linea vacia de mas).
+* text=auto eol=lf
+
+# Binarios
+*.png binary
+*.jpg binary
+*.jfif binary
+*.ogg binary
+*.wav binary
+*.mp4 binary
+*.pdf binary
+*.ttf binary
+*.otf binary
