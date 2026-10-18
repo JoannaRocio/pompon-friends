@@ -83,7 +83,7 @@ Todo el arte se dibuja por código (`_draw`). No hay imágenes de personajes ni 
 - Todo lo anterior implementado y con tests. Falta probar en celular real (Android e iPhone/Safari: sonido, guardado, rendimiento).
 - Regenerar APK/AAB/web con lo último.
 - Keystore de release para Play Store; iOS nativo requiere Mac + cuenta Apple.
-- Amigos de verdad: programados y probados con servidor de mentira. Falta correr de nuevo `server/supabase.sql` en Supabase (agrega la parte de amigos) y probar contra el servidor real.
+- Amigos de verdad: funcionando contra Supabase (18/10/2026: `tools/friends_check.gd` pasó registro, solicitud, aceptar, avisos, límite de visitas, clave falsa y quitar; tablas cerradas al acceso directo). Quedaron dos perfiles de prueba (`LRLD-VLKW` y `BV5V-PJVQ`, se pueden borrar en Table Editor > friend_profiles). Falta probarlo en dos celulares.
 - Nube: funcionando contra Supabase (18/10/2026: `tools/cloud_check.gd` pasó subir, recuperar, conflicto y código inexistente; la tabla no se puede leer ni escribir directo). Quedó una partida de prueba con el código `FYEL-DDEN-9FAU` (se puede borrar en Table Editor). Falta: probar en el celular y actualizar "Seguridad de los datos" en Google Play (se envían el nombre del jugador y el progreso, opcional).
 - Pantallas rediseñadas al estilo nuevo: tienda, vestidor (mini cuarto + solapas Ropa/Cuarto/Tazones), misiones (botón "Ir" + camino del Pase), vecinos y visita (botones redondos).
 - Revisar el equilibrio de números (puntaje diario, precios, niveles de desbloqueo) jugando de verdad.
