@@ -5,6 +5,7 @@ extends RefCounted
 
 const ALPHABET := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 const CODE_LEN := 12
+const FRIEND_LEN := 8      # codigos de amigo (los da el servidor)
 
 
 ## Deja solo letras y numeros validos, en mayusculas (para lo que escribe el jugador).
@@ -20,6 +21,12 @@ static func normalize(text: String) -> String:
 static func clean_code(text: String) -> String:
 	var c := normalize(text)
 	return c if c.length() == CODE_LEN else ""
+
+
+## Codigo de amigo (8 caracteres) limpio, o "" si no es valido.
+static func clean_friend(text: String) -> String:
+	var c := normalize(text)
+	return c if c.length() == FRIEND_LEN else ""
 
 
 ## "ABCDEFGHJKLM" -> "ABCD-EFGH-JKLM"

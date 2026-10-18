@@ -748,6 +748,11 @@ var tips_seen: Array = []     # guias de primer uso ya mostradas
 var cloud_code := ""          # codigo de la partida en la nube ("" = nunca se guardo en la nube)
 var cloud_synced_at := ""     # fecha (del servidor) de la ultima vez que se subio o bajo
 var save_count := 0           # cuantas veces se guardo en esta sesion (la nube sabe si hubo cambios)
+var friend_code := ""         # codigo de amigo (Friends); "" = amigos sin activar
+var friend_secret := ""       # clave secreta de este jugador para el servidor de amigos
+var friends: Array = []       # amigos aceptados: {"code", "snapshot"} (ultima tarjeta vista)
+var friend_requests: Array = []   # solicitudes recibidas que esperan respuesta
+var friend_sent: Array = []   # solicitudes enviadas que el otro todavia no acepto
 
 
 ## Guardado seguro: se escribe a un archivo temporal y se conserva una copia de respaldo,
@@ -787,6 +792,8 @@ func save_dict() -> Dictionary:
 		"daily_gift_day": daily_gift_day, "gift_streak": gift_streak,
 		"jobs_done": jobs_done, "level_seen": level_seen, "player_title": player_title, "player_name": player_name, "math_progress": math_progress, "math_weak": math_weak,
 		"cloud_code": cloud_code, "cloud_synced_at": cloud_synced_at,
+		"friend_code": friend_code, "friend_secret": friend_secret, "friends": friends,
+		"friend_requests": friend_requests, "friend_sent": friend_sent,
 		"pompon": pompon.to_dict() if pompon else null,
 	}
 
@@ -805,7 +812,19 @@ func reset_game() -> void:
 	fresh.free()
 	Neighbors.buddy = {}
 	Neighbors.current = ""
+	Neighbors.set_friends([])
 	MathProblems.current_track = "addsub"
+
+
+## Lista de amigos guardada: solo entradas con codigo valido y tarjeta.
+func _friend_list(list) -> Array:
+	var out := []
+	if typeof(list) == TYPE_ARRAY:
+		for e in list:
+			if typeof(e) == TYPE_DICTIONARY and CloudCode.clean_friend(str(e.get("code", ""))) != "":
+				var snap = e.get("snapshot", {})
+				out.append({"code": str(e["code"]), "snapshot": snap if typeof(snap) == TYPE_DICTIONARY else {}})
+	return out
 
 
 ## Borra un archivo de la partida. Si el sistema no deja borrarlo (por ejemplo, un antivirus lo tiene
@@ -930,6 +949,12 @@ func apply_save(parsed: Dictionary) -> void:
 	player_name = clean_player_name(str(parsed.get("player_name", "")))
 	cloud_code = CloudCode.clean_code(str(parsed.get("cloud_code", "")))
 	cloud_synced_at = str(parsed.get("cloud_synced_at", ""))
+	friend_code = CloudCode.clean_friend(str(parsed.get("friend_code", "")))
+	friend_secret = str(parsed.get("friend_secret", ""))
+	friends = _friend_list(parsed.get("friends", []))
+	friend_requests = _friend_list(parsed.get("friend_requests", []))
+	friend_sent = _friend_list(parsed.get("friend_sent", []))
+	Neighbors.set_friends(friends)
 	_load_math(parsed)
 	# JSON devuelve numeros como float: normalizamos a int.
 	pass_claimed = []

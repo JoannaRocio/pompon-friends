@@ -41,13 +41,30 @@ const WALL_SPOTS := [Vector2(0.22, 0.34), Vector2(0.78, 0.34), Vector2(0.50, 0.2
 
 static var current := ""   # vecino que se esta visitando
 static var buddy := {}     # el vecino que se crea solo, de la misma edad que tu Pompon (NPC)
+static var friends: Array = []   # amigos de verdad (Friends): {"id": "f:CODIGO", "name", "player", "real", "code", "snapshot"}
 
 const BUDDY_NAMES := ["Tobi", "Bimba", "Fresa", "Mota", "Pipa", "Canelo", "Rulo", "Lunita", "Chicle", "Maní"]
 
 
-## Todos los vecinos: primero el de tu edad (si existe) y despues los del barrio.
+## Todos los vecinos: primero el de tu edad (si existe), despues tus amigos de verdad y los del barrio.
 static func all() -> Array:
-	return ([buddy] if not buddy.is_empty() else []) + ROSTER
+	return ([buddy] if not buddy.is_empty() else []) + friends + ROSTER
+
+
+## Pone los amigos de verdad (lista de GameState.friends: {"code", "snapshot"}).
+static func set_friends(list: Array) -> void:
+	friends = []
+	for f in list:
+		friends.append(friend_entry(f))
+
+
+## La entrada de vecino de un amigo de verdad ({"code", "snapshot"}).
+static func friend_entry(f: Dictionary) -> Dictionary:
+	var snap: Dictionary = f.get("snapshot", {})
+	var pompon = snap.get("pompon", {})
+	var name := str(pompon.get("nickname", "")).strip_edges().left(14) if typeof(pompon) == TYPE_DICTIONARY else ""
+	return {"id": "f:" + str(f["code"]), "name": name if name != "" else "Pompon", "real": true,
+		"player": str(snap.get("player", "")).strip_edges().left(14), "code": str(f["code"]), "snapshot": snap}
 
 
 ## Crea los datos de un vecino NPC (nombre, especie y semilla al azar).
@@ -93,8 +110,57 @@ static func get_action(key: String) -> Dictionary:
 	return {}
 
 
+## Un amigo de verdad: su Pompon y su habitacion salen de su tarjeta (validando todo: viene de otro juego).
+static func _build_real(entry: Dictionary) -> Dictionary:
+	var snap: Dictionary = entry.get("snapshot", {})
+	var d = snap.get("pompon", {})
+	if typeof(d) != TYPE_DICTIONARY:
+		d = {}
+	var color := func(key: String, fallback: String) -> Color:
+		var text := str(d.get(key, ""))
+		return Color.html(text) if Color.html_is_valid(text) else Color(fallback)
+	var p := PomponView.make_sample(
+		str(d.get("species", "")) if str(d.get("species", "")) in Pompon.SPECIES else "Felino",
+		color.call("color_primary", "ffb3cc"), color.call("color_secondary", "fff0f5"),
+		str(d.get("eyes", "")) if str(d.get("eyes", "")) in Pompon.EYE_SHAPES else "redondos",
+		str(d.get("mouth", "")) if str(d.get("mouth", "")) in Pompon.MOUTH_SHAPES else Pompon.MOUTH_SHAPES[0],
+		str(d.get("face", "")) if str(d.get("face", "")) in Pompon.FACE_SHAPES else Pompon.FACE_SHAPES[0])
+	p.nickname = entry["name"]
+	p.sex = str(d.get("sex", "")) if str(d.get("sex", "")) in Pompon.SEX else Pompon.SEX[0]
+	p.personality = str(d.get("personality", "")) if str(d.get("personality", "")) in Pompon.PERSONALITIES else Pompon.PERSONALITIES[0]
+	p.hatched = true
+	var born := int(d.get("born_at", 0))
+	if born > 0:
+		p.born_at = born   # crece de verdad: se ve bebe, niño o adulto como en el juego de tu amigo
+	var equipped := {}
+	var wear = snap.get("equipped", {})
+	if typeof(wear) == TYPE_DICTIONARY:
+		for cat in Catalog.WEARABLE:
+			var id := str(wear.get(cat, ""))
+			if Catalog.get_item(id).get("category", "") == cat:
+				equipped[cat] = id
+	var wall := str(snap.get("wall", ""))
+	var floor_item := str(snap.get("floor", ""))
+	var placed := []
+	var items = snap.get("placed", [])
+	if typeof(items) == TYPE_ARRAY:
+		for it in items.slice(0, 60):
+			if typeof(it) == TYPE_DICTIONARY and Catalog.is_placeable(str(it.get("id", ""))):
+				var e := {"id": str(it["id"]), "x": clampf(float(it.get("x", 0.5)), 0.0, 1.0), "y": clampf(float(it.get("y", 0.7)), 0.0, 1.0)}
+				if str(it.get("on", "")) != "":
+					e["on"] = str(it["on"])
+					e["ox"] = float(it.get("ox", 0.0))
+				placed.append(e)
+	return {"name": entry["name"], "pompon": p, "equipped": equipped,
+		"wall": wall if Catalog.get_item(wall).get("category", "") == "wall" else "",
+		"floor": floor_item if Catalog.get_item(floor_item).get("category", "") == "floor" else "",
+		"placed": placed, "screens": Rooms.WORLD_SCREENS, "player": entry.get("player", ""), "real": true}
+
+
 ## Genera (siempre igual para el mismo vecino) su Pompon, su ropa y su casa.
 static func build(entry: Dictionary) -> Dictionary:
+	if entry.get("real", false):
+		return _build_real(entry)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = entry["seed"]
 	var c1 := Color.from_hsv(rng.randf(), rng.randf_range(0.25, 0.5), rng.randf_range(0.88, 1.0))

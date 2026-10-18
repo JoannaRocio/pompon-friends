@@ -54,7 +54,7 @@ func _ready() -> void:
 	_room = RoomView.new()
 	_room.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_room.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_room.world_screens = 1.0   # el cuarto de un vecino se ve entero en una pantalla
+	_room.world_screens = float(_data.get("screens", 1.0))   # vecinos: una pantalla; amigos de verdad: su cuarto entero
 	add_child(_room)
 	_room.set_state(_data["wall"], _data["floor"], _data["placed"])
 
@@ -94,6 +94,8 @@ func _layout() -> void:
 	if not _busy:
 		_mine.position.x = _x(HOME_MINE)
 		_theirs.position.x = _x(HOME_THEIRS)
+	if _room.world_screens > 1.0:
+		_room.scroll_to(_room.max_scroll() * 0.5, false)   # el centro de su cuarto
 
 
 ## Posicion x de la vista para que el Pompon quede centrado en la fraccion `f` del ancho.
@@ -140,7 +142,8 @@ func _build_top() -> void:
 	head.add_theme_constant_override("separation", 8)
 	col.add_child(head)
 	var title := Label.new()
-	title.text = "Casa de %s" % _data["name"]
+	var player := str(_data.get("player", ""))
+	title.text = "Casa de %s" % _data["name"] if player == "" else "%s (de %s)" % [_data["name"], player]
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", Color("7a56c4"))
@@ -419,6 +422,8 @@ func _start() -> void:
 	if not GameState.has_met(_id):
 		await _first_meet()
 	var v := GameState.friend_visit(_id)
+	if v["ok"] and _entry.get("real", false):
+		Friends.send_event(_entry["code"], "visit")   # a tu amigo le llega el aviso
 	if v["ok"]:
 		_plus("+1")
 		_message.text = "¡+1 de amistad por visitar!"
@@ -521,6 +526,8 @@ func _on_action(key: String) -> void:
 		"gift":
 			await _anim_gift()
 	_message.text = result["msg"]
+	if result["pts"] > 0 and _entry.get("real", false):
+		Friends.send_event(_entry["code"], key)
 	if result["pts"] > 0:
 		_plus("+1")
 		var skill: String = Neighbors.get_action(key).get("skill", "")

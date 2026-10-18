@@ -2,12 +2,15 @@ extends Control
 ## Lista de vecinos: arriba la barra Social de tu Pompon (la mitad solo se llena con otros
 ## Pompons); despues una tarjeta por vecino con su nivel de amistad (corazones), la barra 0-100,
 ## lo que ya sumo hoy (1 punto por visita y por cada actividad) y "Visitar".
+## Arriba de la lista, los amigos de verdad (Friends): tu codigo, "Agregar amigo" y las solicitudes.
 
 const BG := Color("e8f6ee")
 const PINK := Color("ff7aa8")
 const GREEN := Color("5fc77f")
 
 var _list: VBoxContainer
+var _notice: BigNotice
+var _dirty := false
 
 
 func _ready() -> void:
@@ -67,6 +70,25 @@ func _ready() -> void:
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_list.add_theme_constant_override("separation", 12)
 	scroll.add_child(_list)
+	Friends.changed.connect(func(): _dirty = true)
+	_rebuild()
+	if Friends.is_active():
+		Friends.refresh()   # trae solicitudes y amigos nuevos (al terminar, la lista se redibuja)
+
+
+func _process(_delta: float) -> void:
+	if _dirty:
+		_dirty = false
+		_rebuild()
+
+
+func _rebuild() -> void:
+	for c in _list.get_children():
+		_list.remove_child(c)
+		c.queue_free()
+	var friends_card := _friends_card()
+	if friends_card != null:
+		_list.add_child(friends_card)
 	for entry in Neighbors.all():
 		_list.add_child(_make_row(entry))
 
@@ -125,6 +147,11 @@ func _make_row(entry: Dictionary) -> Control:
 		var chip := Hud.chip("De tu edad", Color("e6efff"), Color("3f66b0"), 17)
 		chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		head.add_child(chip)
+	elif entry.get("real", false):
+		var who := str(entry.get("player", ""))
+		var chip2 := Hud.chip("de " + who if who != "" else "Amigo", Color("ffe6ef"), Color("d6336c"), 17)
+		chip2.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		head.add_child(chip2)
 	var pts := int(GameState.friend_points.get(id, 0))
 	var lvl := HBoxContainer.new()
 	lvl.add_theme_constant_override("separation", 8)
@@ -173,7 +200,21 @@ func _make_row(entry: Dictionary) -> Control:
 	visit.pressed.connect(func():
 		Neighbors.current = id
 		get_tree().change_scene_to_file("res://scenes/visit.tscn"))
-	row.add_child(visit)
+	if entry.get("real", false):  # amigo de verdad: se puede quitar
+		var side := VBoxContainer.new()
+		side.alignment = BoxContainer.ALIGNMENT_CENTER
+		side.add_theme_constant_override("separation", 8)
+		side.add_child(visit)
+		var quit := Button.new()
+		quit.text = "Quitar"
+		quit.custom_minimum_size = Vector2(108, 44)
+		quit.focus_mode = Control.FOCUS_NONE
+		Hud.style_soft(quit, 18)
+		quit.pressed.connect(_ask_remove.bind(entry))
+		side.add_child(quit)
+		row.add_child(side)
+	else:
+		row.add_child(visit)
 	return card
 
 
@@ -213,3 +254,190 @@ func _today_dots(id: String) -> Control:
 			Hud.draw_icon(dot, kind, Vector2(15, 15), 20.0, Color.WHITE, tint))
 		row.add_child(dot)
 	return row
+
+
+# ------------------------------------------------------------------ amigos de verdad
+
+## Tarjeta de amigos: activar (la primera vez) o tu codigo + "Agregar amigo"; despues las solicitudes.
+func _friends_card() -> Control:
+	if not Friends.is_available() or GameState.pompon == null or not GameState.pompon.hatched:
+		return null
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", Hud.card(Color("fff6fa"), 34, Color("ffc2d9"), 4, 8))
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	card.add_child(col)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 10)
+	col.add_child(head)
+	var icon := Control.new()
+	icon.custom_minimum_size = Vector2(46, 46)
+	icon.draw.connect(func():
+		icon.draw_circle(icon.size * 0.5, 23.0, PINK)
+		Hud.draw_icon(icon, "people", icon.size * 0.5, 32.0, Color.WHITE, PINK))
+	head.add_child(icon)
+	var title := Label.new()
+	title.text = "Amigos de verdad"
+	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	title.add_theme_font_size_override("font_size", 30)
+	title.add_theme_color_override("font_color", Color("d6336c"))
+	head.add_child(title)
+
+	if not Friends.is_active():
+		col.add_child(_small("Agrega a tus amigos con su código y visítense.", 22))
+		col.add_child(_pill_button("Activar amigos", _activate, PINK))
+		return card
+
+	var code_row := HBoxContainer.new()
+	code_row.add_theme_constant_override("separation", 10)
+	col.add_child(code_row)
+	var mine := VBoxContainer.new()
+	mine.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	mine.add_theme_constant_override("separation", 0)
+	code_row.add_child(mine)
+	mine.add_child(_small("Tu código de amigo", 18, Color("a0527a")))
+	var code := Label.new()
+	code.text = CloudCode.format_code(GameState.friend_code)
+	code.add_theme_font_size_override("font_size", 40)
+	code.add_theme_color_override("font_color", Hud.INK)
+	mine.add_child(code)
+	var add := _pill_button("Agregar amigo", _ask_add, GREEN)
+	add.size_flags_horizontal = Control.SIZE_SHRINK_END
+	add.custom_minimum_size = Vector2(230, 76)
+	code_row.add_child(add)
+
+	for f in GameState.friend_requests:
+		col.add_child(_request_row(f))
+	for f in GameState.friend_sent:
+		col.add_child(_small("Esperando que %s acepte…" % CloudCode.format_code(f["code"]), 20, Color(Hud.INK, 0.6)))
+	return card
+
+
+## "Mochi (de Ana) quiere ser tu amigo" con Aceptar / No.
+func _request_row(f: Dictionary) -> Control:
+	var data := Neighbors.build(Neighbors.friend_entry(f))   # su Pompon, igual que el de un amigo
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var p: Pompon = data["pompon"]
+	row.add_child(_portrait(p, data["equipped"], 76.0, p.color_primary.lightened(0.55)))
+	var text := _small("¡%s quiere ser tu amigo!" % Friends.display_name(f), 22)
+	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(text)
+	var code: String = f["code"]
+	row.add_child(_pill_button("Aceptar", func(): Friends.answer(code, true), GREEN, Vector2(140, 64)))
+	var no := Button.new()
+	no.text = "No"
+	no.custom_minimum_size = Vector2(80, 64)
+	no.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	no.focus_mode = Control.FOCUS_NONE
+	Hud.style_soft(no, 22)
+	no.pressed.connect(func(): Friends.answer(code, false))
+	row.add_child(no)
+	return row
+
+
+func _small(text: String, font_size: int, color := Hud.INK) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	l.custom_minimum_size = Vector2(200, 0)
+	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_color_override("font_color", color)
+	return l
+
+
+func _pill_button(text: String, callback: Callable, color: Color, min_size := Vector2(0, 76)) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.custom_minimum_size = min_size
+	b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	b.focus_mode = Control.FOCUS_NONE
+	Hud.style_primary(b, 26, color)
+	b.pressed.connect(callback)
+	return b
+
+
+func _activate() -> void:
+	var res: Dictionary = await Friends.activate()
+	if not res["ok"]:
+		_show_message("¡Ups!", _error_text(res["error"]))
+	_dirty = true
+
+
+## Escribir el codigo de un amigo y mandarle la solicitud.
+func _ask_add() -> void:
+	if _notice != null:
+		return
+	_notice = BigNotice.new(620.0)
+	add_child(_notice)
+	_notice.closed.connect(func(): _notice = null)
+	_notice.title("Agregar amigo", Color("2f9e6e"))
+	_notice.text_line("Escribe el código de tu amigo.", 28)
+	var edit := LineEdit.new()
+	edit.placeholder_text = "ABCD-EFGH"
+	edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	edit.max_length = 10
+	edit.custom_minimum_size = Vector2(0, 86)
+	edit.add_theme_font_size_override("font_size", 40)
+	edit.add_theme_stylebox_override("normal", Hud.card(Color("fffdfb"), 30, Color("a9e0c0"), 4, 0))
+	edit.add_theme_stylebox_override("focus", Hud.card(Color("fffdfb"), 30, GREEN, 5, 0))
+	_notice.add(edit)
+	var send := _notice.button("Mandar solicitud", func(): _send(edit.text), true, GREEN)
+	send.disabled = true
+	edit.text_changed.connect(func(t: String):
+		var shown := CloudCode.format_code(CloudCode.normalize(t).left(CloudCode.FRIEND_LEN))
+		if shown != t:
+			edit.text = shown
+			edit.caret_column = shown.length()
+		send.disabled = Friends.clean_code(shown) == "")
+	_notice.button("Volver", _notice.close, false)
+	edit.grab_focus.call_deferred()
+
+
+func _send(text: String) -> void:
+	if _notice != null:
+		_notice.close()
+	var res: Dictionary = await Friends.request(text)
+	var msg: String = {
+		"sent": "¡Solicitud enviada! Cuando la acepte, aparece en tu lista.",
+		"accepted": "¡Ya son amigos! Ya puedes visitarlo.",
+		"friends": "Ya son amigos.",
+		"self": "Ese es tu propio código.",
+		"not_found": "No encontramos ese código. Revisa las letras.",
+		"limit": "Ya mandaste muchas solicitudes hoy. Prueba mañana.",
+	}.get(res["result"], _error_text(res["result"]))
+	_show_message("¡Listo!" if res["ok"] else "¡Ups!", msg)
+
+
+func _ask_remove(entry: Dictionary) -> void:
+	if _notice != null:
+		return
+	_notice = BigNotice.new(600.0)
+	add_child(_notice)
+	_notice.closed.connect(func(): _notice = null)
+	_notice.title("¿Dejar de ser amigos?", Color("d6336c"))
+	_notice.text_line("%s ya no va a aparecer en tu lista." % entry["name"], 28)
+	var code: String = entry["code"]
+	_notice.button("No, seguir siendo amigos", _notice.close, true, GREEN)
+	_notice.button("Quitar amigo", func():
+		_notice.close()
+		Friends.remove(code), false)
+
+
+func _show_message(title: String, text: String) -> void:
+	if _notice != null:
+		_notice.close()
+	_notice = BigNotice.new(600.0)
+	add_child(_notice)
+	_notice.closed.connect(func(): _notice = null)
+	_notice.title(title, Color("2f9e6e") if title == "¡Listo!" else Color("e0295f"))
+	_notice.text_line(text, 28)
+	_notice.button("Volver", _notice.close, true, PINK)
+
+
+func _error_text(error: String) -> String:
+	return {
+		"network": "No hay conexión a internet. Prueba de nuevo en un ratito.",
+		"code": "El código tiene 8 letras y números.",
+		"off": "Los amigos todavía no están disponibles.",
+	}.get(error, "Algo salió mal. Prueba más tarde.")

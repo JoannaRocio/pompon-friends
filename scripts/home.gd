@@ -54,6 +54,7 @@ var _expanded := false
 var _top_buttons: Array[Button] = []
 var _shop_button: Button
 var _job_button: Button
+var _friends_dot: Control
 var _pulses := {}   # boton -> animacion de latido
 var _gift_panel: PanelContainer
 var _edit := false
@@ -921,6 +922,16 @@ func _build_actions() -> void:
 		_top_buttons.append(tb)
 		if entry[0] == "Trabajo":
 			_job_button = tb
+		if entry[0] == "Vecinos":  # punto rojo: hay solicitudes de amistad esperando
+			_friends_dot = Control.new()
+			_friends_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			_friends_dot.position = Vector2(62, 2)
+			_friends_dot.size = Vector2(22, 22)
+			_friends_dot.draw.connect(func():
+				_friends_dot.draw_circle(Vector2(11, 11), 11.0, Color.WHITE)
+				_friends_dot.draw_circle(Vector2(11, 11), 8.0, Color("e0295f")))
+			_friends_dot.visible = false
+			tb.add_child(_friends_dot)
 		x += 92.0
 
 	# barra de abajo: dos solapas (Pompon y Casa), ver HomeDock
@@ -1835,6 +1846,8 @@ func _refresh() -> void:
 	for tb in _top_buttons:
 		tb.visible = not _edit
 	_coin_pill.visible = not _edit
+	if _friends_dot != null:
+		_friends_dot.visible = not GameState.friend_requests.is_empty()
 	if _edit or _any_modal():
 		_bubble.visible = false
 	var born: bool = _is_born(p)

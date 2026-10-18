@@ -124,10 +124,18 @@ func _notification(what: int) -> void:
 
 # ------------------------------------------------------------------ servidor
 
-## Llama a una funcion del servidor. Devuelve {"ok", "value", "error"}.
+## Llama a una funcion del servidor (la usan tambien los amigos). Devuelve {"ok", "value", "error"}.
+func server_call(fn: String, body: Dictionary) -> Dictionary:
+	if not is_configured():
+		return {"ok": false, "value": null, "error": "off"}
+	return await _rpc(fn, body)
+
+
 func _rpc(fn: String, body: Dictionary) -> Dictionary:
 	if fake_server != null:
 		await get_tree().process_frame
+		if fn.begins_with("pompon_friend_"):
+			return Friends.fake_rpc(fake_server, fn, body)
 		return _fake_rpc(fn, body)
 	var http := HTTPRequest.new()
 	http.timeout = TIMEOUT
