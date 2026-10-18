@@ -10,6 +10,11 @@ Todo el arte se dibuja por código (`_draw`). No hay imágenes de personajes ni 
 - No matar el editor de Godot del usuario (hay un proceso abierto). Al lanzar Godot para pruebas, matar solo los procesos propios.
 - El que **trabaja y gana habilidades matemáticas es el cuidador (el jugador)**, no el Pompon. El Pompon tiene sus propias habilidades (ver más abajo).
 
+## Git
+- Repositorio local (sin remoto), rama `main`, desde el 18/10/2026. Hacer un commit por cada mejora terminada y con los tests en verde.
+- `.gitignore` deja afuera `.godot/`, `build/` (APK/AAB/web) y `android/` (plantilla de 1,2 GB: se reinstala con Proyecto > Instalar plantilla de compilación de Android). Las claves de firma (`*.keystore`, `*.jks`) nunca van al repositorio.
+- Finales de línea LF forzados (`.gitattributes` + `core.autocrlf=false` en este repo): con CRLF los textos de varias líneas del juego muestran una línea vacía de más.
+
 ## Cómo correr y probar
 - Tests (sin ventana): `powershell -ExecutionPolicy Bypass -File tests/run_all.ps1` (respalda y restaura la partida guardada). Hoy pasan todos (~34; `test_neighbors_screen` tarda ~25 s porque espera las animaciones).
 - Cada test es `tests/test_*.gd` y **imprime** resultados; el script solo falla si hay `SCRIPT ERROR`/`Parse Error`. Hay que mirar la salida para validar.
