@@ -65,8 +65,7 @@ func max_scroll() -> float:
 func _hour() -> float:
 	if hour_override >= 0.0:
 		return hour_override
-	var t := Time.get_time_dict_from_system()
-	return float(t["hour"]) + float(t["minute"]) / 60.0
+	return DayClock.hour_now()
 
 
 ## [noche, calidez] para la hora actual (interpola entre las horas clave).

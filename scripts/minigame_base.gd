@@ -235,7 +235,7 @@ func _show_result(title: String, rounds_ok: int, rounds_total: int) -> void:
 	rewards2.alignment = BoxContainer.ALIGNMENT_CENTER
 	rewards2.add_theme_constant_override("separation", 18)
 	box.add_child(rewards2)
-	rewards2.add_child(RewardChip.new().setup("smile", "+15", Hud.STAT_COLORS["felicidad"]))
+	rewards2.add_child(RewardChip.new().setup("game", "+15", Hud.STAT_COLORS["diversion"]))
 	rewards2.add_child(RewardChip.new().setup("heart", "+3", Hud.STAT_COLORS["amor"]))
 	box.add_child(_label("¡Tu Pompon aprendió algo nuevo!", 26, Color("a0527a")))
 	box.add_child(_growth_bar(growth_before, growth_gain))

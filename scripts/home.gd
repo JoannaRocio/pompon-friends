@@ -3,7 +3,7 @@ extends Control
 
 const STAT_LABELS := {
 	"alimentacion": "Comida", "hidratacion": "Agua", "aseo": "Aseo",
-	"diversion": "Diversión", "comodidad": "Comodidad", "felicidad": "Felicidad",
+	"diversion": "Diversión", "comodidad": "Comodidad", "sueno": "Sueño",
 	"amor": "Confianza", "amistad": "Social", "inteligencia": "Inteligencia",
 }
 
@@ -11,7 +11,7 @@ const STAT_LABELS := {
 const ACTIONS := {
 	"Beber": {"stats": {"hidratacion": 40.0}, "sfx": "drink", "anim": "drink"},
 	"Bañar": {"stats": {"aseo": 40.0}, "sfx": "bath", "anim": "bath"},
-	"Caricia": {"stats": {"amor": 5.0, "felicidad": 3.0}, "sfx": "pet", "anim": "love"},
+	"Caricia": {"stats": {"amor": 5.0}, "sfx": "pet", "anim": "love"},
 }
 const WALK_SPEED := 70.0  # px/s en el cuarto de 720 de ancho
 const PET_SIZE := 400.0
@@ -80,6 +80,17 @@ var _stat_check := 0.0
 var _offline_checked := false
 var _pill_left := 0.0
 var _pet_pos := Vector2.ZERO       # donde pisa el Pompon en la habitacion (x en px del mundo, y pies)
+var _night := false                # es de noche y el Pompon esta en modo dormir
+var _night_state := ""             # "to_bed", "sleep", "play", "trip", "snack", "back"
+var _night_t := 0.0
+var _night_pos := Vector2.ZERO     # su camita (pies, en el mundo)
+var _night_props := "bed"
+var _night_trip := Vector2.ZERO
+var _wake_t := 0.0                 # despierto un ratito porque lo tocaron
+var _night_seen := false           # ya paso por la noche en esta sesion (si no, aparece directo en la cama)
+var _night_notice: BigNotice
+var _clock_label: Label
+var _clock_icon: Control
 var _pet_ready := false
 var _moving := false
 var _wander_target := Vector2.ZERO
@@ -138,6 +149,7 @@ func _process(delta: float) -> void:
 	_update_tastes(delta)
 	_update_practice(delta)
 	_update_growth(delta)
+	_update_night(delta)
 	_update_prehatch(delta)
 	_check_news()
 	_refresh()
@@ -166,6 +178,10 @@ func _wander(delta: float) -> void:
 	var p := GameState.pompon
 	var grown: bool = p != null and p.stage_index(int(Time.get_unix_time_from_system())) > 0
 	var busy := _edit or _any_modal() or _prehatch
+	if _night and grown and not _edit and not _prehatch:   # de noche: en su camita (ver _night_wander)
+		_night_wander(delta)
+		_place_pet(bounds)
+		return
 	_follow_pause = maxf(_follow_pause - delta, 0.0)
 	if not grown or busy:
 		pet.walking = false
@@ -216,7 +232,7 @@ func _focus_pet() -> void:
 
 
 func _place_pet(bounds: Rect2) -> void:
-	var depth := inverse_lerp(bounds.position.y, bounds.end.y, _pet_pos.y)
+	var depth := clampf(inverse_lerp(bounds.position.y, bounds.end.y, _pet_pos.y), 0.0, 1.0)
 	pet.scale = Vector2.ONE * lerpf(0.9, 1.06, depth)  # mas cerca = un poco mas grande
 	var sx := _pet_pos.x - room.scroll   # posicion en la pantalla (la habitacion se desliza)
 	pet.position = Vector2(sx - PET_SIZE * 0.5, _pet_pos.y - PET_SIZE + 6.0)
@@ -387,7 +403,7 @@ func _play_hatch() -> void:
 ## Avisos importantes: el Pompon crecio / nacio, o se fue de casa.
 func _any_modal() -> bool:
 	return _gift_panel != null or _note_panel != null or _name_panel != null \
-		or _food_panel != null or _hatch_layer != null or _journal_panel != null or _profile_panel != null
+		or _food_panel != null or _hatch_layer != null or _journal_panel != null or _profile_panel != null 		or _night_notice != null
 
 
 func _check_news() -> void:
@@ -400,6 +416,8 @@ func _check_news() -> void:
 		_show_daily_gift()
 	elif _needs_name() and not _any_modal() and not _edit:
 		_show_name_dialog()
+	elif _night and not GameState.tips_seen.has(NIGHT_TIP) and not _any_modal() and not _edit:
+		_show_night_notice()
 	elif not _any_modal() and not _edit:
 		_check_tips()
 	if GameState.stage_news != "" and GameState.pompon != null and _hatch_layer == null and not GameState.hatch_anim_pending:
@@ -829,7 +847,7 @@ func _build_bars() -> void:
 
 	var mini := HBoxContainer.new()
 	mini.add_theme_constant_override("separation", 10)
-	for s in ["alimentacion", "hidratacion", "aseo", "diversion"]:
+	for s in ["alimentacion", "hidratacion", "aseo", "diversion", "sueno"]:
 		var bar := _make_bar(s, 40.0, 16)
 		mini.add_child(bar)
 		_mini_nodes[s] = bar
@@ -880,7 +898,7 @@ func _build_actions() -> void:
 	# monedas: pildora arriba a la derecha
 	_coin_pill = PanelContainer.new()
 	_coin_pill.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	_coin_pill.offset_left = -176
+	_coin_pill.offset_left = -240
 	_coin_pill.offset_right = -16
 	_coin_pill.offset_top = 22
 	_coin_pill.offset_bottom = 82
@@ -888,15 +906,40 @@ func _build_actions() -> void:
 	_coin_pill.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.93), 30, Color.WHITE, 3, 6))
 	add_child(_coin_pill)
 	var coin_row := HBoxContainer.new()
-	coin_row.add_theme_constant_override("separation", 10)
+	coin_row.add_theme_constant_override("separation", 8)
 	coin_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_coin_pill.add_child(coin_row)
+	# reloj (la hora del jugador): solcito de dia, luna de noche
+	_clock_icon = Control.new()
+	_clock_icon.custom_minimum_size = Vector2(30, 30)
+	_clock_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_clock_icon.draw.connect(func():
+		var c := _clock_icon.size * 0.5
+		if DayClock.night_now():
+			Hud.draw_icon(_clock_icon, "moon", c, 34.0, Color("7b8ce0"))
+		else:
+			for i in 8:
+				var a := TAU * i / 8.0
+				_clock_icon.draw_line(c + Vector2(cos(a), sin(a)) * 10.0, c + Vector2(cos(a), sin(a)) * 14.0, Color("ffb938"), 3.0, true)
+			_clock_icon.draw_circle(c, 8.0, Color("ffcf3f")))
+	coin_row.add_child(_clock_icon)
+	_clock_label = Label.new()
+	_clock_label.add_theme_font_size_override("font_size", 24)
+	_clock_label.add_theme_color_override("font_color", Hud.INK)
+	_clock_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	coin_row.add_child(_clock_label)
+	var sep := ColorRect.new()
+	sep.color = Color("f0dfe7")
+	sep.custom_minimum_size = Vector2(3, 34)
+	sep.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	coin_row.add_child(sep)
 	var coin_icon := Control.new()
-	coin_icon.custom_minimum_size = Vector2(44, 44)
-	coin_icon.draw.connect(func(): Hud.draw_icon(coin_icon, "coin", coin_icon.size * 0.5, 44.0, Color.WHITE))
+	coin_icon.custom_minimum_size = Vector2(36, 36)
+	coin_icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	coin_icon.draw.connect(func(): Hud.draw_icon(coin_icon, "coin", coin_icon.size * 0.5, 36.0, Color.WHITE))
 	coin_row.add_child(coin_icon)
 	_coins_label = Label.new()
-	_coins_label.add_theme_font_size_override("font_size", 32)
+	_coins_label.add_theme_font_size_override("font_size", 28)
 	_coins_label.add_theme_color_override("font_color", Color("b87400"))
 	_coins_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	coin_row.add_child(_coins_label)
@@ -966,8 +1009,7 @@ func _thought_ctx() -> Dictionary:
 		items.append(pl["id"])
 		if pl.has("on"):
 			on_pairs.append([pl["id"], pl["on"]])
-	var t := Time.get_time_dict_from_system()
-	return {"now": int(Time.get_unix_time_from_system()), "hour": float(t["hour"]) + float(t["minute"]) / 60.0,
+	return {"now": int(Time.get_unix_time_from_system()), "hour": DayClock.hour_now(), "sleeping": pet.sleeping,
 		"room": GameState.current_room, "items": items, "on_pairs": on_pairs, "equipped": GameState.equipped,
 		"events": GameState.events, "jobs_done": GameState.jobs_done, "level": GameState.pompon_level()}
 
@@ -1147,7 +1189,9 @@ func _update_activity(delta: float) -> void:
 	if not show:
 		return
 	_activity_timer -= delta
-	if _practice_left > 0.0 and not pet.walking:  # practicando con un objeto de su cuarto
+	if _night:  # de noche: durmiendo, jugando en la cama o tomando algo
+		_activity_label.text = _night_activity_text()
+	elif _practice_left > 0.0 and not pet.walking:  # practicando con un objeto de su cuarto
 		_activity_label.text = _practice_text
 		_activity_timer = 8.0   # despues de practicar, se queda un rato antes de cambiar
 		_activity_walking = false
@@ -1623,7 +1667,7 @@ func _on_food(food: Dictionary) -> void:
 	if food.has("id"):  # el Pompon aprende sus gustos: lo nuevo da desconfianza, lo conocido gusta mas
 		taste = PomponTastes.eat(p, food["id"], now)
 	p.add_stat("alimentacion", food["alimentacion"] * float(taste.get("mult", 1.0)))
-	p.add_stat("felicidad", food["felicidad"] + float(taste.get("happy", 0.0)))
+	p.add_stat("amor", (food["felicidad"] + float(taste.get("happy", 0.0))) * 0.5)   # comida rica o favorita: confia mas
 	GameState.track("care")
 	GameState._taste_check()
 	GameState.save_game()
@@ -1707,6 +1751,9 @@ func _on_pet_tapped() -> void:
 	if _prehatch:  # esta por nacer: el toque lo ayuda a romper la cascara
 		_tap_prehatch()
 		return
+	if _night and _night_state in ["sleep", "play"]:  # de noche en su camita: se despierta un poquito
+		_night_tap()
+		return
 	if not p.hatched:  # el huevo no nace con toques: necesita su cuna
 		Audio.play("pet")
 		_speech.text = "¡Necesito una cuna para nacer!"
@@ -1714,7 +1761,6 @@ func _on_pet_tapped() -> void:
 		_speech_timer = 4.0
 		return
 	p.add_stat("amor", 1.0)
-	p.add_stat("felicidad", 1.0)
 	Audio.play("pet")
 	Audio.play(["voice_a", "voice_b", "voice_c"].pick_random(), randf_range(0.92, 1.15))
 	_say(PomponSpeech.line(p, int(Time.get_unix_time_from_system())), 4.0)
@@ -1872,6 +1918,10 @@ func _refresh() -> void:
 		_rooms_sig = rooms_sig
 		_sync_rooms()
 	_coins_label.text = "%d" % GameState.coins
+	var time_text := DayClock.time_text()
+	if _clock_label.text != time_text:
+		_clock_label.text = time_text
+		_clock_icon.queue_redraw()
 	var waiting_crib: bool = p != null and not _is_born(p) and not GameState.owns_crib()
 	_crib_bar.visible = waiting_crib
 	_crib_bar.value = float(mini(GameState.coins, _crib_price()))
@@ -1892,7 +1942,7 @@ func _refresh() -> void:
 		_growth_hint.text = "Día %d de %d · Será %s %s" % [PomponGrowth.day_index(p, grow_now) + 1, PomponGrowth.stage_days(stage_i), Pompon.STAGES[stage_i + 1], "mañana" if left <= 1 else "en %d días" % left]
 
 	room.set_state(GameState.equipped.get("wall", ""), GameState.equipped.get("floor", ""), GameState.placed, GameState.current_room)
-	pet.set_pompon(p if p != null else _mystery_egg, GameState.equipped)
+	pet.set_pompon(p if p != null else _mystery_egg, _night_outfit() if _night else GameState.equipped)
 	# la foto muestra al Pompon enterito dentro del circulo (cada etapa tiene otro tamaño)
 	_avatar_view.head_zoom = PomponView.portrait_zoom(p, int(Time.get_unix_time_from_system())) if born else 0.0
 	if born:
@@ -1929,3 +1979,175 @@ func _refresh() -> void:
 		_bar_nodes[s].value = p.stats[s]
 	for s in _mini_nodes:
 		_mini_nodes[s].value = p.stats[s]
+
+
+# ------------------------------------------------- la noche (22 a 8 h, hora del jugador)
+# El Pompon se pone el pijama y se queda en su camita: la cuna (bebe y niño), la cama amplia (mas grandes,
+# si esta en esta habitacion) o una mantita en el piso. Casi siempre duerme ("zzz"); a ratos juega en la
+# cama o se levanta a tomar agua o comer, y vuelve. A las 8 se despierta y sigue como siempre.
+
+const NIGHT_TIP := "night1"
+const NIGHT_LINES := ["Zzz… ¡buenas noches!", "Mmm… cinco minutitos más", "*bosteza* Te quiero mucho", "Zzz… shh, estoy soñando"]
+
+
+## ¿Toca dormir ahora? (un Pompon ya nacido, de noche y sin estar decorando)
+func _wants_night() -> bool:
+	var p := GameState.pompon
+	return _is_born(p) and p.stage_index(int(Time.get_unix_time_from_system())) > 0 and DayClock.night_now() and not _edit
+
+
+func _update_night(delta: float) -> void:
+	var night := _wants_night()
+	if night != _night:
+		_night = night
+		if night:
+			_enter_night()
+		else:
+			_leave_night()
+	if _night:
+		_wake_t = maxf(_wake_t - delta, 0.0)
+
+
+func _enter_night() -> void:
+	_night_state = "to_bed"
+	_moving = false
+	var spot := _night_spot()
+	_night_pos = spot["pos"]
+	_night_props = spot["props"]
+	if not _night_seen:   # al abrir el juego de noche ya esta dormido en su camita
+		_pet_pos = _night_pos
+		_night_state = "sleep"
+		_night_t = randf_range(25.0, 45.0)
+	_night_seen = true
+	room.center_on(_night_pos.x)
+	_follow_pause = 1.0
+
+
+func _leave_night() -> void:
+	_night_state = ""
+	pet.sleeping = false
+	pet.sleep_props = ""
+	_wander_wait = 2.0
+	if GameState.pompon != null and GameState.pompon.hatched:   # se desperto con la mañana
+		pet.celebrate(4)
+		_say("¡Buen día! Dormí riquísimo", 5.0)
+
+
+## Donde duerme: {"pos": pies en el mundo, "props": "bed" o "mat"}.
+func _night_spot() -> Dictionary:
+	var p := GameState.pompon
+	var want := "furn_crib" if p.stage_index(int(Time.get_unix_time_from_system())) <= 2 else "furn_bed"
+	for pl in GameState.placed:
+		if pl["id"] == want and int(pl.get("room", 0)) == GameState.current_room:
+			var c: Vector2 = room._item_center(pl)
+			var h: float = ItemArt.size_of(want).y
+			# en la cuna queda adentro; en la cama amplia (mas chica que un Pompon grande) la mantita la tapa
+			return {"pos": Vector2(c.x, c.y + h * (0.2 if want == "furn_crib" else 0.42)), "props": "bed"}
+	var bounds := _floor_bounds()   # sin su cama en esta habitacion: una mantita en el piso
+	var x := clampf(room.scroll + size.x * 0.5, bounds.position.x, bounds.end.x)
+	return {"pos": Vector2(x, bounds.position.y + bounds.size.y * 0.6), "props": "mat"}
+
+
+## Camina hasta `target`; true al llegar.
+func _night_walk(target: Vector2, delta: float) -> bool:
+	pet.sleep_props = ""
+	pet.sleeping = false
+	var to := target - _pet_pos
+	var step := WALK_SPEED * delta
+	if to.length() <= step:
+		_pet_pos = target
+		pet.walking = false
+		return true
+	_pet_pos += to.normalized() * step
+	pet.facing = 1.0 if to.x >= 0.0 else -1.0
+	pet.walking = true
+	return false
+
+
+## Lo que hace de noche, cuadro a cuadro (en lugar de pasear).
+func _night_wander(delta: float) -> void:
+	_night_t -= delta
+	match _night_state:
+		"to_bed", "back":
+			if _night_walk(_night_pos, delta):
+				_night_state = "sleep"
+				_night_t = randf_range(25.0, 45.0)
+				pet.facing = 1.0
+		"sleep":
+			pet.sleep_props = _night_props
+			pet.sleeping = _wake_t <= 0.0
+			if _night_t <= 0.0:
+				if randf() < 0.7:   # juega un ratito en la cama
+					_night_state = "play"
+					_night_t = 5.0
+					pet.sleeping = false
+					pet.celebrate(0)
+				else:   # se levanta a tomar agua o comer
+					var bounds := _floor_bounds()
+					var x := clampf(_night_pos.x + randf_range(-260.0, 260.0), bounds.position.x, bounds.end.x)
+					_night_trip = Vector2(x, bounds.position.y + bounds.size.y * 0.5)
+					_night_state = "trip"
+		"play":
+			pet.sleep_props = _night_props
+			pet.sleeping = false
+			if fmod(_night_t, 1.2) < delta:
+				pet.celebrate(0)
+			if _night_t <= 0.0:
+				_night_state = "sleep"
+				_night_t = randf_range(25.0, 45.0)
+		"trip":
+			if _night_walk(_night_trip, delta):
+				pet.act("drink" if randf() < 0.6 else "eat")
+				_night_state = "snack"
+				_night_t = 3.4
+		"snack":
+			pet.walking = false
+			if _night_t <= 0.0:
+				_night_state = "back"
+
+
+## Tocarlo de noche: se despierta un poquito y vuelve a dormir.
+func _night_tap() -> void:
+	_wake_t = 3.5
+	pet.sleeping = false
+	GameState.pompon.add_stat("amor", 1.0)
+	Audio.play("pet", 0.9)
+	_say(NIGHT_LINES[randi() % NIGHT_LINES.size()], 3.5)
+
+
+## Lo que se ve en el cuadro de actividad de noche.
+func _night_activity_text() -> String:
+	var n := GameState.pompon.display_name()
+	match _night_state:
+		"play":
+			return "%s juega en su camita" % n
+		"trip", "snack":
+			return "%s se levantó a tomar algo" % n
+		"to_bed", "back":
+			return "%s va a su camita" % n
+	return "%s duerme" % n if pet.sleeping else "%s está en su camita" % n
+
+
+## La ropa de dormir (de noche): pijama, sin gorro ni lentes.
+func _night_outfit() -> Dictionary:
+	var eq: Dictionary = GameState.equipped.duplicate()
+	eq.erase("hat")
+	eq.erase("glasses")
+	eq["shirt"] = "shirt_pajama"
+	return eq
+
+
+## Cartel de la primera noche: a esta hora a los Pompons les gusta dormir.
+func _show_night_notice() -> void:
+	GameState.tips_seen.append(NIGHT_TIP)
+	GameState.save_game()
+	var notice := BigNotice.new()
+	_night_notice = notice
+	add_child(notice)
+	notice.add(BigNotice.icon_strip([["moon", Color("7b8ce0")], ["house", Color("a98bea")], ["heart", Color("ff7aa8")]]))
+	notice.title("¡Ya es de noche!", Color("5d6fd8"))
+	notice.text_line("De 22 a 8 h a los Pompons les gusta dormir y quedarse en su camita.", 28)
+	notice.text_line("Puedes seguir cuidándolo y darle mimos.", 24, Color("a0527a"))
+	notice.button("¡Buenas noches!", func():
+		notice.close()
+		_night_notice = null, true, Color("7b8ce0"))

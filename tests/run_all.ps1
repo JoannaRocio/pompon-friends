@@ -17,6 +17,7 @@ New-Item -ItemType Directory -Force $backup | Out-Null
 if (Test-Path $userData) { Get-ChildItem $userData -Filter "save.json*" | Copy-Item -Destination $backup }
 
 Push-Location $project
+$env:POMPON_HOUR = "12"   # las pruebas corren al mediodia (no dependen de la hora real; test_night fija las suyas)
 & $godot --headless --path . --import --quit 2>&1 | Out-Null
 $failed = 0
 foreach ($test in Get-ChildItem "tests" -Filter "test_*.gd" | Sort-Object Name) {

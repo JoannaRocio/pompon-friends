@@ -18,11 +18,11 @@ func _initialize() -> void:
 	root.add_child(h)
 	await process_frame
 
-	# Comida: la gourmet cuesta 12 y da +10 felicidad.
+	# Comida: la gourmet cuesta 12 y suma confianza (+5).
 	gs.pompon.stats["alimentacion"] = 10.0
-	gs.pompon.stats["felicidad"] = 50.0
+	gs.pompon.stats["amor"] = 50.0
 	h._on_food(h.FOODS[2])
-	print("gourmet: monedas=", gs.coins, " comida=", gs.pompon.stats["alimentacion"], " felicidad=", gs.pompon.stats["felicidad"])
+	print("gourmet: monedas=", gs.coins, " comida=", gs.pompon.stats["alimentacion"], " confianza=", gs.pompon.stats["amor"])
 	h._on_food(h.FOODS[0])
 	print("basica: monedas=", gs.coins, " care=", gs.mission_progress.get("care"))
 	for i in 3:

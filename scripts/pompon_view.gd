@@ -24,6 +24,8 @@ var item_only_id := ""      # si se indica, dibuja SOLO esa prenda (sin el Pompo
 var face_mood := ""         # "shy" (ojitos bajos y mas rubor) o "happy" (ojitos ^ ^); "" = normal
 var lean := 0.0             # inclinacion del cuerpo desde los pies (radianes; olerse, acariciarse)
 var show_egg := false       # dibujarlo como huevo aunque ya nacio (el momento antes de salir)
+var sleeping := false       # duerme: ojitos cerrados y "zzz"
+var sleep_props := ""       # de noche en su camita: "bed" (almohada y mantita) o "mat" (ademas una colchoneta en el piso)
 var egg_cracks := 0         # rajaduras en la cascara (0 a 3)
 
 var _t := randf() * 10.0
@@ -62,6 +64,43 @@ static func make_sample(species: String, c1: Color, c2: Color, eyes := "redondos
 	for s in Pompon.STAT_NAMES:
 		p.stats[s] = 100.0
 	return p
+
+
+## De noche: colchoneta (si duerme en el piso) y almohada, detras del Pompon.
+func _draw_pillow() -> void:
+	if sleep_props == "mat":
+		_ell(Vector2(0, FLOOR_Y - 4.0), 150.0, 30.0, Color("d7c6f2"))
+		_ell(Vector2(0, FLOOR_Y - 8.0), 134.0, 22.0, Color("e9defa"), false)
+	_ell(Vector2(-6, 60), 120.0, 46.0, Color("fff8fb"))
+	_ell(Vector2(-6, 52), 96.0, 24.0, Color("fde8f1"), false)
+
+
+## Mantita de dormir sobre las patitas (con lunares y el borde doblado).
+func _draw_blanket() -> void:
+	var col := Color("b9a5ee")
+	var pts: Array = [Vector2(-128, 182)]
+	for i in 9:
+		var x := -128.0 + i * 32.0
+		pts.append(Vector2(x, 86.0 + sin(i * 1.3 + _t * 0.8) * 3.0))
+	pts.append(Vector2(128, 182))
+	_poly(pts, col, true, 5.0)
+	draw_line(Vector2(-124, 98), Vector2(124, 98), Color("ddd2fb"), 14.0, true)
+	for d in [Vector2(-80, 132), Vector2(-20, 150), Vector2(40, 128), Vector2(92, 156), Vector2(-104, 162)]:
+		draw_circle(d, 7.0, Color(1, 1, 1, 0.7))
+
+
+## "zzz" que sube de la cabeza mientras duerme.
+func _draw_zzz() -> void:
+	var font := get_theme_default_font()
+	var head := head_point()
+	var bs := body_scale()
+	for i in 3:
+		var k := fmod(_t * 0.45 + i / 3.0, 1.0)
+		var pos := head + Vector2(70.0 + k * 50.0, -80.0 - k * 110.0) * bs
+		var fs := int((18.0 + k * 18.0) * maxf(bs, 0.6))
+		var a := sin(k * PI)
+		draw_string_outline(font, pos, "z", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 6, Color(1, 1, 1, a))
+		draw_string(font, pos, "z", HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.48, 0.55, 0.88, a))
 
 
 ## Etapa que se dibuja (0 = huevo).
@@ -270,12 +309,19 @@ func _draw() -> void:
 			draw_set_transform_matrix(base_xf)
 		else:
 			draw_set_transform_matrix(base_xf)
+			if sleep_props != "":
+				_draw_pillow()
 			_draw_character()
+		if sleep_props != "":
+			draw_set_transform_matrix(base_xf)
+			_draw_blanket()
 		_base_xf = base_xf
 		_draw_activity()
 		for h in _hearts:
 			_heart(h["p"], 0.9, Color(1.0, 0.4, 0.55, clampf(1.2 - h["age"], 0.0, 1.0)))
 	draw_set_transform_matrix(Transform2D.IDENTITY)
+	if sleeping and stage > 0:
+		_draw_zzz()
 
 
 ## Solo la prenda (gorro, lentes o ropa), centrada y ajustada al tamano de la miniatura.
@@ -588,6 +634,9 @@ func _draw_face(hry: float) -> void:
 	# ojos
 	for sx in [-1.0, 1.0]:
 		var c := Vector2(38.0 * sx, eye_y)
+		if sleeping:  # dormido: ojitos cerrados y tranquilos
+			draw_arc(c + Vector2(0, -2), 13.0, 0.18 * PI, 0.82 * PI, 12, EYE_DARK, 4.5, true)
+			continue
 		if munch or face_mood == "happy":  # ojitos cerrados de gusto
 			draw_arc(c + Vector2(0, 4), 14.0, 1.15 * PI, 1.85 * PI, 12, EYE_DARK, 5.0, true)
 			continue

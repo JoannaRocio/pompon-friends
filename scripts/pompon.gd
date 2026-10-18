@@ -17,21 +17,25 @@ const ABANDON_SECONDS := 30 * 86400
 # Bebe (1-7), Niño (8-21), Adolescente (22-51), Adulto (52 en adelante).
 const STAGE_START_LEVEL := [0, 1, 8, 22, 52]
 
-# Puntos que baja cada estadistica por hora. Inteligencia nunca baja.
+# Puntos que baja cada estadistica por hora. Inteligencia nunca baja. Sueño va aparte (ver _advance_sleep).
 const DECAY_PER_HOUR := {
 	"alimentacion": 4.0,
 	"hidratacion": 5.0,
 	"aseo": 2.5,
 	"diversion": 3.0,
 	"comodidad": 1.0,
-	"felicidad": 2.0,
 	"amor": 1.0,
 	"amistad": 0.5,
 }
 const STAT_NAMES := [
 	"alimentacion", "hidratacion", "aseo", "diversion", "comodidad",
-	"felicidad", "amor", "amistad", "inteligencia",
+	"sueno", "amor", "amistad", "inteligencia",
 ]
+# Sueño: de dia baja; de noche (22 a 8 h, hora del jugador) duerme y se recupera, mas rapido si tiene
+# su mueble especial. (Reemplaza a la vieja "felicidad".)
+const SLEEP_DRAIN := 5.0
+const SLEEP_REST := 11.0
+const SLEEP_REST_COZY := 15.0
 
 var id := ""
 var nickname := ""          # el nombre que le pone el jugador cuando nace
@@ -147,6 +151,22 @@ func stage_name(now: int) -> String:
 	return STAGES[stage_index(now)]
 
 
+## Sueño en el tiempo que paso: se reparte por hora (lo que cayo de noche descansa, lo de dia cansa).
+func _advance_sleep(seconds: float, cozy: bool) -> void:
+	var t := float(Time.get_unix_time_from_system()) - seconds
+	var left := seconds
+	var v := float(stats.get("sueno", 80.0))
+	while left > 0.0:
+		var step := minf(left, 900.0)
+		var rate := -SLEEP_DRAIN
+		if DayClock.is_night(DayClock.hour_at(int(t + step * 0.5))):
+			rate = SLEEP_REST_COZY if cozy else SLEEP_REST
+		v = clampf(v + rate * step / 3600.0, 0.0, 100.0)
+		t += step
+		left -= step
+	stats["sueno"] = v
+
+
 ## Aplica el paso del tiempo. Devuelve true si el Pompon se va por abandono.
 ## Comodidad: con su mueble clave queda al 100%; sin el, baja con el tiempo.
 func advance(seconds: float, has_key_furniture := false) -> bool:
@@ -159,6 +179,7 @@ func advance(seconds: float, has_key_furniture := false) -> bool:
 		stats[s] = clampf(stats[s] - DECAY_PER_HOUR[s] * hours, 0.0, 100.0)
 	if has_key_furniture:
 		stats["comodidad"] = 100.0
+	_advance_sleep(seconds, has_key_furniture)
 	# Descuido continuo: necesidades basicas en cero.
 	var basics_low: bool = stats["alimentacion"] <= 0.0 or stats["hidratacion"] <= 0.0 or stats["aseo"] <= 0.0
 	if basics_low:
@@ -215,6 +236,9 @@ static func from_dict(d: Dictionary) -> Pompon:
 	p.born_at = int(d.get("born_at", 0))
 	p.neglect_seconds = float(d.get("neglect_seconds", 0.0))
 	p.stats = d.get("stats", {})
+	if not p.stats.has("sueno"):  # partidas de antes del Sueño: arranca descansado
+		p.stats["sueno"] = 80.0
+	p.stats.erase("felicidad")
 	for s in STAT_NAMES:
 		if not p.stats.has(s):
 			p.stats[s] = 0.0

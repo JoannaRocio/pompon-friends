@@ -47,11 +47,13 @@ static func messages(p: Pompon) -> Array:
 		out.append(_m("%s no se siente cómod%s" % [n, a], "comodidad", 1, v))
 	elif v >= 80.0:
 		out.append(_m("%s está muy cómod%s" % [n, a], "comodidad", 0, v))
-	v = s.get("felicidad", 100.0)
-	if v < 30.0:
-		out.append(_m("%s está triste" % n, "felicidad", 2, v))
-	elif v >= 80.0:
-		out.append(_m("%s está muy feliz" % n, "felicidad", 0, v))
+	v = s.get("sueno", 100.0)
+	if v < 20.0:
+		out.append(_m("%s se cae de sueño" % n, "sueno", 2, v))
+	elif v < 40.0:
+		out.append(_m("%s tiene sueño" % n, "sueno", 1, v))
+	elif v >= 85.0:
+		out.append(_m("%s está muy descansad%s" % [n, a], "sueno", 0, v))
 	v = s.get("amor", 100.0)
 	if v < 30.0:
 		out.append(_m("%s se siente solit%s" % [n, a], "amor", 2, v))

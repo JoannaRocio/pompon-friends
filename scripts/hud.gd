@@ -10,12 +10,12 @@ const SHADOW := Color(0.36, 0.23, 0.29, 0.22)
 
 const STAT_COLORS := {
 	"alimentacion": Color("ffa94d"), "hidratacion": Color("5bb8f5"), "aseo": Color("3cc9b0"),
-	"diversion": Color("ff7aa8"), "comodidad": Color("a98bea"), "felicidad": Color("ffcf3f"),
+	"diversion": Color("ff7aa8"), "comodidad": Color("a98bea"), "felicidad": Color("ffcf3f"), "sueno": Color("7b8ce0"),
 	"amor": Color("f2566f"), "amistad": Color("5fc77f"), "inteligencia": Color("6c7ff0"),
 }
 const STAT_ICONS := {
 	"alimentacion": "apple", "hidratacion": "drop", "aseo": "bubbles", "diversion": "game",
-	"comodidad": "house", "felicidad": "smile", "amor": "heart", "amistad": "people", "inteligencia": "bulb",
+	"comodidad": "house", "felicidad": "smile", "sueno": "moon", "amor": "heart", "amistad": "people", "inteligencia": "bulb",
 }
 
 
@@ -115,6 +115,34 @@ static func _circle_pts(c: Vector2, rx: float, ry: float, rot := 0.0, n := 28) -
 	for i in n:
 		var a := TAU * i / n
 		pts.append(Vector2(cos(a) * rx, sin(a) * ry).rotated(rot) + c)
+	return pts
+
+
+## Forma de luna: el circulo de afuera (o, big_r) menos el de adentro (i, r).
+static func _crescent(o: Vector2, big_r: float, i: Vector2, r: float) -> PackedVector2Array:
+	var d := o.distance_to(i)
+	var u := (i - o) / d
+	var a := (big_r * big_r - r * r + d * d) / (2.0 * d)
+	var h := sqrt(maxf(big_r * big_r - a * a, 0.0))
+	var m := o + u * a
+	var perp := Vector2(-u.y, u.x)
+	var p1 := m + perp * h
+	var p2 := m - perp * h
+	var pts := PackedVector2Array()
+	# borde de afuera: de p1 a p2 por el lado contrario al circulo de adentro
+	var a1 := (p1 - o).angle()
+	var span := wrapf((p2 - o).angle() - a1, 0.0, TAU)
+	if absf(angle_difference(a1 + span * 0.5, u.angle())) < PI * 0.5:
+		span -= TAU
+	for k in 17:
+		pts.append(o + Vector2.from_angle(a1 + span * k / 16.0) * big_r)
+	# borde de adentro: de p2 a p1 por dentro del circulo grande
+	var b1 := (p2 - i).angle()
+	var span2 := wrapf((p1 - i).angle() - b1, 0.0, TAU)
+	if absf(angle_difference(b1 + span2 * 0.5, (o - i).angle())) > PI * 0.5:
+		span2 -= TAU
+	for k in 17:
+		pts.append(i + Vector2.from_angle(b1 + span2 * k / 16.0) * r)
 	return pts
 
 
@@ -259,6 +287,11 @@ static func draw_icon(cv: CanvasItem, kind: String, c: Vector2, s: float, col: C
 			cv.draw_line(c + Vector2(0, 0.42) * s, c + Vector2(0, -0.02) * s, col, w * 1.4, true)
 			cv.draw_colored_polygon(PackedVector2Array([c + Vector2(-0.02, 0.1) * s, c + Vector2(-0.44, -0.02) * s, c + Vector2(-0.36, -0.32) * s, c + Vector2(-0.04, -0.14) * s]), col)
 			cv.draw_colored_polygon(PackedVector2Array([c + Vector2(0.02, 0.0) * s, c + Vector2(0.44, -0.12) * s, c + Vector2(0.36, -0.42) * s, c + Vector2(0.04, -0.24) * s]), col)
+		"moon":  # luna en cuarto creciente con una estrellita (sueño, noche)
+			cv.draw_colored_polygon(_crescent(c + Vector2(-0.06, 0.02) * s, 0.36 * s, c + Vector2(0.12, -0.1) * s, 0.3 * s), col)
+			var st := c + Vector2(0.28, 0.2) * s
+			cv.draw_line(st + Vector2(-0.08, 0) * s, st + Vector2(0.08, 0) * s, col, w, true)
+			cv.draw_line(st + Vector2(0, -0.08) * s, st + Vector2(0, 0.08) * s, col, w, true)
 		"gift":  # caja con mono
 			_rrect(cv, Rect2(c + Vector2(-0.36, -0.06) * s, Vector2(0.72, 0.48) * s), 0.06 * s, col)
 			_rrect(cv, Rect2(c + Vector2(-0.42, -0.2) * s, Vector2(0.84, 0.16) * s), 0.04 * s, col)

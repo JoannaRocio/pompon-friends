@@ -24,20 +24,21 @@ const NEED_TEXT := {
 	"diversion": {"mid": ["Me estoy aburriendo un poquito", "¿Jugamos a algo?"],
 		"high": ["¡Estoy muy aburrid{a}!", "Necesito jugar ya"]},
 	"comodidad": {"mid": ["No estoy muy cómod{a} acá", "Creo que me falta algo en casa"], "high": []},
-	"felicidad": {"mid": [], "high": ["Me siento triste…", "Hoy no tengo muchas ganas de nada"]},
+	"sueno": {"mid": ["Tengo un poquito de sueño", "*bosteza* ¿Ya es hora de dormir?"],
+		"high": ["¡Tengo muchísimo sueño!", "Se me cierran los ojitos…"]},
 	"amor": {"mid": ["Quiero un poco de cariño", "¿Me das un mimo?"],
 		"high": ["Me siento solit{a}", "¿Todavía me quieres?"]},
 	"amistad": {"mid": ["Extraño a mis amigos", "Me gustaría visitar a mis vecinos"], "high": []},
 	"inteligencia": {"mid": ["Quiero aprender cosas nuevas", "Me gustaría aprender algo hoy"], "high": []},
 }
 const NEED_BABY := {"alimentacion": "hambre", "hidratacion": "sed", "aseo": "baño", "diversion": "jugar",
-	"comodidad": "incomodidad", "felicidad": "tristeza", "amor": "mimos", "amistad": "amigos", "inteligencia": "aprender"}
+	"comodidad": "incomodidad", "sueno": "sueño", "amor": "mimos", "amistad": "amigos", "inteligencia": "aprender"}
 const GOOD_TEXT := {
 	"alimentacion": "Qué rica estuvo la comida",
 	"aseo": "Me siento limpit{a} y perfumad{a}",
 	"diversion": "¡Me divertí un montón!",
 	"comodidad": "Qué cómod{a} estoy en casa",
-	"felicidad": "Hoy soy muy feliz",
+	"sueno": "Dormí riquísimo y tengo mucha energía",
 	"amor": "Me siento muy querid{a}",
 	"amistad": "Tengo muchos amigos, ¡qué suerte!",
 	"inteligencia": "Cada día entiendo más cosas",
@@ -67,6 +68,10 @@ const REACTION_STAT := {"fed": "alimentacion", "drank": "hidratacion", "bathed":
 const REACTION_KIND := {"fed": KIND_SAY, "drank": KIND_SAY, "bathed": KIND_SAY, "petted": KIND_SAY, "played": KIND_FEEL,
 	"worked": KIND_FEEL, "bought": KIND_FEEL, "room_changed": KIND_THINK, "visited": KIND_FEEL, "levelup": KIND_FEEL}
 const PLURAL_START := ["Lentes", "Cubos"]
+const DREAMS := ["Soñé que volaba entre nubes de algodón", "Soñé con una montaña de galletitas",
+	"Soñé que jugaba a la pelota con mis amigos", "Soñé que nadaba con pececitos de colores",
+	"Soñé que la luna me contaba un cuento", "Soñé que mi casa era un castillo de almohadas",
+	"Soñé que encontraba un tesoro en el jardín", "Soñé que bailábamos bajo las estrellas"]
 
 
 static func _vowel(p: Pompon) -> String:
@@ -91,8 +96,8 @@ static func need_level(stat: String, v: float) -> int:
 			return 2 if v < 25.0 else (1 if v < 55.0 else 0)
 		"comodidad":
 			return 1 if v < 40.0 else 0
-		"felicidad":
-			return 2 if v < 30.0 else 0
+		"sueno":
+			return 2 if v < 20.0 else (1 if v < 40.0 else 0)
 		"amor":
 			return 2 if v < 30.0 else (1 if v < 55.0 else 0)
 		"amistad":
@@ -136,7 +141,7 @@ static func _needs(p: Pompon, rng: RandomNumberGenerator, baby: bool, out: Array
 
 
 static func _goods(p: Pompon, baby: bool, out: Array) -> void:
-	var thresholds := {"alimentacion": 85.0, "aseo": 85.0, "diversion": 80.0, "comodidad": 80.0, "felicidad": 80.0,
+	var thresholds := {"alimentacion": 85.0, "aseo": 85.0, "diversion": 80.0, "comodidad": 80.0, "sueno": 85.0,
 		"amor": 80.0, "amistad": 70.0, "inteligencia": 60.0}
 	for stat in GOOD_TEXT:
 		if float(p.stats.get(stat, 0.0)) >= thresholds[stat]:
@@ -228,6 +233,11 @@ static func spontaneous(p: Pompon, ctx: Dictionary, recent_texts: Array, rng: Ra
 	var stage := p.stage_index(int(ctx["now"]))
 	if stage == 0:
 		return {}
+	if ctx.get("sleeping", false):  # dormido: en lugar de pensar, sueña
+		if stage == 1:
+			return _clean(_entry(p, KIND_FEEL, "Zzz… (sueña algo lindo)", "sueno", "dream:baby"))
+		var dreams := DREAMS.filter(func(d): return not recent_texts.has(d))
+		return {} if dreams.is_empty() else _clean(_entry(p, KIND_FEEL, _pick(rng, dreams), "sueno", "dream"))
 	var baby := stage == 1
 	var cands: Array = []
 	_needs(p, rng, baby, cands)

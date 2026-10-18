@@ -16,7 +16,7 @@ Todo el arte se dibuja por código (`_draw`). No hay imágenes de personajes ni 
 - Finales de línea LF forzados (`.gitattributes` + `core.autocrlf=false` en este repo): con CRLF los textos de varias líneas del juego muestran una línea vacía de más.
 
 ## Cómo correr y probar
-- Tests (sin ventana): `powershell -ExecutionPolicy Bypass -File tests/run_all.ps1` (respalda y restaura la partida guardada). Hoy pasan todos (~35; `test_neighbors_screen` tarda ~25 s porque espera las animaciones).
+- Tests (sin ventana): `powershell -ExecutionPolicy Bypass -File tests/run_all.ps1` (respalda y restaura la partida guardada). Hoy pasan todos (~36; `test_neighbors_screen` tarda ~25 s porque espera las animaciones).
 - Cada test es `tests/test_*.gd` y **imprime** resultados; el script solo falla si hay `SCRIPT ERROR`/`Parse Error`. Hay que mirar la salida para validar.
 - Los tests `--script` no resuelven autoloads (`GameState`, `Audio`) al compilar: cargar scripts en runtime (`load(...)`) y no referenciar clases que usen `GameState` desde el cuerpo del test (p. ej. `RoomView.CONST` rompe la compilación; usar `instancia.CONST`).
 - Un `Control` nuevo en un test se achica a 0 tras un frame: darle `custom_minimum_size`.
@@ -45,6 +45,10 @@ Todo el arte se dibuja por código (`_draw`). No hay imágenes de personajes ni 
 **Habitaciones**: 6, abren en niveles 1, 6, 14, 24, 38, 52 (Sala, Dormitorio, Cocina, Biblioteca, Jardín, Terraza estelar). Cada una ancha (2 pantallas), con su propia pared/piso. Muebles con superficie (`Catalog.SURFACES`) y adornos chicos (`Catalog.SMALL`) que se apoyan encima (`"on"`, `"ox"` en `placed`). Cambiar de habitación: solapa "Casa" del dock.
 
 **Barra de abajo** (solo cosas del Pompon y la casa): solapa "Pompon" (comer, beber, bañar, caricia, juegos; una fila) y "Casa" (tienda, vestidor, decorar, habitaciones). Huevo: solo Tienda. **Arriba a la izquierda**, las cosas del cuidador: Menú, Misiones, Vecinos, Trabajo y Diario (la flecha guía apunta hacia arriba cuando el botón está pegado al borde).
+
+**Sueño en lugar de Felicidad** (desde el 18/10/2026): la necesidad `sueno` reemplaza a `felicidad` (que ya no existe como estadística; "felicidad" queda solo como color e ícono de algunas entradas del diario). Sueño baja 5/h de día y sube 11/h de noche (15/h con su mueble especial), según la hora del jugador (`DayClock`), y el tiempo con la app cerrada se reparte por hora. Partidas viejas: arranca en 80. Lo que antes sumaba felicidad (comida rica/favorita) suma la mitad a Confianza.
+
+**La noche** (`home.gd`, 22 a 8 h): pijama, duerme en su camita (cuna si es bebé o niño; cama amplia si es más grande y está en esa habitación; si no, mantita en el piso) con "zzz" y sueños en el diario; a ratos juega en la cama o se levanta a tomar algo. Tocarlo lo despierta un ratito. A las 8 dice "¡Buen día!". Cartel la primera noche (`tips_seen` "night1"). Reloj con la hora del jugador en la píldora de monedas. Las pruebas corren a las 12 (`POMPON_HOUR` en `run_all.ps1`; `DayClock.debug_hour` para fijar otra).
 
 **Barras**: Amor → se muestra "Confianza"; Amistad → "Social" (la mitad solo con el cuidador, la otra mitad solo con otros Pompons: `Pompon.add_social`). Inteligencia ya no se muestra (stat interno). La barra principal es **Crecimiento**.
 
