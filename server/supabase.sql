@@ -290,7 +290,7 @@ security definer
 set search_path = public
 as $$
 declare
-	out jsonb;
+	box jsonb;
 	last_id bigint;
 begin
 	if not pompon_friend_auth(p_code, p_secret) then
@@ -311,11 +311,11 @@ begin
 				union select from_code from friend_links where to_code = p_code and status = 'accepted')), '[]'::jsonb),
 		'events', coalesce((select jsonb_agg(jsonb_build_object('from', e.from_code, 'kind', e.kind, 'at', e.created_at) order by e.id)
 			from friend_events e where e.to_code = p_code and e.id <= last_id and not e.seen), '[]'::jsonb)
-	) into out;
+	) into box;
 	-- leidos: se marcan (no se borran enseguida) para que el limite de una visita por tipo cada 20 h siga valiendo
 	update friend_events set seen = true where to_code = p_code and id <= last_id and not seen;
 	delete from friend_events where to_code = p_code and created_at < now() - interval '2 days';
-	return out;
+	return box;
 end;
 $$;
 
