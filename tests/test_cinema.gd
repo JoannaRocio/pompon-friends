@@ -1,5 +1,6 @@
 extends SceneTree
-## El cine: tres peliculas que rotan cada dia, la boleteria (hoy, mañana, con quien ir), la entrada,
+## El cine: tres peliculas (terror, romantica y accion) que rotan cada semana, la boleteria (esta
+## semana, la proxima, con quien ir), la entrada,
 ## la pelicula en escenas (tocar pasa, "Saltar" termina) y el final con la opinion de tu Pompon.
 
 
@@ -24,11 +25,17 @@ func _initialize() -> void:
 	var movies: GDScript = load("res://scripts/movies.gd")
 	var today: int = Missions.today(int(Time.get_unix_time_from_system()))
 	var week: Array = []
-	for d in 4:
-		week.append(movies.of_day(today + d)["title"])
-	print("cartelera de 4 dias: ", week, " | 3 distintas y vuelve a empezar: ", week[0] != week[1] and week[1] != week[2] and week[3] == week[0])
+	var monday: int = today + movies.days_left(today)   # el proximo cambio
+	for wk in 4:
+		week.append(movies.of_day(monday + wk * 7)["title"])
+	print("cartelera de 4 semanas: ", week, " | 3 distintas y vuelve a empezar: ", week[0] != week[1] and week[1] != week[2] and week[3] == week[0])
+	var same_week := true
+	for d in 7:
+		same_week = same_week and movies.of_day(monday + d)["id"] == movies.of_day(monday)["id"]
+	print("toda la semana la misma (de lunes a domingo): ", same_week, " | cambia el lunes siguiente: ", movies.of_day(monday + 7)["id"] != movies.of_day(monday)["id"],
+		" | el dia antes del cambio es otra: ", movies.of_day(monday - 1)["id"] != movies.of_day(monday)["id"])
 	for m in movies.MOVIES:
-		print("  ", m["title"], ": ", m["scenes"].size(), " escenas | termina con FIN: ", String(m["scenes"][-1]["text"]).ends_with("FIN"))
+		print("  ", m["genre"], " - ", m["title"], ": ", m["scenes"].size(), " escenas | mensaje: '", m["message"], "' | termina con FIN: ", String(m["scenes"][-1]["text"]).ends_with("FIN"))
 
 	gs.new_pompon("Felino", "Hembra")
 	var p: Pompon = gs.pompon
@@ -44,7 +51,7 @@ func _initialize() -> void:
 	root.add_child(cine)
 	await create_timer(0.3).timeout
 	var t := _labels(cine)
-	print("boleteria: ", t.contains("Cine Pompon"), " | hoy: ", t.contains(cine.movie["title"]), " | mañana: ", t.contains("Mañana: " + movies.of_day(today + 1)["title"]),
+	print("boleteria: ", t.contains("Cine Pompon"), " | hoy: ", t.contains(cine.movie["title"]), " | proxima: ", t.contains("Próxima: " + movies.next_of(today)["title"]),
 		" | con quien: ", cine._companion_buttons.size(), " opciones")
 	_press(cine, "Ver la película")
 	await process_frame
@@ -64,7 +71,7 @@ func _initialize() -> void:
 		await process_frame
 		shown.append(cine.screen.scene_i)
 	print("tocar la pantalla pasa de escena: ", shown)
-	await create_timer(movies.SCENE_SECONDS + 0.3).timeout
+	await create_timer(movies.scene_seconds(cine._subtitle.text) + 0.3).timeout
 	print("sola pasa a la siguiente: escena ", cine.screen.scene_i)
 	_press(cine, "Saltar")
 	await process_frame

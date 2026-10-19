@@ -1,85 +1,111 @@
 class_name Movies
 extends RefCounted
-## Las peliculas del Cine Pompon: tres cortitos que rotan cada dia. Cada uno es una lista de escenas
-## (fondo, actores, objetos y el subtitulo) que dibuja MovieScreen. Los actores son Pompons de muestra.
+## Las peliculas del Cine Pompon: tres cortos para todo publico que rotan cada semana (cambian los
+## lunes): uno de terror, uno romantico y uno de accion, cada uno con un mensaje. Cada pelicula es una
+## lista de escenas (fondo, actores, objetos y el subtitulo) que dibuja MovieScreen. Los actores son
+## Pompons de muestra.
 ##
 ## Escena: {"bg", "text", "actors": [[quien, x, y, {opciones}]], "props": [[tipo, x, y, tamaño, ...]]}
 ##   opciones del actor: "mood" ("happy"/"shy"/""), "face" (1/-1), "jump", "walk", "lean", "hidden"
 ## Coordenadas en fracciones de la pantalla (y = donde pisa el actor).
 
 const TICKET := 15        # monedas por entrada (con pochoclos)
-const SCENE_SECONDS := 4.6
 
 const MOVIES := [
 	{
-		"id": "luna", "title": "Viaje a la Luna", "genre": "Aventura", "color": "5b6fc4",
-		"tagline": "Una conejita construye un cohete para conocer la Luna.",
-		"cast": {"hero": ["Conejo", "ffc2d9", "fff3f8", "brillantes"], "brillo": ["Ave", "ffe066", "fff8d6", "tiernos"]},
+		"id": "colina", "title": "La casa de la colina", "genre": "Terror", "color": "6b5a8f",
+		"tagline": "Todos dicen que ahí vive un monstruo. Nico va a averiguarlo.",
+		"message": "A veces lo que nos asusta es alguien que nadie se animó a conocer.",
+		"cast": {"nico": ["Felino", "9aa0b5", "e8ebf2", "brillantes"], "bruma": ["Conejo", "d8cfe8", "f6f2fb", "tiernos"]},
 		"scenes": [
-			{"bg": "night_room", "text": "Lulú miraba la Luna todas las noches desde su ventana.",
-				"actors": [["hero", 0.42, 0.88, {"face": 1}]], "props": [["window", 0.72, 0.38, 0.3], ["moon", 0.72, 0.36, 0.08]]},
-			{"bg": "night_room", "text": "Un día decidió construir un cohete… ¡con cajas de cartón!",
-				"actors": [["hero", 0.3, 0.88, {"mood": "happy", "jump": true}]], "props": [["boxes", 0.66, 0.88, 0.22], ["window", 0.82, 0.3, 0.2], ["moon", 0.82, 0.28, 0.05]]},
-			{"bg": "night_field", "text": "3… 2… 1… ¡Despegue!",
-				"actors": [], "props": [["rocket", 0.5, 0.86, 0.32, "launch"], ["moon", 0.82, 0.18, 0.07]]},
-			{"bg": "space", "text": "Voló entre las estrellas, más lejos que nadie.",
-				"actors": [], "props": [["rocket", 0.2, 0.55, 0.26, "fly"], ["planet", 0.78, 0.3, 0.1]]},
-			{"bg": "moon", "text": "En la Luna conoció a Brillo, un Pompon de luz.",
-				"actors": [["hero", 0.32, 0.86, {"face": 1}], ["brillo", 0.68, 0.86, {"mood": "shy", "face": -1}]], "props": [["earth", 0.8, 0.2, 0.09]]},
-			{"bg": "moon", "text": "¡Saltaban altísimo! En la Luna casi no se pesa nada.",
-				"actors": [["hero", 0.32, 0.7, {"mood": "happy", "jump": true}], ["brillo", 0.68, 0.62, {"mood": "happy", "jump": true}]], "props": [["earth", 0.8, 0.2, 0.09]]},
-			{"bg": "night_room", "text": "Volvió a casa con un regalo: una estrella para su ventana. FIN",
-				"actors": [["hero", 0.42, 0.88, {"mood": "happy"}]], "props": [["window", 0.72, 0.38, 0.3], ["star", 0.72, 0.36, 0.07]]},
+			{"bg": "hill_night", "text": "En el pueblo todos decían lo mismo: en la casa de la colina vivía un monstruo.",
+				"actors": [], "props": [["house_hill", 0.62, 0.62, 0.34], ["moon", 0.18, 0.18, 0.07], ["thunder", 0.0, 0.0, 0.0]]},
+			{"bg": "hill_night", "text": "Nico decía que no creía en monstruos. Igual le temblaban un poco las patitas.",
+				"actors": [["nico", 0.3, 0.9, {"mood": "shy", "face": 1}]], "props": [["house_hill", 0.75, 0.55, 0.26], ["flashlight", 0.37, 0.72, 0.3]]},
+			{"bg": "haunted", "text": "La puerta crujió. Adentro, dos ojos lo miraban desde la oscuridad.",
+				"actors": [["nico", 0.25, 0.9, {"mood": "shy", "face": 1, "lean": -0.12}]], "props": [["eyes", 0.72, 0.42, 0.06], ["flashlight", 0.32, 0.72, 0.25]]},
+			{"bg": "haunted", "text": "¡Una sombra gigante se levantó en la pared! Nico quiso correr… pero se quedó.",
+				"actors": [["nico", 0.22, 0.9, {"mood": "shy", "face": 1}]], "props": [["shadow", 0.66, 0.5, 0.42], ["thunder", 0.0, 0.0, 0.0]]},
+			{"bg": "haunted_lit", "text": "No era un monstruo. Era Bruma, que hacía sombras con su farol para no sentirse tan sola.",
+				"actors": [["nico", 0.28, 0.9, {"face": 1}], ["bruma", 0.68, 0.9, {"mood": "shy", "face": -1}]], "props": [["lantern", 0.8, 0.62, 0.08]]},
+			{"bg": "haunted_lit", "text": "Hacía años que nadie tocaba su puerta. Todos le tenían miedo… sin conocerla.",
+				"actors": [["nico", 0.32, 0.9, {"face": 1}], ["bruma", 0.64, 0.9, {"face": -1, "lean": 0.08}]], "props": [["lantern", 0.82, 0.62, 0.08], ["cup", 0.48, 0.74, 0.05]]},
+			{"bg": "hill_day", "text": "Desde ese día, la casa de la colina tiene visitas todas las tardes. A veces lo que nos asusta es alguien que nadie se animó a conocer. FIN",
+				"actors": [["nico", 0.3, 0.9, {"mood": "happy", "jump": true}], ["bruma", 0.55, 0.9, {"mood": "happy"}]], "props": [["house_hill", 0.8, 0.6, 0.24, "day"], ["flowers", 0.82, 0.9, 0.24, "fresh"]]},
 		],
-		"reactions": ["¡ahora quiero ser astronauta!", "¡qué lindo era Brillo!", "¡yo también quiero saltar en la Luna!"],
+		"reactions": ["me dio un poquito de miedo… ¡pero el final fue hermoso!", "voy a saludar más a los vecinos que no conozco", "¡Bruma no era un monstruo! Me quedé pensando"],
 	},
 	{
-		"id": "torta", "title": "El misterio de la torta", "genre": "Comedia", "color": "e0609e",
-		"tagline": "¿Quién se comió la torta de cumpleaños? ¡Un caso para Tomi!",
-		"cast": {"tomi": ["Felino", "ffb26b", "fff1e0", "redondos"], "chef": ["Canino", "f4eef2", "ffffff", "tiernos"], "bizcocho": ["Canino", "c9925f", "f3d9b1", "brillantes"]},
+		"id": "cartas", "title": "Cartas bajo la lluvia", "genre": "Romántica", "color": "e0609e",
+		"tagline": "Dos vecinos, cartas sin firma y una tarde de lluvia.",
+		"message": "Lo que sentimos vale más cuando nos animamos a decirlo.",
+		"cast": {"ema": ["Conejo", "ffc2d9", "fff3f8", "tiernos"], "leo": ["Canino", "c9925f", "f3d9b1", "brillantes"]},
 		"scenes": [
-			{"bg": "kitchen", "text": "Era el cumpleaños de Tomi y había una torta enorme.",
-				"actors": [["tomi", 0.28, 0.88, {"mood": "happy", "face": 1}], ["chef", 0.72, 0.88, {"face": -1}]], "props": [["table", 0.5, 0.88, 0.2], ["cake", 0.5, 0.66, 0.1]]},
-			{"bg": "kitchen", "text": "Pero cuando volvieron… ¡la torta había desaparecido!",
-				"actors": [["tomi", 0.28, 0.88, {"mood": "shy", "face": 1}], ["chef", 0.72, 0.88, {"mood": "shy", "face": -1}]], "props": [["table", 0.5, 0.88, 0.2], ["crumbs", 0.5, 0.7, 0.06], ["question", 0.5, 0.35, 0.08]]},
-			{"bg": "kitchen", "text": "Tomi se puso su gorra y sacó su lupa de detective.",
-				"actors": [["tomi", 0.45, 0.88, {"face": 1, "lean": 0.12}]], "props": [["magnifier", 0.62, 0.62, 0.08], ["crumbs", 0.75, 0.86, 0.05]]},
-			{"bg": "garden", "text": "Siguió las miguitas por todo el jardín…",
-				"actors": [["tomi", 0.25, 0.88, {"face": 1, "walk": true}]], "props": [["crumbs", 0.45, 0.88, 0.04], ["crumbs", 0.62, 0.88, 0.04], ["crumbs", 0.8, 0.88, 0.04], ["bush", 0.88, 0.86, 0.12]]},
-			{"bg": "garden", "text": "¡Era Bizcocho! Tenía la nariz llena de crema.",
-				"actors": [["tomi", 0.3, 0.88, {"face": 1}], ["bizcocho", 0.7, 0.88, {"mood": "happy", "face": -1, "jump": true}]], "props": [["cream", 0.68, 0.7, 0.035], ["bush", 0.9, 0.86, 0.1]]},
-			{"bg": "kitchen", "text": "Al final cocinaron otra torta, todos juntos. ¡Feliz cumpleaños! FIN",
-				"actors": [["tomi", 0.22, 0.88, {"mood": "happy", "jump": true}], ["chef", 0.5, 0.88, {"mood": "happy"}], ["bizcocho", 0.78, 0.88, {"mood": "happy", "jump": true}]],
-				"props": [["cake", 0.5, 0.52, 0.11], ["confetti", 0.5, 0.3, 0.4]]},
+			{"bg": "street", "text": "Ema hacía pan en la esquina. Leo tocaba la guitarra en la plaza. Se veían todos los días… y nunca se hablaban.",
+				"actors": [["ema", 0.22, 0.9, {"face": 1}], ["leo", 0.78, 0.9, {"face": -1}]], "props": [["shop_front", 0.2, 0.62, 0.3], ["guitar", 0.86, 0.78, 0.1], ["lamp_post", 0.5, 0.9, 0.5]]},
+			{"bg": "street", "text": "Una mañana, Ema encontró una carta sin firma: \"Tu pan huele a domingo\".",
+				"actors": [["ema", 0.4, 0.9, {"mood": "shy", "face": 1}]], "props": [["shop_front", 0.2, 0.62, 0.3], ["letter", 0.55, 0.6, 0.07], ["hearts", 0.5, 0.35, 0.2]]},
+			{"bg": "street", "text": "Esa tarde, Leo también encontró una: \"Tu música hace sonreír a la calle\".",
+				"actors": [["leo", 0.6, 0.9, {"mood": "shy", "face": -1}]], "props": [["guitar", 0.78, 0.78, 0.1], ["letter", 0.45, 0.6, 0.07], ["hearts", 0.5, 0.35, 0.2]]},
+			{"bg": "street_rain", "text": "Los dos querían saber quién las escribía. Pero ninguno se animaba a preguntar.",
+				"actors": [["ema", 0.2, 0.9, {"face": 1, "lean": -0.06}], ["leo", 0.8, 0.9, {"face": -1, "lean": 0.06}]], "props": [["lamp_post", 0.5, 0.9, 0.5], ["rain_all", 0.0, 0.0, 0.0]]},
+			{"bg": "street_rain", "text": "Una tarde de lluvia se refugiaron bajo el mismo toldo… y las cartas se les cayeron al piso.",
+				"actors": [["ema", 0.4, 0.9, {"mood": "shy", "face": 1}], ["leo", 0.6, 0.9, {"mood": "shy", "face": -1}]], "props": [["awning", 0.5, 0.42, 0.3], ["letter", 0.44, 0.92, 0.05], ["letter", 0.58, 0.93, 0.05], ["rain_all", 0.0, 0.0, 0.0]]},
+			{"bg": "sunset", "text": "Eran la misma letra. Se rieron un montón y hablaron hasta que salieron las estrellas.",
+				"actors": [["ema", 0.42, 0.9, {"mood": "happy", "face": 1}], ["leo", 0.58, 0.9, {"mood": "happy", "face": -1}]], "props": [["hearts", 0.5, 0.35, 0.3]]},
+			{"bg": "sunset", "text": "Lo que sentimos vale más cuando nos animamos a decirlo. FIN",
+				"actors": [["ema", 0.38, 0.9, {"mood": "happy", "jump": true}], ["leo", 0.62, 0.9, {"mood": "happy", "jump": true}]], "props": [["hearts", 0.5, 0.3, 0.35], ["guitar", 0.75, 0.8, 0.08]]},
 		],
-		"reactions": ["¡me reí muchísimo con Bizcocho!", "ahora tengo ganas de comer torta", "¡quiero ser detective como Tomi!"],
+		"reactions": ["¡qué lindo final! Hay que animarse a decir las cosas", "me puse colorad{a} con la parte de las cartas", "voy a escribirle una carta linda a alguien"],
 	},
 	{
-		"id": "nube", "title": "Nubecita", "genre": "Ternura", "color": "4cb782",
-		"tagline": "La nube más chiquita del cielo quiere ayudar a las flores.",
-		"cast": {"pipo": ["Conejo", "c9f0d2", "f2fff5", "tiernos"]},
+		"id": "tormenta", "title": "Operación Tormenta", "genre": "Acción", "color": "ff8a3d",
+		"tagline": "Una tormenta va a romper el puente del valle. Rayo quiere salvarlo… solo.",
+		"message": "Nadie es un héroe solo.",
+		"cast": {"rayo": ["Felino", "ffd84d", "fff6c9", "brillantes"], "roca": ["Canino", "a39bb0", "e6e1ec", "redondos"], "chispa": ["Ave", "7cc8ff", "e6f6ff", "tiernos"]},
 		"scenes": [
-			{"bg": "sky", "text": "Nubecita era la nube más chiquita de todo el cielo.",
-				"actors": [], "props": [["cloud_face", 0.5, 0.4, 0.12, "sad"]]},
-			{"bg": "sky", "text": "Las nubes grandes hacían lluvia… pero ella no podía.",
-				"actors": [], "props": [["big_cloud", 0.24, 0.26, 0.2], ["rain", 0.24, 0.38, 0.18], ["big_cloud", 0.78, 0.3, 0.2], ["rain", 0.78, 0.42, 0.18], ["cloud_face", 0.5, 0.62, 0.08, "sad"]]},
-			{"bg": "field", "text": "Abajo, las flores de Pipo tenían mucha sed.",
-				"actors": [["pipo", 0.3, 0.88, {"mood": "shy", "face": 1}]], "props": [["flowers", 0.68, 0.88, 0.3, "dry"]]},
-			{"bg": "sky", "text": "Nubecita juntó fuerzas… ¡y lo intentó con todas sus ganas!",
-				"actors": [], "props": [["cloud_face", 0.5, 0.42, 0.13, "try"]]},
-			{"bg": "field", "text": "¡Plic, plic, plic! ¡Le salió una lluvia chiquita!",
-				"actors": [["pipo", 0.28, 0.88, {"mood": "happy", "face": 1}]], "props": [["cloud_face", 0.66, 0.22, 0.08, "happy"], ["rain", 0.66, 0.32, 0.12], ["flowers", 0.66, 0.88, 0.3, "dry"]]},
-			{"bg": "field", "text": "Las flores crecieron y apareció un arcoíris. FIN",
-				"actors": [["pipo", 0.28, 0.88, {"mood": "happy", "jump": true}]], "props": [["rainbow", 0.5, 0.5, 0.5], ["cloud_face", 0.82, 0.2, 0.07, "happy"], ["flowers", 0.66, 0.88, 0.3, "fresh"]]},
+			{"bg": "valley", "text": "Rayo era el Pompon más rápido del valle. Y estaba seguro de que no necesitaba a nadie.",
+				"actors": [["rayo", 0.3, 0.9, {"mood": "happy", "face": 1, "jump": true}], ["roca", 0.62, 0.9, {"face": -1}], ["chispa", 0.82, 0.9, {"face": -1}]], "props": [["bridge", 0.5, 0.66, 0.4, "ok"]]},
+			{"bg": "storm", "text": "Una noche llegó la tormenta más fuerte en cien años. ¡El puente empezó a romperse!",
+				"actors": [], "props": [["bridge", 0.5, 0.66, 0.4, "crack"], ["lightning", 0.7, 0.1, 0.4], ["rain_all", 0.0, 0.0, 0.0], ["thunder", 0.0, 0.0, 0.0]]},
+			{"bg": "storm", "text": "—¡Yo puedo solo! —gritó Rayo, y salió corriendo hacia el puente.",
+				"actors": [["rayo", 0.2, 0.9, {"face": 1, "walk": true}]], "props": [["bridge", 0.62, 0.66, 0.36, "crack"], ["rain_all", 0.0, 0.0, 0.0]]},
+			{"bg": "storm", "text": "Pero el viento lo empujó una y otra vez. Para uno solo, era demasiado.",
+				"actors": [["rayo", 0.4, 0.9, {"mood": "shy", "face": 1, "lean": -0.3}]], "props": [["bridge", 0.66, 0.66, 0.36, "broken"], ["wind", 0.5, 0.5, 0.4], ["rain_all", 0.0, 0.0, 0.0]]},
+			{"bg": "storm", "text": "Entonces llegaron Roca, que sostuvo las vigas, y Chispa, que armó un plan con una soga.",
+				"actors": [["rayo", 0.28, 0.9, {"face": 1}], ["roca", 0.52, 0.9, {"face": 1, "lean": 0.1}], ["chispa", 0.76, 0.9, {"face": -1, "jump": true}]], "props": [["bridge", 0.55, 0.66, 0.36, "broken"], ["rope", 0.5, 0.7, 0.4], ["rain_all", 0.0, 0.0, 0.0]]},
+			{"bg": "storm", "text": "Rayo cruzó corriendo con la soga. ¡Esta vez su velocidad sirvió para el equipo!",
+				"actors": [["rayo", 0.4, 0.88, {"mood": "happy", "face": 1, "walk": true}], ["roca", 0.2, 0.9, {"face": 1}]], "props": [["bridge", 0.55, 0.66, 0.36, "fixing"], ["rope", 0.5, 0.7, 0.4], ["rain_all", 0.0, 0.0, 0.0]]},
+			{"bg": "valley", "text": "Al amanecer, el puente seguía en pie. Rayo aprendió algo que no le enseñó la velocidad: nadie es un héroe solo. FIN",
+				"actors": [["rayo", 0.3, 0.9, {"mood": "happy", "jump": true}], ["roca", 0.5, 0.9, {"mood": "happy", "jump": true}], ["chispa", 0.7, 0.9, {"mood": "happy", "jump": true}]], "props": [["bridge", 0.5, 0.66, 0.4, "ok"], ["confetti", 0.5, 0.3, 0.4]]},
 		],
-		"reactions": ["me emocioné un poquito", "¡las flores quedaron hermosas!", "¡Nubecita es mi favorita!"],
+		"reactions": ["¡qué emocionante! Juntos se puede más", "me encantó cuando cruzó con la soga", "¡quiero ser parte de un equipo como ese!"],
 	},
 ]
 
 
-## La pelicula de hoy (cambia cada dia, una detras de la otra) y la de mañana.
+## Semana del juego (cambia los lunes): el dia 0 de Missions.today fue un jueves.
+static func week_of(day: int) -> int:
+	return floori((day + 3) / 7.0)
+
+
+## La pelicula de esta semana y de la que viene.
 static func of_day(day: int) -> Dictionary:
-	return MOVIES[posmod(day, MOVIES.size())]
+	return MOVIES[posmod(week_of(day), MOVIES.size())]
+
+
+static func next_of(day: int) -> Dictionary:
+	return MOVIES[posmod(week_of(day) + 1, MOVIES.size())]
+
+
+## Dias que faltan para que cambie la pelicula (1 a 7).
+static func days_left(day: int) -> int:
+	return 7 - posmod(day + 3, 7)
+
+
+## Cuanto dura una escena en pantalla: mas si el subtitulo es largo (para que se alcance a leer).
+static func scene_seconds(text: String) -> float:
+	return clampf(2.6 + text.length() / 17.0, 4.0, 10.0)
 
 
 static func get_movie(id: String) -> Dictionary:

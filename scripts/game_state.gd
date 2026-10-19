@@ -929,6 +929,7 @@ func watch_movie(id: String, companion := {}) -> Dictionary:
 	var pool: Array = m.get("reactions", ["¡me encantó!"])
 	var with := "" if companion.is_empty() else " con %s" % companion.get("name", "un amigo")
 	var text := "Fui al cine%s a ver %s: %s" % [with, m.get("title", "una película"), pool[randi() % pool.size()]]
+	text = text.replace("{a}", "a" if pompon != null and pompon.sex == "Hembra" else "o")
 	if pompon != null and pompon.hatched:
 		pompon.add_stat("diversion", fun)
 		pompon.add_stat("alimentacion", 6.0)   # los pochoclos

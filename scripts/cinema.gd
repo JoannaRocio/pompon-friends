@@ -1,6 +1,6 @@
 extends Control
-## El Cine Pompon (desde el pueblo): en la boleteria se ve la pelicula de hoy (rotan cada dia: ver
-## Movies) y la de mañana; se puede ir solo o invitar a un vecino. La entrada trae pochoclos. En la sala
+## El Cine Pompon (desde el pueblo): en la boleteria se ve la pelicula de esta semana (rotan cada
+## semana, los lunes: ver Movies) y la que viene; se puede ir solo o invitar a un vecino. La entrada trae pochoclos. En la sala
 ## la pelicula se cuenta en escenas con subtitulos: tocar la pantalla pasa a la siguiente y "Saltar"
 ## la termina. Al final, tu Pompon cuenta que le parecio (va a su diario) y sube la diversion.
 
@@ -73,10 +73,12 @@ func _show_lobby() -> void:
 	top.add_child(coins)
 
 	root.add_child(_poster(movie, true))
-	var next := Movies.of_day(_today() + 1)
+	var next := Movies.next_of(_today())
+	var left := Movies.days_left(_today())
 	var next_row := HBoxContainer.new()
 	next_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	next_row.add_child(Hud.chip("Mañana: %s" % next["title"], Color("4a3d6b"), Color("ffe9a3"), 24))
+	var when := "desde mañana" if left == 1 else "en %d días" % left
+	next_row.add_child(Hud.chip("Próxima: %s · %s" % [next["title"], when], Color("4a3d6b"), Color("ffe9a3"), 24))
 	root.add_child(next_row)
 
 	# ¿con quien vas?
@@ -145,7 +147,7 @@ func _poster(m: Dictionary, big: bool) -> Control:
 	card.add_child(col)
 	var head := HBoxContainer.new()
 	col.add_child(head)
-	head.add_child(Hud.chip("Hoy en cartelera" if big else "Mañana", Color(m["color"]), Color.WHITE, 22))
+	head.add_child(Hud.chip("Esta semana" if big else "Próxima", Color(m["color"]), Color.WHITE, 22))
 	var spacer := Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(spacer)
@@ -310,7 +312,7 @@ func _place_seats() -> void:
 func _show_scene(i: int) -> void:
 	screen.show_scene(i)
 	_subtitle.text = screen.scene()["text"]
-	_scene_t = Movies.SCENE_SECONDS
+	_scene_t = Movies.scene_seconds(_subtitle.text)
 	if screen.scene()["actors"].any(func(a): return a[3].get("mood", "") == "happy"):   # el publico se alegra
 		_pet.celebrate(2)
 		if _buddy != null:
@@ -358,6 +360,7 @@ func _end_movie() -> void:
 		face.set_pompon(GameState.pompon, GameState.equipped)
 	notice.add(face)
 	face.celebrate(6)
+	notice.text_line(movie["message"], 26, Color("a0527a"))
 	notice.text_line("“%s”" % res["reaction"], 28)
 	var chips := HBoxContainer.new()
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
