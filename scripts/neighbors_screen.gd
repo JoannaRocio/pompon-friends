@@ -20,6 +20,8 @@ var _tut: TutorialOverlay
 func _ready() -> void:
 	Town.from_town = false
 	_tutorial_step.call_deferred()
+	if Friends.is_active() and GameState.age_group == "":   # partidas de antes: se pregunta la edad una vez
+		(func(): FriendSafety.ask_age(self, func(_g): _dirty = true)).call_deferred()
 	var bg := Control.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -239,7 +241,7 @@ func _make_row(entry: Dictionary) -> Control:
 		quit.custom_minimum_size = Vector2(108, 44)
 		quit.focus_mode = Control.FOCUS_NONE
 		Hud.style_soft(quit, 18)
-		quit.pressed.connect(_ask_remove.bind(entry))
+		quit.pressed.connect(func(): FriendSafety.friend_options(self, entry, func(): _dirty = true))
 		side.add_child(quit)
 		row.add_child(side)
 	else:
@@ -368,7 +370,21 @@ func _request_row(f: Dictionary) -> Control:
 	no.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	no.focus_mode = Control.FOCUS_NONE
 	Hud.style_soft(no, 22)
-	no.pressed.connect(func(): Friends.answer(code, false))
+	var who := Friends.display_name(f)
+	no.pressed.connect(func():   # no aceptar: simplemente "no", o bloquear / denunciar
+		var n := BigNotice.new(600.0)
+		add_child(n)
+		n.title(who, Color("d6336c"))
+		n.button("No, gracias", func():
+			n.close()
+			Friends.answer(code, false), true, GREEN)
+		n.button("Bloquear", func():
+			n.close()
+			Friends.block(code), false)
+		n.button("Denunciar", func():
+			n.close()
+			FriendSafety.report(self, code, who), false)
+		n.button("Cancelar", n.close, false))
 	row.add_child(no)
 	return row
 
@@ -394,7 +410,20 @@ func _pill_button(text: String, callback: Callable, color: Color, min_size := Ve
 	return b
 
 
+## Activar amigos: primero la edad (una vez) y, si es menor de 13, el permiso de un adulto.
 func _activate() -> void:
+	if GameState.age_group == "":
+		FriendSafety.ask_age(self, func(_g): _activate())
+		return
+	if GameState.kids_mode():
+		FriendSafety.parental_gate(self, func(ok: bool):
+			if ok:
+				_do_activate())
+		return
+	_do_activate()
+
+
+func _do_activate() -> void:
 	var res: Dictionary = await Friends.activate()
 	if not res["ok"]:
 		_show_message("¡Ups!", _error_text(res["error"]))

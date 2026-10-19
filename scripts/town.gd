@@ -217,9 +217,9 @@ func _friend_menu(entry: Dictionary) -> void:
 	_notice.button("Visitar", func():
 		_notice.close()
 		_visit(entry), true, Color("5fc77f"))
-	_notice.button("Dejar de ser amigos", func():
+	_notice.button("Más opciones", func():
 		_notice.close()
-		_ask_remove(entry), false)
+		FriendSafety.friend_options(self, entry), false)
 	_notice.button("Cerrar", _notice.close, false)
 
 

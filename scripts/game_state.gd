@@ -23,6 +23,12 @@ var achievements_claimed := {}   # logro -> medallas ya cobradas (0 a 3)
 var notify_on := true        # aviso semanal en el celular (ver Notifier); se apaga con la campana del menu
 # tutorial guiado (ver TutorialSteps): capitulo y paso por hacer, si se salteo, y cuando termino el ultimo
 var tutorial := {"chapter": 0, "step": 0, "off": false, "done_at": 0, "done_day": -1}
+# seguridad con amigos de verdad: grupo de edad ("" sin preguntar, "child" menor de 13, "teen" 13 a 17,
+# "adult"; no se guarda la edad exacta), codigos bloqueados y dibujos recibidos que esperan respuesta
+var age_group := ""
+var blocked_codes: Array = []
+var pending_art: Array = []   # [{"code", "who", "px"}]
+const PENDING_ART_MAX := 10
 var equipped := {}           # categoria -> id (hat, glasses, shirt, floor, wall)
 var placed: Array = []       # muebles/decoracion en el cuarto: {"id", "x", "y"} (x,y de 0 a 1)
 
@@ -817,6 +823,7 @@ func save_dict() -> Dictionary:
 		"owned": owned, "equipped": equipped, "placed": placed, "paintings": paintings, "movies_seen": movies_seen,
 		"week_visits": week_visits, "days_visited": days_visited, "last_visit_day": last_visit_day, "games_played": games_played,
 		"paintings_made": paintings_made, "achievements_claimed": achievements_claimed, "notify_on": notify_on, "tutorial": tutorial,
+		"age_group": age_group, "blocked_codes": blocked_codes, "pending_art": pending_art,
 		"room_layout": 2, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
@@ -910,6 +917,18 @@ func _load_progress(parsed: Dictionary) -> void:
 	games_played = maxi(0, int(parsed.get("games_played", 0)))
 	paintings_made = maxi(0, int(parsed.get("paintings_made", 0)))
 	notify_on = bool(parsed.get("notify_on", true))
+	age_group = str(parsed.get("age_group", ""))
+	if not age_group in ["", "child", "teen", "adult"]:
+		age_group = ""
+	blocked_codes = []
+	for c in parsed.get("blocked_codes", []):
+		var code := CloudCode.clean_friend(str(c))
+		if code != "" and not blocked_codes.has(code):
+			blocked_codes.append(code)
+	pending_art = []
+	for a in parsed.get("pending_art", []):
+		if typeof(a) == TYPE_DICTIONARY and PixelArt.valid(str(a.get("px", ""))) and pending_art.size() < PENDING_ART_MAX:
+			pending_art.append({"code": str(a.get("code", "")), "who": str(a.get("who", "Un amigo")).left(30), "px": str(a["px"])})
 	tutorial = {"chapter": 0, "step": 0, "off": false, "done_at": 0, "done_day": -1}
 	var tut = parsed.get("tutorial", {})
 	if typeof(tut) == TYPE_DICTIONARY:
@@ -924,6 +943,42 @@ func _load_progress(parsed: Dictionary) -> void:
 
 
 # --- Progreso de largo plazo: calendario semanal y logros (ver Progress) ---
+
+# --- Seguridad: edad, bloqueados y dibujos recibidos ---
+
+## Menor de 13: su nombre de jugador no se muestra a nadie y activar amigos necesita a un adulto.
+func kids_mode() -> bool:
+	return age_group == "child"
+
+
+## Grupo de edad a partir de la edad que eligio (no se guarda la edad).
+static func age_group_for(age: int) -> String:
+	if age < 13:
+		return "child"
+	return "teen" if age < 18 else "adult"
+
+
+func is_blocked(code: String) -> bool:
+	return blocked_codes.has(CloudCode.clean_friend(code))
+
+
+## Un dibujo que le regalaron: queda esperando que lo acepte (salvo que el que lo mando este bloqueado).
+func receive_art(code: String, who: String, px: String) -> void:
+	if is_blocked(code) or not PixelArt.valid(px) or pending_art.size() >= PENDING_ART_MAX:
+		return
+	pending_art.append({"code": code, "who": who.left(30), "px": px})
+	save_game()
+
+
+## Responde al primer dibujo pendiente: `keep` lo guarda para colgar. Devuelve el id ("" si no se guardo).
+func answer_art(keep: bool) -> String:
+	if pending_art.is_empty():
+		return ""
+	var a: Dictionary = pending_art.pop_front()
+	var id := add_painting(a["px"], a["who"]) if keep else ""
+	save_game()
+	return id
+
 
 # --- Tutorial guiado (ver TutorialSteps y TutorialOverlay) ---
 

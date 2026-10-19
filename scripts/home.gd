@@ -303,6 +303,10 @@ func _update_tutorial(delta: float) -> void:
 	if not _is_born(p) or _needs_name() or _any_modal() or _edit or _night or _prehatch or _tip_panel != null \
 			or GameState.farewell != "":
 		return
+	if not GameState.pending_art.is_empty():   # le mandaron un dibujo: se ve primero y elige guardarlo o no
+		var art_notice := FriendSafety.show_received_art(self, func(): _night_notice = null)
+		_night_notice = art_notice
+		return
 	if Notifier.should_ask():   # una sola vez: ¿quiere que le avisemos?
 		_ask_notifications()
 		return

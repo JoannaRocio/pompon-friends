@@ -133,9 +133,13 @@ func _initialize() -> void:
 	gs.paintings = []
 	PixelArt.cache = {}
 	await friends.refresh()
+	print("el dibujo espera que Luna lo acepte: ", gs.pending_art.size(), " | sin guardar todavia: ", gs.paintings.is_empty())
+	while not gs.pending_art.is_empty() and gs.pending_art[0]["px"] != gift_px:
+		gs.answer_art(false)
+	gs.answer_art(true)   # Luna toca "Guardarlo"
 	var got: Array = gs.paintings.filter(func(p): return p["px"] == gift_px)
 	print("a Luna le llego el dibujo: ", got.size() >= 1, " | de: '", got[0]["from"] if got.size() > 0 else "", "' | para colgar: ", gs.owned.has(got[0]["id"]) if got.size() > 0 else false,
-		" | en su diario: ", gs.pending_thoughts.any(func(e): return str(e["text"]).contains("me regaló un dibujo")))
+		" | en su diario: ", gs.pending_thoughts.any(func(e): return str(e["text"]).contains("me mandó un dibujo")))
 	print("  nombre en Decorar: ", Catalog.get_item(got[0]["id"])["name"] if got.size() > 0 else "")
 
 	# ---------- salto al cielo

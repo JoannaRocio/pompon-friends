@@ -368,3 +368,51 @@ grant execute on function public.pompon_friend_inbox(text, text) to anon;
 grant execute on function public.pompon_friend_gift_art(text, text, text, text) to anon;
 
 notify pgrst, 'reload schema';
+
+-- ======================================================================================================
+-- Denuncias (19/10/2026): un jugador denuncia a otro (por un dibujo, un nombre u otra cosa). Quedan en
+-- la tabla friend_reports para revisarlas a mano desde Table Editor. Hasta 10 por dia por jugador.
+-- ======================================================================================================
+create table if not exists public.friend_reports (
+	id bigserial primary key,
+	from_code text not null references public.friend_profiles(code) on delete cascade,
+	about_code text not null,
+	reason text not null,                      -- 'art', 'name' u 'other'
+	art text,                                  -- el dibujo denunciado (256 letras de 0-9 y a-f), si es por un dibujo
+	about_snapshot jsonb,                      -- la tarjeta del denunciado en ese momento (nombre, Pompon)
+	reviewed boolean not null default false,   -- marcar a mano cuando se reviso
+	created_at timestamptz not null default now()
+);
+alter table public.friend_reports enable row level security;
+revoke all on table public.friend_reports from anon, authenticated;
+
+create or replace function public.pompon_friend_report(p_code text, p_secret text, p_about text, p_reason text, p_art text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+	if not pompon_friend_auth(p_code, p_secret) then
+		raise exception 'auth';
+	end if;
+	if p_reason not in ('art', 'name', 'other') then
+		raise exception 'motivo invalido';
+	end if;
+	if p_art is not null and p_art <> '' and (length(p_art) <> 256 or p_art !~ '^[0-9a-f]+$') then
+		raise exception 'dibujo invalido';
+	end if;
+	if (select count(*) from friend_reports where from_code = p_code and created_at > now() - interval '1 day') >= 10 then
+		return 'limit';
+	end if;
+	insert into friend_reports (from_code, about_code, reason, art, about_snapshot)
+	values (p_code, left(p_about, 16), p_reason, nullif(p_art, ''),
+		(select snapshot from friend_profiles where code = p_about));
+	return 'ok';
+end;
+$$;
+
+revoke all on function public.pompon_friend_report(text, text, text, text, text) from public;
+grant execute on function public.pompon_friend_report(text, text, text, text, text) to anon;
+
+notify pgrst, 'reload schema';

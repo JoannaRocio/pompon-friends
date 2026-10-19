@@ -18,7 +18,7 @@ const EVENT_TEXT := {
 	"pet": "{n} vino y me hizo mimos",
 	"play": "¡Jugué a la pelota con {n}!",
 	"gift": "¡{n} me dejó un regalo!",
-	"art": "¡{n} me regaló un dibujo! Ya lo puedo colgar en mi cuarto",
+	"art": "¡{n} me mandó un dibujo! ¿Lo guardamos?",
 }
 const ART_PER_DAY := 3         # dibujos que se le pueden regalar a un mismo amigo por dia
 
@@ -64,7 +64,7 @@ func activate() -> Dictionary:
 	return {"ok": true, "error": ""}
 
 
-## Lo que ven tus amigos: tu Pompon, su habitacion actual y tu nombre.
+## Lo que ven tus amigos: tu Pompon, su habitacion actual y tu nombre (si es menor de 13, sin nombre).
 func snapshot() -> Dictionary:
 	var p: Pompon = GameState.pompon
 	var pompon := {}
@@ -84,7 +84,7 @@ func snapshot() -> Dictionary:
 				e["on"] = item["on"]
 				e["ox"] = snappedf(float(item.get("ox", 0.0)), 0.1)
 			placed.append(e)
-	return {"v": 1, "player": GameState.player_name, "title": GameState.player_title, "pompon": pompon, "equipped": wear,
+	return {"v": 1, "player": "" if GameState.kids_mode() else GameState.player_name, "title": GameState.player_title, "pompon": pompon, "equipped": wear,
 		"wall": GameState.equipped.get("wall", ""), "floor": GameState.equipped.get("floor", ""), "placed": placed,
 		"room": GameState.current_room}
 
@@ -143,6 +143,40 @@ func remove(code: String) -> Dictionary:
 	return res
 
 
+## Bloquea a alguien: deja de ser amigo (si lo era) y no le llegan mas solicitudes, visitas ni dibujos.
+func block(code: String) -> void:
+	code = clean_code(code)
+	if code == "" or GameState.blocked_codes.has(code):
+		return
+	GameState.blocked_codes.append(code)
+	GameState.pending_art = GameState.pending_art.filter(func(a): return a["code"] != code)
+	GameState.save_game()
+	if is_active() and is_available():
+		await Cloud.server_call("pompon_friend_remove", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_other": code})
+		await refresh()
+	else:
+		GameState.friends = GameState.friends.filter(func(f): return f["code"] != code)
+		Neighbors.set_friends(GameState.friends)
+		changed.emit()
+
+
+const REPORT_REASONS := {"art": "Un dibujo feo o que me hizo sentir mal", "name": "Un nombre feo", "other": "Otra cosa"}
+
+
+## Denuncia a alguien (con el dibujo, si es por un dibujo): queda anotado en el servidor para revisarlo.
+## Devuelve {"ok", "result"}: "ok", "limit" (demasiadas hoy) u "off".
+func report(code: String, reason: String, art := "") -> Dictionary:
+	if not is_active() or not is_available():
+		return {"ok": false, "result": "off"}
+	if not REPORT_REASONS.has(reason):
+		reason = "other"
+	var res: Dictionary = await Cloud.server_call("pompon_friend_report", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret,
+		"p_about": clean_code(code), "p_reason": reason, "p_art": art if PixelArt.valid(art) else ""})
+	if not res["ok"]:
+		return {"ok": false, "result": res["error"]}
+	return {"ok": str(res["value"]) == "ok", "result": str(res["value"])}
+
+
 ## Avisa a un amigo que lo visitaste (o lo acariciaste, jugaron o le dejaste un regalo).
 func send_event(code: String, kind: String) -> void:
 	if not is_active() or not is_available():
@@ -175,9 +209,13 @@ func refresh() -> Dictionary:
 		last_error = res.get("error", "server")
 		return {"ok": false, "error": last_error}
 	var box: Dictionary = res["value"]
-	GameState.friend_requests = _entries(box.get("requests", []))
+	var requests := _entries(box.get("requests", []))
+	for r in requests:   # las solicitudes de alguien bloqueado se rechazan solas, sin avisar
+		if GameState.is_blocked(r["code"]):
+			await Cloud.server_call("pompon_friend_answer", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_from": r["code"], "p_accept": false})
+	GameState.friend_requests = requests.filter(func(r): return not GameState.is_blocked(r["code"]))
 	GameState.friend_sent = _entries(box.get("sent", []))
-	GameState.friends = _entries(box.get("friends", []))
+	GameState.friends = _entries(box.get("friends", [])).filter(func(f): return not GameState.is_blocked(f["code"]))
 	Neighbors.set_friends(GameState.friends)
 	for e in box.get("events", []):
 		_on_event(e)
@@ -204,7 +242,7 @@ func _on_event(e) -> void:
 	if typeof(e) != TYPE_DICTIONARY:
 		return
 	var kind := str(e.get("kind", ""))
-	if not EVENT_TEXT.has(kind):
+	if not EVENT_TEXT.has(kind) or GameState.is_blocked(str(e.get("from", ""))):
 		return
 	var who := "Un amigo"
 	for f in GameState.friends:
@@ -214,7 +252,7 @@ func _on_event(e) -> void:
 		var px := str(e.get("data", ""))
 		if not PixelArt.valid(px):
 			return
-		GameState.add_painting(px, who)
+		GameState.receive_art(str(e.get("from", "")), who, px)   # espera que lo acepte
 	if GameState.pompon == null or not GameState.pompon.hatched:
 		return
 	GameState.pompon.add_social(EVENT_SOCIAL, false)
@@ -301,6 +339,13 @@ func fake_rpc(store: Dictionary, fn: String, body: Dictionary) -> Dictionary:
 		"pompon_friend_remove":
 			links.erase(me + ">" + str(body["p_other"]))
 			links.erase(str(body["p_other"]) + ">" + me)
+			return _ok("ok")
+		"pompon_friend_report":
+			if not store.has("reports"):
+				store["reports"] = []
+			if store["reports"].filter(func(r): return r["from"] == me).size() >= 10:
+				return _ok("limit")
+			store["reports"].append({"from": me, "about": str(body["p_about"]), "reason": str(body["p_reason"]), "art": str(body["p_art"])})
 			return _ok("ok")
 		"pompon_friend_visit":
 			var to2 := str(body["p_to"])
