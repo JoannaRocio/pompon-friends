@@ -300,8 +300,13 @@ func _update_tutorial(delta: float) -> void:
 				GameState.tips_seen.append(tip)
 		if _tip_panel != null and _tip_id in TutorialSteps.COVERS_TIPS:
 			_dismiss_tip()
-	if not GameState.tutorial_ready() or not _is_born(p) or _needs_name() or _any_modal() or _edit or _night \
-			or _prehatch or _tip_panel != null or GameState.farewell != "":
+	if not _is_born(p) or _needs_name() or _any_modal() or _edit or _night or _prehatch or _tip_panel != null \
+			or GameState.farewell != "":
+		return
+	if Notifier.should_ask():   # una sola vez: ¿quiere que le avisemos?
+		_ask_notifications()
+		return
+	if not GameState.tutorial_ready():
 		return
 	var step := GameState.tutorial_current()
 	if step.has("screen"):   # este paso es en otra pantalla: se vuelve a pedir que vaya
@@ -333,6 +338,27 @@ func _update_tutorial(delta: float) -> void:
 	_tut.skipped.connect(func():
 		GameState.tutorial_skip()
 		_close_tutorial())
+
+
+## Pregunta amable (una vez) si quiere el aviso semanal; recien con un "si" se pide el permiso de Android.
+func _ask_notifications() -> void:
+	GameState.tips_seen.append(Notifier.ASK_TIP)
+	GameState.save_game()
+	var notice := BigNotice.new(640.0)
+	_night_notice = notice   # (cuenta como ventana abierta mientras esta)
+	add_child(notice)
+	notice.add(BigNotice.icon_strip([["heart", Color("ff7aa8")], ["moon", Color("7b8ce0")], ["smile", Color("ffcf3f")]]))
+	notice.title("¿Te avisamos?")
+	notice.text_line("Si pasa una semana sin que entres, te mandamos un aviso: %s te extraña. Nunca más de uno por semana." % GameState.pompon.display_name(), 28)
+	notice.button("Sí, avísame", func():
+		Notifier.request_permission()
+		notice.close()
+		_night_notice = null, true, Color("5fc77f"))
+	notice.button("No, gracias", func():
+		GameState.notify_on = false
+		GameState.save_game()
+		notice.close()
+		_night_notice = null, false)
 
 
 func _close_tutorial() -> void:

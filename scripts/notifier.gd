@@ -5,21 +5,61 @@ extends Node
 ## El texto cuenta algo concreto (el Pompon lo extraña, la pelicula nueva del cine, el sello de la
 ## semana). Se puede apagar desde el menu (campana): GameState.notify_on.
 ##
-## Enviar el aviso de verdad necesita un plugin de Android de notificaciones locales (un "singleton"
-## llamado NotificationScheduler). Si no esta instalado, todo esto funciona igual pero no se envia
-## nada: lo planeado queda en `planned` (sirve para las pruebas).
+## El envio real lo hace el plugin "Notification Scheduler" (addons/NotificationSchedulerPlugin, v6.0,
+## licencia MIT): solo existe en Android. En la PC y en las pruebas todo funciona igual pero no se envia
+## nada; lo planeado queda en `planned`. Android 13+ pide permiso: se pregunta UNA vez, con un cartel
+## amable en la casa (ver `should_ask`), nunca de golpe.
 
 const NOTIFY_ID := 7
 const DAYS_AWAY := 7
 const HOUR := 18          # hora local a la que llega
 const CHANNEL := "pompon_semanal"
-const PLUGIN := "NotificationScheduler"
+const PLUGIN := "NotificationSchedulerPlugin"   # el singleton de Android
+const ASK_TIP := "notify_ask"                    # ya se pregunto si quiere avisos (tips_seen)
 
 var planned := {}         # {"at": unix, "title", "text"} lo ultimo que se programo ({} si nada)
+var _ns: NotificationScheduler    # el nodo del plugin (solo en Android)
+var _ready_ok := false
 
 
 func _ready() -> void:
+	if Engine.has_singleton(PLUGIN):
+		_ns = NotificationScheduler.new()
+		add_child(_ns)
+		_ns.initialization_completed.connect(_on_plugin_ready)
+		_ns.initialize()
 	cancel()   # abrio el juego: el aviso pendiente ya no hace falta
+
+
+func _on_plugin_ready() -> void:
+	_ready_ok = true
+	_ns.create_notification_channel(NotificationChannel.new()
+		.set_id(CHANNEL)
+		.set_name("Tu Pompon")
+		.set_description("Como mucho un aviso por semana, solo si no entraste")
+		.set_importance(NotificationChannel.Importance.DEFAULT))
+	cancel()
+
+
+## ¿Se pueden enviar avisos en este celular? (plugin listo)
+func available() -> bool:
+	return _ready_ok
+
+
+func has_permission() -> bool:
+	return _ready_ok and _ns.has_post_notifications_permission()
+
+
+func request_permission() -> void:
+	if _ready_ok and not has_permission():
+		_ns.request_post_notifications_permission()
+
+
+## ¿Hay que preguntarle si quiere avisos? Una sola vez, desde el segundo dia que juega y si el
+## celular todavia no dio permiso.
+func should_ask() -> bool:
+	return available() and GameState.notify_on and not has_permission() \
+		and GameState.days_visited >= 2 and not GameState.tips_seen.has(ASK_TIP)
 
 
 func _notification(what: int) -> void:
@@ -70,16 +110,17 @@ func schedule(now := -1) -> void:
 
 func cancel() -> void:
 	planned = {}
-	if Engine.has_singleton(PLUGIN):
-		var plugin := Engine.get_singleton(PLUGIN)
-		if plugin.has_method("cancel"):
-			plugin.call("cancel", NOTIFY_ID)
+	if _ready_ok:
+		_ns.cancel(NOTIFY_ID)
 
 
-## Envia al sistema (solo si el plugin de Android esta instalado).
+## Envia al sistema (solo en Android, con el plugin listo).
 func _backend_schedule(delay_seconds: int, title: String, text: String) -> void:
-	if not Engine.has_singleton(PLUGIN):
+	if not _ready_ok:
 		return
-	var plugin := Engine.get_singleton(PLUGIN)
-	if plugin.has_method("schedule"):
-		plugin.call("schedule", NOTIFY_ID, CHANNEL, title, text, maxi(60, delay_seconds))
+	_ns.schedule(NotificationData.new()
+		.set_id(NOTIFY_ID)
+		.set_channel_id(CHANNEL)
+		.set_title(title)
+		.set_content(text)
+		.set_delay(maxi(60, delay_seconds)))
