@@ -1,7 +1,8 @@
 class_name Jobs
 extends RefCounted
-## Los trabajos que se ofrecen en el periodico. Hoy solo el de matematicas esta disponible;
-## ingles y geografia estan bloqueados ("proximamente") y se agregaran despues.
+## Los trabajos que se ofrecen en el periodico: profesor/a de matematicas y de ingles (las dos
+## materias de la Escuela Pompon, con la misma aula, el mismo turno y una sola carrera); geografia
+## esta bloqueada ("proximamente") y se agregara despues.
 ## El titulo depende de como el jugador quiere que lo llamen (profesora, profesor o profesor/a).
 
 const JOBS := [
@@ -11,9 +12,9 @@ const JOBS := [
 		"blurb": "Resuelve cuentas con tus alumnos",
 	},
 	{
-		"id": "english", "available": false, "scene": "", "color": "5aa9e6",
+		"id": "english", "available": true, "scene": "res://scenes/job_menu.tscn", "color": "5aa9e6",
 		"title": {"f": "Profesora de Inglés", "m": "Profesor de Inglés", "n": "Profesor/a de Inglés"},
-		"blurb": "Palabras y frases",
+		"blurb": "Palabras y frases en inglés",
 	},
 	{
 		"id": "geography", "available": false, "scene": "", "color": "4cb782",
@@ -21,6 +22,10 @@ const JOBS := [
 		"blurb": "Países y mapas",
 	},
 ]
+
+const SUBJECT_NAMES := {"math": "Matemáticas", "english": "Inglés"}
+
+static var current := "math"   # materia que se esta dando (la elige el periodico)
 
 # Pronombres del jugador (se pregunta una vez); sin elegir, el puesto dice "Profesor/a".
 const TITLE_CHOICES := [
@@ -34,6 +39,16 @@ static func get_job(id: String) -> Dictionary:
 		if j["id"] == id:
 			return j
 	return {}
+
+
+## La materia de un camino: los de ingles empiezan con "en_".
+static func subject_of(track: String) -> String:
+	return "english" if track.begins_with("en_") else "math"
+
+
+## El script con las preguntas de la materia (MathProblems o EnglishProblems).
+static func problems(subject: String) -> GDScript:
+	return EnglishProblems if subject == "english" else MathProblems
 
 
 ## "f", "m" o "n" (neutro). Cualquier otra cosa cuenta como neutro.

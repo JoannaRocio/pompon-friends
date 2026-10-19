@@ -1,17 +1,21 @@
 extends Control
-## Aula de matematicas (el trabajo de profesor/a): se elige que practicar. Cada camino muestra su
-## nivel, los puntitos de dominio y un boton para trabajar. Poco texto: todo se entiende de un vistazo.
+## Aula de la materia elegida en el periodico (matematicas o ingles, ver Jobs.current): se elige que
+## practicar. Cada camino muestra su nivel, los puntitos de dominio y un boton para trabajar.
+## Poco texto: todo se entiende de un vistazo.
 
-const COLORS := {"addsub": Color("ff9b54"), "mul": Color("e0609e"), "div": Color("4cb782")}
-const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷"}
+const COLORS := {"addsub": Color("ff9b54"), "mul": Color("e0609e"), "div": Color("4cb782"),
+	"en_words": Color("5aa9e6"), "en_meaning": Color("8a7be0"), "en_phrases": Color("3cb8a0")}
+const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "¿?", "en_phrases": "Hi!"}
 
 var _layer: Control
 var _arrow: GuideArrow
 var _shop_button: Button
 var _work_buttons: Array = []   # los tres "Trabajar": la flecha los recorre la primera vez
+var _problems: GDScript         # MathProblems o EnglishProblems
 
 
 func _ready() -> void:
+	_problems = Jobs.problems(Jobs.current)
 	var bg := ColorRect.new()
 	bg.color = Color("fff4e8")
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -40,7 +44,7 @@ func _ready() -> void:
 	texts.add_theme_constant_override("separation", 0)
 	head.add_child(texts)
 	var title := Label.new()
-	title.text = "Aula de Matemáticas"
+	title.text = "Aula de %s" % Jobs.SUBJECT_NAMES.get(Jobs.current, "Matemáticas")
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", Color("fffbe8"))
@@ -77,7 +81,7 @@ func _ready() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	list.add_theme_constant_override("separation", 14)
 	scroll.add_child(list)
-	for camino in MathProblems.TRACKS:
+	for camino in _problems.TRACKS:
 		list.add_child(_track_card(camino))
 
 	_arrow = GuideArrow.new()
@@ -143,7 +147,7 @@ func _track_card(camino: String) -> Control:
 	symbol.text = SYMBOLS[camino]
 	symbol.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	symbol.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	symbol.add_theme_font_size_override("font_size", 48 if camino == "addsub" else 62)
+	symbol.add_theme_font_size_override("font_size", 62 if SYMBOLS[camino].length() == 1 else (48 if camino == "addsub" else 42))
 	symbol.add_theme_color_override("font_color", Color.WHITE)
 	badge.add_child(symbol)
 
@@ -153,7 +157,7 @@ func _track_card(camino: String) -> Control:
 	info.add_theme_constant_override("separation", 4)
 	row.add_child(info)
 	var name_label := Label.new()
-	name_label.text = MathProblems.LABELS[camino]
+	name_label.text = _problems.LABELS[camino]
 	name_label.add_theme_font_size_override("font_size", 30)
 	info.add_child(name_label)
 	var lvl_row := HBoxContainer.new()
@@ -163,14 +167,14 @@ func _track_card(camino: String) -> Control:
 	if st["completed"]:
 		lvl_row.add_child(Hud.chip("¡Completo!", Color("d8f5e3"), Color("1f7a4d"), 20))
 	var lvl := Label.new()
-	lvl.text = MathProblems.level_name(camino, level)
+	lvl.text = _problems.level_name(camino, level)
 	lvl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lvl.add_theme_font_size_override("font_size", 20)
 	lvl.add_theme_color_override("font_color", Color("a0527a"))
 	info.add_child(lvl)
 	var dots := MasteryDots.new()
 	dots.custom_minimum_size = Vector2(0, 30)
-	dots.set_data(st["history"], MathProblems.fast_seconds(camino, level))
+	dots.set_data(st["history"], _problems.fast_seconds(camino, level))
 	info.add_child(dots)
 
 	var buttons := VBoxContainer.new()
@@ -182,7 +186,10 @@ func _track_card(camino: String) -> Control:
 	go.custom_minimum_size = Vector2(160, 72)
 	Hud.style_primary(go, 28, color)
 	go.pressed.connect(func():
-		MathProblems.current_track = camino
+		if Jobs.subject_of(camino) == "english":
+			EnglishProblems.current_track = camino
+		else:
+			MathProblems.current_track = camino
 		get_tree().change_scene_to_file("res://scenes/job_game.tscn"))
 	buttons.add_child(go)
 	_work_buttons.append(go)

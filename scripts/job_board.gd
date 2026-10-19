@@ -1,10 +1,11 @@
 extends Control
-## Ofertas de empleo del periodico: se elige el trabajo. Hoy hay uno disponible (profesor/a de
-## matematicas) y dos bloqueados que llegaran pronto (ingles y geografia).
+## Ofertas de empleo del periodico: se elige el trabajo. Hay dos disponibles (profesor/a de
+## matematicas y de ingles, con una sola carrera) y uno bloqueado que llegara pronto (geografia).
 
 const INK := Color("5b3a4a")
 const TIP_INTRO := "job_intro"    # cartel "para cuidar a tu Pompon necesitas monedas" (ya visto)
 const TIP_HIRED := "job_hired"    # cartel "¡conseguiste tu primer trabajo!" (ya visto)
+const TIP_ENGLISH := "job_english"  # cartel "¡ahora tambien enseñas ingles!" (ya visto)
 
 var _list: VBoxContainer
 var _slot: VBoxContainer       # nombre o ficha de profesor/a
@@ -270,10 +271,31 @@ func _open(job_id: String) -> void:
 		_message.text = "Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!"
 		Audio.play("fail")
 		return
+	Jobs.current = job_id
 	if not hired():
+		if job_id == "english":  # (el primer trabajo ya se festeja con su cartel)
+			GameState.tips_seen.append(TIP_ENGLISH)
 		_show_hired(job)
 		return
+	if job_id == "english" and not GameState.tips_seen.has(TIP_ENGLISH):
+		_show_new_subject(job)
+		return
 	get_tree().change_scene_to_file(job["scene"])
+
+
+## Ya trabaja de profesor/a y suma Ingles: su nivel y su paga siguen iguales (es una sola carrera).
+func _show_new_subject(job: Dictionary) -> void:
+	var notice := BigNotice.new(660.0)
+	_layer = notice
+	add_child(notice)
+	notice.add(BigNotice.icon_strip([["book", Color("5aa9e6")], ["star", Color("ffcf3f")], ["coin", Color("ffcf3f")]]))
+	notice.title("¡Ahora también enseñas Inglés!")
+	notice.text_line("Tu nivel y tu paga son los mismos en las dos materias.", 28, Color("a0527a"))
+	notice.button("¡A enseñar!", func():
+		GameState.tips_seen.append(TIP_ENGLISH)
+		GameState.save_game()
+		get_tree().change_scene_to_file(job["scene"]))
+	Audio.play("success")
 
 
 ## Pide nombre y sexo (la primera vez es obligatorio; al cambiarlo se puede cancelar).

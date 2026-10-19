@@ -1,5 +1,5 @@
 extends SceneTree
-## Ofertas de empleo: profesor/a de matematicas disponible, ingles y geografia bloqueados,
+## Ofertas de empleo: profesor/a de matematicas e ingles disponibles, geografia bloqueada,
 ## titulo segun como quiera que lo llamen el jugador, y que se guarde.
 
 
@@ -20,7 +20,7 @@ func _initialize() -> void:
 	for j in jobs.JOBS:
 		print("  ", j["id"], " -> f='", j["title"]["f"], "' m='", j["title"]["m"], "' n='", j["title"]["n"], "'")
 	print("matematicas lleva a una escena que existe: ", ResourceLoader.exists(jobs.get_job("math")["scene"]))
-	print("los bloqueados no tienen escena: ", jobs.get_job("english")["scene"] == "" and jobs.get_job("geography")["scene"] == "")
+	print("ingles lleva al aula: ", jobs.get_job("english")["scene"] == jobs.get_job("math")["scene"], " | el bloqueado no tiene escena: ", jobs.get_job("geography")["scene"] == "")
 	print("sexo desconocido o vacio usa el neutro: '", jobs.title("math", ""), "' / '", jobs.title("math", "x"), "'")
 	print("palabra: ", jobs.teacher_word("f"), " | ", jobs.teacher_word("m"), " | ", jobs.teacher_word(""))
 	print("saludos: ", jobs.greeting("f"), " | ", jobs.greeting("m"), " | ", jobs.greeting("n"))
@@ -75,9 +75,9 @@ func _initialize() -> void:
 	print("  encabezado: ", labels.filter(func(t): return t.contains("EMPLEO") or t.contains("PERIÓDICO")))
 	var buttons := _texts(board, "Button")
 	print("  botones: ", buttons)
-	print("  'Aplicar' solo en matematicas: ", buttons.count("Aplicar") == 1, " | bloqueados: ", buttons.count("Bloqueado"))
-	print("  dice Proximamente en los bloqueados: ", labels.count("Próximamente") == 2, " | vacantes en matematicas: ", labels.count("¡Hay vacantes!") == 1)
-	board._open("english")
+	print("  'Aplicar' en matematicas e ingles: ", buttons.count("Aplicar") == 2, " | bloqueados: ", buttons.count("Bloqueado"))
+	print("  dice Proximamente en el bloqueado: ", labels.count("Próximamente") == 1, " | vacantes: ", labels.count("¡Hay vacantes!") == 2)
+	board._open("geography")
 	print("tocar un trabajo bloqueado: '", board._message.text, "'")
 
 	# ---------- cambiar el titulo

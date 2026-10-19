@@ -53,7 +53,7 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 		change.pressed.connect(change_pressed.emit)
 		name_row.add_child(change)
 	var job := Label.new()
-	job.text = "Matemáticas · Escuela Pompon"
+	job.text = "%s · Escuela Pompon" % subjects()
 	job.add_theme_font_size_override("font_size", 20)
 	job.add_theme_color_override("font_color", Color("a0527a"))
 	info.add_child(job)
@@ -100,6 +100,17 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 		bar.text = "Nivel %d en %d %s" % [_level + 1, left, "turno" if left == 1 else "turnos"]
 	bottom.add_child(bar)
 	return self
+
+
+## Las materias que ya dio (sin clases todavia: la que eligio en el periodico).
+static func subjects() -> String:
+	var math := GameState.taught("math")
+	var english := GameState.taught("english")
+	if math and english:
+		return "Matemáticas e Inglés"
+	if math or english:
+		return Jobs.SUBJECT_NAMES["english" if english else "math"]
+	return Jobs.SUBJECT_NAMES.get(Jobs.current, "Matemáticas")
 
 
 func _draw_star() -> void:

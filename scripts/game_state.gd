@@ -334,7 +334,7 @@ func claim_pass_tier(tier: int) -> bool:
 	return true
 
 
-# --- Trabajo en el periodico (matematicas) ---
+# --- Trabajo en el periodico (profesor/a de matematicas e ingles) ---
 var jobs_done := 0
 var player_title := ""     # sexo / como quiere que lo llamen: "f", "m" o "n" (vacio = todavia no eligio)
 var player_name := ""      # nombre del jugador (se pregunta la primera vez que juega)
@@ -363,8 +363,10 @@ func set_profile(new_name: String, gender: String) -> void:
 	player_title = gender if gender in ["f", "m", "n"] else "n"
 	save_game()
 # camino -> {"level", "history": [{"c": acierto, "t": segundos}], "answered", "correct", "completed", "lessons": [niveles]}
+# (los caminos de ingles, "en_...", se guardan aca tambien)
 var math_progress := {}
-var math_weak := {}        # camino -> cuentas falladas para repasar: [{"op","a","b","streak"}]
+# camino -> lo fallado para repasar: cuentas [{"op","a","b","streak"}] o palabras de ingles [{"key","streak"}]
+var math_weak := {}
 
 
 func math_state(camino: String) -> Dictionary:
@@ -374,7 +376,15 @@ func math_state(camino: String) -> Dictionary:
 
 
 func math_level(camino: String) -> int:
-	return clampi(int(math_state(camino)["level"]), 1, MathProblems.MAX_LEVEL)
+	return clampi(int(math_state(camino)["level"]), 1, Jobs.problems(Jobs.subject_of(camino)).MAX_LEVEL)
+
+
+## ¿Ya dio alguna clase de esa materia ("math" o "english")?
+func taught(subject: String) -> bool:
+	for camino in Jobs.problems(subject).TRACKS:
+		if int(math_progress.get(camino, {}).get("answered", 0)) > 0:
+			return true
+	return false
 
 
 func weak_facts(camino: String) -> Array:
@@ -406,7 +416,8 @@ func record_answer(camino: String, problem: Dictionary, was_correct: bool, secon
 	var weak: Array = math_weak.get(camino, [])
 	var found := -1
 	for i in weak.size():
-		if MathProblems.fact_key(weak[i]["op"], weak[i]["a"], weak[i]["b"]) == problem["key"]:
+		var w: Dictionary = weak[i]
+		if (w["key"] if w.has("key") else MathProblems.fact_key(w["op"], w["a"], w["b"])) == problem["key"]:
 			found = i
 	if was_correct:
 		if found >= 0:
@@ -415,8 +426,10 @@ func record_answer(camino: String, problem: Dictionary, was_correct: bool, secon
 				weak.remove_at(found)
 	elif found >= 0:
 		weak[found]["streak"] = 0
-	else:
+	elif problem.has("op"):
 		weak.append({"op": problem["op"], "a": problem["a"], "b": problem["b"], "streak": 0})
+	else:
+		weak.append({"key": problem["key"], "streak": 0})
 		while weak.size() > 12:
 			weak.pop_front()
 	math_weak[camino] = weak
@@ -429,17 +442,18 @@ func record_answer(camino: String, problem: Dictionary, was_correct: bool, secon
 func finish_job(camino: String, correct: int, total: int, full := false) -> Dictionary:
 	note_event("worked")
 	PomponTastes.bump(pompon, "Timido", 0.5, int(Time.get_unix_time_from_system()))   # se queda solito en casa mientras el cuidador trabaja
+	var problems := Jobs.problems(Jobs.subject_of(camino))
 	var st := math_state(camino)
 	var before := math_level(camino)
 	var snapshot: Array = st["history"].duplicate(true)
-	var decision := MathProblems.evaluate(camino, before, st["history"])
+	var decision: Dictionary = problems.evaluate(camino, before, st["history"])
 	var action: String = decision["action"]
 	var after := before
 	var bonus := 0
 	match action:
 		"up", "jump":
-			after = mini(MathProblems.MAX_LEVEL, before + int(decision["levels"]))
-			bonus = MathProblems.LEVEL_UP_BONUS
+			after = mini(problems.MAX_LEVEL, before + int(decision["levels"]))
+			bonus = problems.LEVEL_UP_BONUS
 		"down":
 			after = maxi(1, before - 1)
 		"complete":
@@ -447,20 +461,20 @@ func finish_job(camino: String, correct: int, total: int, full := false) -> Dict
 				action = "none"
 			else:
 				st["completed"] = true
-				bonus = MathProblems.LEVEL_UP_BONUS
+				bonus = problems.LEVEL_UP_BONUS
 				st["history"] = []
 	if after != before:
 		st["level"] = after
 		st["history"] = []  # en el nivel nuevo se junta evidencia nueva
 	var career_before := career_level()
 	var pay := job_pay()   # la paga depende del nivel de profesor/a, no de la nota
-	var extra := MathProblems.FULL_SHIFT_BONUS if full else 0
+	var extra: int = problems.FULL_SHIFT_BONUS if full else 0
 	coins += pay + bonus + extra
 	jobs_done += 1
 	var career_after := career_level()
 	track("job")
 	Audio.play("success" if bonus > 0 or extra > 0 else "coin")
-	var grade := MathProblems.grade(correct, total)
+	var grade: Dictionary = problems.grade(correct, total)
 	save_game()
 	return {"pay": pay, "bonus": bonus, "extra": extra, "full": full, "note": grade["note"], "title": grade["title"], "message": grade["message"],
 		"action": action, "reason": decision["reason"], "level_before": before, "level_after": after, "history": snapshot,
@@ -814,6 +828,8 @@ func reset_game() -> void:
 	Neighbors.current = ""
 	Neighbors.set_friends([])
 	MathProblems.current_track = "addsub"
+	EnglishProblems.current_track = "en_words"
+	Jobs.current = "math"
 
 
 ## Lista de amigos guardada: solo entradas con codigo valido y tarjeta.
@@ -985,7 +1001,7 @@ func _load_math(parsed: Dictionary) -> void:
 	math_weak = {}
 	var saved = parsed.get("math_progress", {})
 	if typeof(saved) == TYPE_DICTIONARY:
-		for camino in MathProblems.TRACKS:
+		for camino in MathProblems.TRACKS + EnglishProblems.TRACKS:
 			if not (saved.has(camino) and typeof(saved[camino]) == TYPE_DICTIONARY):
 				continue
 			var s: Dictionary = saved[camino]
@@ -997,7 +1013,7 @@ func _load_math(parsed: Dictionary) -> void:
 			for l in s.get("lessons", []):
 				lessons.append(int(l))
 			math_progress[camino] = {
-				"level": clampi(int(s.get("level", 1)), 1, MathProblems.MAX_LEVEL), "history": history,
+				"level": clampi(int(s.get("level", 1)), 1, Jobs.problems(Jobs.subject_of(camino)).MAX_LEVEL), "history": history,
 				"answered": maxi(0, int(s.get("answered", 0))), "correct": maxi(0, int(s.get("correct", 0))),
 				"completed": bool(s.get("completed", false)), "lessons": lessons,
 			}
@@ -1009,6 +1025,12 @@ func _load_math(parsed: Dictionary) -> void:
 				if typeof(w) == TYPE_DICTIONARY and w.get("op", "") in ["add", "sub", "mul", "div"] and w.has("a") and w.has("b"):
 					list.append({"op": w["op"], "a": int(w["a"]), "b": int(w["b"]), "streak": int(w.get("streak", 0))})
 			math_weak[camino] = list
+		for camino in EnglishProblems.TRACKS:  # palabras de ingles: solo las que siguen existiendo
+			var words := []
+			for w in weak.get(camino, []):
+				if typeof(w) == TYPE_DICTIONARY and typeof(w.get("key")) == TYPE_STRING and not EnglishProblems.find_item(camino, w["key"]).is_empty():
+					words.append({"key": w["key"], "streak": int(w.get("streak", 0))})
+			math_weak[camino] = words
 
 
 func _notification(what: int) -> void:

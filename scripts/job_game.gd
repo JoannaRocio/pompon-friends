@@ -1,14 +1,15 @@
 extends Control
-## Trabajo de profesor/a de matematicas: un salon de clase con dos alumnos Pompon estudiando.
+## Trabajo de profesor/a (matematicas o ingles): un salon de clase con dos alumnos Pompon estudiando.
 ## Cada tanto un alumno levanta la mano (señal "!"): hay que tocarlo y corregir su examen resolviendo
-## la cuenta. Mientras tanto, abajo, se ordena (libros, lapices y manzanas) en un juego tranquilo.
+## la cuenta o eligiendo la palabra en ingles. Mientras tanto, abajo, se ordena (libros, lapices y
+## manzanas) en un juego tranquilo.
 ## La paga es SIEMPRE la misma (se premia intentarlo, no saber). Se mide el acierto y el tiempo de
 ## cada respuesta para decidir cuando se domina el nivel. Si se falla, se muestra la respuesta.
 
 enum State { INTRO, PLAY, QUESTION, END }
 
 const INK := Color("5b3a4a")
-const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷"}
+const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "Hi!", "en_phrases": "I am"}
 const SIGNAL_FIRST := 6.0
 const SIGNAL_GAP := Vector2(11.0, 15.0)
 const EXAM_HINT := 4.0     # segundos con la mano levantada antes de que la flecha señale el examen
@@ -16,6 +17,8 @@ const TIP_FIRST_SHIFT := "job_first_shift"   # cartel "¡Perfecto! ya sabes lo b
 const OPTION_HINT := 8.0   # segundos sin responder antes de que la flecha recorra las respuestas
 
 var camino := "addsub"
+var subject := "math"          # "math" o "english" (ver Jobs.current)
+var problems: GDScript = MathProblems
 var level := 1
 var state := State.INTRO
 var rng := RandomNumberGenerator.new()
@@ -96,7 +99,9 @@ class StarsRow extends Control:
 
 func _ready() -> void:
 	rng.randomize()
-	camino = MathProblems.current_track
+	subject = "english" if Jobs.current == "english" else "math"
+	problems = Jobs.problems(subject)
+	camino = EnglishProblems.current_track if subject == "english" else MathProblems.current_track
 	level = GameState.math_level(camino)
 	_build_ui()
 	if GameState.jobs_done == 0:
@@ -393,7 +398,7 @@ func _on_exam_tapped() -> void:
 func _open_question() -> void:
 	state = State.QUESTION
 	_answered = false
-	_problem = MathProblems.pick_problem(camino, level, rng, GameState.weak_facts(camino), _recent)
+	_problem = problems.pick_problem(camino, level, rng, GameState.weak_facts(camino), _recent)
 	_recent.append(_problem["key"])
 	while _recent.size() > 4:
 		_recent.pop_front()
@@ -409,10 +414,15 @@ func _open_question() -> void:
 		row_chip.alignment = BoxContainer.ALIGNMENT_CENTER
 		row_chip.add_child(Hud.chip("Repaso", Color("fff0cf"), Color("8a6d3b"), 22))
 		box.add_child(row_chip)
-	var eq := _label("%s = ?" % _problem["text"], 96)
-	eq.name = "Equation"
-	box.add_child(eq)
-	var row := HBoxContainer.new()
+	var row: BoxContainer
+	if subject == "english":
+		_english_prompt(box)
+		row = VBoxContainer.new()
+	else:
+		var eq := _label("%s = ?" % _problem["text"], 96)
+		eq.name = "Equation"
+		box.add_child(eq)
+		row = HBoxContainer.new()
 	row.name = "Options"
 	row.add_theme_constant_override("separation", 12)
 	box.add_child(row)
@@ -421,8 +431,8 @@ func _open_question() -> void:
 		var b := Button.new()
 		b.text = str(value)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 150)
-		Hud.style_soft(b, 70)
+		b.custom_minimum_size = Vector2(0, 96 if subject == "english" else 150)
+		Hud.style_soft(b, 44 if subject == "english" else 70)
 		b.set_meta("value", value)
 		b.pressed.connect(_on_option.bind(b))
 		row.add_child(b)
@@ -437,45 +447,92 @@ func _open_question() -> void:
 	box.add_child(info)
 
 
+## Pregunta de ingles: el dibujo (si tiene), la palabra o la frase grande y que hay que hacer.
+func _english_prompt(box: VBoxContainer) -> void:
+	var pic: String = _problem.get("pic", "")
+	if EnglishPicture.has_picture(pic):
+		var art := EnglishPicture.new()
+		art.custom_minimum_size = Vector2(0, 190)
+		art.show_pic(pic)
+		box.add_child(art)
+	var phrase: bool = camino == "en_phrases"
+	var prompt := _label(_problem["prompt"], 50 if phrase else 66)
+	prompt.name = "Prompt"
+	box.add_child(prompt)
+	if camino == "en_meaning":  # como se lee en ingles (y si el telefono tiene voz, se puede escuchar)
+		var say_row := HBoxContainer.new()
+		say_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		say_row.add_theme_constant_override("separation", 10)
+		say_row.add_child(Hud.chip("Se dice: %s" % _problem["say"], Color("e6efff"), Color("3f66b0"), 24))
+		if Speech.available():
+			say_row.add_child(_speak_button(_problem["en"]))
+		box.add_child(say_row)
+	box.add_child(_label(_problem["ask"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+
+
+## Boton con un parlante: dice la palabra en ingles con la voz del telefono.
+func _speak_button(text: String) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(64, 52)
+	b.focus_mode = Control.FOCUS_NONE
+	Hud.style_soft(b, 20)
+	b.pressed.connect(func(): Speech.say(text))
+	var icon := Control.new()
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon.draw.connect(func():
+		var c := icon.size * 0.5 + Vector2(-6, 0)
+		icon.draw_colored_polygon(PackedVector2Array([c + Vector2(-12, -6), c + Vector2(-4, -6), c + Vector2(6, -14),
+			c + Vector2(6, 14), c + Vector2(-4, 6), c + Vector2(-12, 6)]), INK)
+		for k in 2:
+			icon.draw_arc(c + Vector2(8, 0), 8.0 + 7.0 * k, -0.9, 0.9, 8, INK, 3.0, true))
+	b.add_child(icon)
+	return b
+
+
 func _on_option(button: Button) -> void:
 	if _answered or _layer == null:
 		return
 	_answered = true
-	var value: int = button.get_meta("value")
-	var answer: int = _problem["answer"]
+	var value = button.get_meta("value")
+	var answer = _problem["answer"]
+	var right: bool = str(value) == str(answer)
 	var seconds := (Time.get_ticks_msec() - _q_started) / 1000.0
 	answer_times.append(seconds)
-	GameState.record_answer(camino, _problem, value == answer, seconds)
+	GameState.record_answer(camino, _problem, right, seconds)
 	var box: VBoxContainer = _layer.get_child(1).get_child(0)
-	var row: HBoxContainer = box.get_node("Options")
+	var row: BoxContainer = box.get_node("Options")
 	var result: Label = box.get_node("Result")
 	var info: VBoxContainer = box.get_node("Info")
 	for b in row.get_children():
-		var is_right: bool = int(b.get_meta("value")) == answer
+		var is_right: bool = str(b.get_meta("value")) == str(answer)
 		if is_right:
 			b.self_modulate = Color(0.55, 0.9, 0.6)
 		elif b == button:
 			b.self_modulate = Color(1.0, 0.55, 0.55)
 		else:
 			b.modulate.a = 0.45
-	_dots.results.append(value == answer)
+	_dots.results.append(right)
 	_dots.queue_redraw()
-	if value == answer:
+	if subject == "english":
+		_english_answered(box)
+	if right:
 		correct += 1
-		result.text = "¡Correcto!" if seconds > MathProblems.fast_seconds(camino, level) else "¡Correcto y rápido!"
+		result.text = "¡Correcto!" if seconds > problems.fast_seconds(camino, level) else "¡Correcto y rápido!"
 		result.add_theme_color_override("font_color", Color("2f9e6e"))
 		Audio.play("coin")
-		await get_tree().create_timer(1.0).timeout
+		await get_tree().create_timer(1.8 if subject == "english" else 1.0).timeout
 		_end_question()
 	else:
-		var explanation := MathProblems.explanation(_problem)
-		mistakes.append({"text": _problem["text"], "answer": answer, "picked": value, "explanation": explanation})
-		result.text = "¡Casi! Es %d" % answer
+		var explanation: String = problems.explanation(_problem)
+		var review: String = _problem["text"] if subject == "english" else "%s = %d" % [_problem["text"], answer]
+		mistakes.append({"text": _problem["text"], "answer": answer, "picked": value, "explanation": explanation, "review": review})
+		result.text = "¡Casi! Es %s" % str(answer)
 		result.add_theme_color_override("font_color", Color("d6336c"))
 		Audio.play("fail")
 		info.visible = true
 		info.add_child(_label(explanation, 28))
-		if MathHint.can_draw(_problem):
+		if subject == "math" and MathHint.can_draw(_problem):
 			var hint := MathHint.new()
 			hint.custom_minimum_size = Vector2(0, 190)
 			hint.show_problem(_problem)
@@ -486,6 +543,24 @@ func _on_option(button: Button) -> void:
 		Hud.style_primary(ok, 36)
 		ok.pressed.connect(_end_question)
 		info.add_child(ok)
+
+
+## Ingles, ya respondido: la frase queda completa, se ve como se pronuncia y se escucha (si hay voz).
+func _english_answered(box: VBoxContainer) -> void:
+	var prompt: Label = box.get_node_or_null("Prompt")
+	if camino == "en_phrases":
+		if prompt != null:
+			prompt.text = _problem["text"]
+			prompt.add_theme_color_override("font_color", Color("2f9e6e"))
+		Speech.say(_problem["text"])
+		return
+	if camino == "en_words":
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_CENTER
+		row.add_child(Hud.chip("%s · se dice: %s" % [_problem["en"], _problem["say"]], Color("e6efff"), Color("3f66b0"), 26))
+		box.add_child(row)
+		box.move_child(row, box.get_node("Options").get_index() + 1)
+	Speech.say(_problem["en"])
 
 
 func _end_question() -> void:
@@ -575,10 +650,10 @@ func _show_level_up(res: Dictionary) -> void:
 	var complete: bool = res["action"] == "complete"
 	box.add_child(_label("¡CAMINO COMPLETO!" if complete else "¡SUBISTE DE NIVEL!", 42, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
 	if complete:
-		box.add_child(_label("¡Dominaste %s!" % MathProblems.LABELS[camino].to_lower(), 34))
+		box.add_child(_label("¡Dominaste %s!" % String(problems.LABELS[camino]).to_lower(), 34))
 	else:
 		box.add_child(_label("Nivel %d" % res["level_after"], 120, HORIZONTAL_ALIGNMENT_CENTER, Color("e0a800")))
-		box.add_child(_label(MathProblems.level_name(camino, res["level_after"]), 34))
+		box.add_child(_label(problems.level_name(camino, res["level_after"]), 34))
 	var prize := HBoxContainer.new()
 	prize.alignment = BoxContainer.ALIGNMENT_CENTER
 	prize.add_theme_constant_override("separation", 10)
@@ -622,7 +697,7 @@ func _show_result(res: Dictionary) -> void:
 	var chips := HBoxContainer.new()
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	chips.add_theme_constant_override("separation", 12)
-	chips.add_child(Hud.chip("Cuentas bien: %d de %d" % [correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
+	chips.add_child(Hud.chip("%s: %d de %d" % ["Bien" if subject == "english" else "Cuentas bien", correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
 	chips.add_child(Hud.chip("Ordenados: %d" % sorter.sorted_total, Color("e6efff"), Color("3f66b0"), 24))
 	box.add_child(chips)
 	var pay := HBoxContainer.new()
@@ -639,23 +714,23 @@ func _show_result(res: Dictionary) -> void:
 		extra_row.add_child(Hud.chip("¡Turno completo! +%d monedas extra" % res["extra"], Color("fff0cf"), Color("8a6d3b"), 26))
 		box.add_child(extra_row)
 	else:
-		box.add_child(_label("Termina el turno completo y gana +%d extra" % MathProblems.FULL_SHIFT_BONUS, 22, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+		box.add_child(_label("Termina el turno completo y gana +%d extra" % problems.FULL_SHIFT_BONUS, 22, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 	if res["bonus"] > 0:
 		box.add_child(_label("+%d monedas de premio por el nivel" % res["bonus"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
 	box.add_child(HSeparator.new())
-	box.add_child(_label("%s · Nivel %d" % [MathProblems.LABELS[camino], res["level_before"]], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+	box.add_child(_label("%s · Nivel %d" % [problems.LABELS[camino], res["level_before"]], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 	var dots := MasteryDots.new()
 	dots.custom_minimum_size = Vector2(0, 50)
-	dots.set_data(res["history"], MathProblems.fast_seconds(camino, res["level_before"]))
+	dots.set_data(res["history"], problems.fast_seconds(camino, res["level_before"]))
 	box.add_child(dots)
-	var streak := MathProblems.good_streak(camino, res["level_before"], res["history"])
+	var streak: int = problems.good_streak(camino, res["level_before"], res["history"])
 	match res["action"]:
 		"up", "jump", "complete":
 			box.add_child(_label("¡Ahora estás en el nivel %d!" % res["level_after"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
 		"down":
 			box.add_child(_label("Bajamos un nivel para afirmar. ¡Tú puedes!", 26))
 		_:
-			box.add_child(_label("Para subir: %d seguidas bien y rápidas (llevas %d)" % [MathProblems.WINDOW, streak], 24))
+			box.add_child(_label("Para subir: %d seguidas bien y rápidas (llevas %d)" % [problems.WINDOW, streak], 24))
 
 	if not mistakes.is_empty():
 		box.add_child(HSeparator.new())
@@ -663,7 +738,7 @@ func _show_result(res: Dictionary) -> void:
 		for m in mistakes:
 			var card := PanelContainer.new()
 			card.add_theme_stylebox_override("panel", Hud.card(Color("fff1f6"), 24, Color("ffc2d9"), 3, 0))
-			card.add_child(_label("%s = %d" % [m["text"], m["answer"]], 42))
+			card.add_child(_label(m["review"], 42 if subject == "math" else 32))
 			box.add_child(card)
 
 	if GameState.egg_waiting() and not GameState.owns_crib():

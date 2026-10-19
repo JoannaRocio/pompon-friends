@@ -1,12 +1,14 @@
 class_name LessonView
 extends PanelContainer
-## Tarjeta con la leccion de un nivel antes de practicarlo: un truco corto y un ejemplo en la pizarra.
+## Tarjeta con la leccion de un nivel antes de practicarlo: un truco corto y un ejemplo en la pizarra
+## (sirve para matematicas y para ingles).
 
 signal closed
 
 
 func setup(camino: String, level: int) -> void:
-	var data := MathProblems.lesson(camino, level)
+	var problems := Jobs.problems(Jobs.subject_of(camino))
+	var data: Dictionary = problems.lesson(camino, level)
 	add_theme_stylebox_override("panel", Hud.card(Color("fffafc"), 40, Color("ffb3d1"), 6, 16))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 14)
@@ -19,7 +21,7 @@ func setup(camino: String, level: int) -> void:
 	head.add_theme_color_override("font_color", Color("d6336c"))
 	box.add_child(head)
 	var sub := Label.new()
-	sub.text = MathProblems.level_name(camino, level)
+	sub.text = problems.level_name(camino, level)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sub.add_theme_font_size_override("font_size", 28)

@@ -25,6 +25,10 @@ Look="*res://scripts/look.gd"
 Cloud="*res://scripts/cloud.gd"
 Friends="*res://scripts/friends.gd"
 
+[audio]
+
+general/text_to_speech=true
+
 [display]
 
 window/size/viewport_width=720

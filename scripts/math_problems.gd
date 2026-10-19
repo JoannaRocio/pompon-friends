@@ -70,7 +70,7 @@ static func level_name(track: String, level: int) -> String:
 
 
 static func fast_seconds(track: String, level: int) -> float:
-	return FAST_SECONDS[track][clampi(level, 1, MAX_LEVEL) - 1]
+	return FAST_SECONDS.get(track, FAST_SECONDS["addsub"])[clampi(level, 1, MAX_LEVEL) - 1]
 
 
 ## Identifica una cuenta (para recordar las que se fallan). La multiplicacion es conmutativa.
@@ -397,6 +397,11 @@ static func grade(correct: int, total: int) -> Dictionary:
 ## Decide que hacer con el nivel segun las ultimas respuestas (`history` = [{"c": bool, "t": segundos}]).
 ## Devuelve {"action": "none"|"up"|"jump"|"complete"|"down", "levels": int, "reason": String}.
 static func evaluate(track: String, level: int, history: Array) -> Dictionary:
+	return judge(fast_seconds(track, level), level, history, "cuentas")
+
+
+## Lo mismo para cualquier materia: `fast` = segundos de una respuesta rapida, `noun` = que se responde.
+static func judge(fast: float, level: int, history: Array, noun := "cuentas") -> Dictionary:
 	var n := history.size()
 	var result := {"action": "none", "levels": 0, "reason": ""}
 	if n >= WINDOW:
@@ -406,15 +411,14 @@ static func evaluate(track: String, level: int, history: Array) -> Dictionary:
 			var times := win.map(func(h): return float(h["t"]))
 			times.sort()
 			var median: float = (times[WINDOW / 2 - 1] + times[WINDOW / 2]) / 2.0
-			var fast := fast_seconds(track, level)
 			if median <= fast * JUMP_FACTOR:
-				return _advance(level, 2, "¡Respondiste las últimas %d cuentas perfectas y rapidísimo!" % WINDOW)
+				return _advance(level, 2, "¡Respondiste las últimas %d %s perfectas y rapidísimo!" % [WINDOW, noun])
 			if median <= fast:
-				return _advance(level, 1, "¡Respondiste las últimas %d cuentas bien y rápido, varias veces seguidas!" % WINDOW)
+				return _advance(level, 1, "¡Respondiste las últimas %d %s bien y rápido, varias veces seguidas!" % [WINDOW, noun])
 	if n >= CONSTANCY:
 		var recent := history.slice(n - CONSTANCY, n)
 		if recent.all(func(h): return h["c"]):
-			return _advance(level, 1, "¡Llevas %d cuentas seguidas bien! Tu constancia da frutos." % CONSTANCY)
+			return _advance(level, 1, "¡Llevas %d %s seguidas bien! Tu constancia da frutos." % [CONSTANCY, noun])
 	if n >= WINDOW and level > 1:
 		var win2 := history.slice(n - WINDOW, n)
 		var right := win2.filter(func(h): return h["c"]).size()
@@ -434,7 +438,10 @@ static func _advance(level: int, steps: int, reason: String) -> Dictionary:
 
 ## Respuestas seguidas (desde la ultima hacia atras) que fueron correctas y rapidas.
 static func good_streak(track: String, level: int, history: Array) -> int:
-	var fast := fast_seconds(track, level)
+	return streak(fast_seconds(track, level), history)
+
+
+static func streak(fast: float, history: Array) -> int:
 	var count := 0
 	for i in range(history.size() - 1, -1, -1):
 		var h: Dictionary = history[i]
