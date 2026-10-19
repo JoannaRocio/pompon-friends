@@ -277,6 +277,10 @@ static func has_required_furniture(species: String, placed_ids: Array) -> bool:
 
 
 static func get_item(id: String) -> Dictionary:
+	if PixelArt.is_art(id):   # dibujo de pixel art: un cuadro para la pared
+		if not PixelArt.cache.has(id):
+			return {}
+		return {"id": id, "name": PixelArt.name_of(id), "category": "deco", "price": 0, "color": "c99560", "art": true}
 	for it in ITEMS:
 		if it["id"] == id:
 			return it

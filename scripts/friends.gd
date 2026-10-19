@@ -18,7 +18,9 @@ const EVENT_TEXT := {
 	"pet": "{n} vino y me hizo mimos",
 	"play": "¡Jugué a la pelota con {n}!",
 	"gift": "¡{n} me dejó un regalo!",
+	"art": "¡{n} me regaló un dibujo! Ya lo puedo colgar en mi cuarto",
 }
+const ART_PER_DAY := 3         # dibujos que se le pueden regalar a un mismo amigo por dia
 
 var busy := false
 var last_error := ""
@@ -148,6 +150,20 @@ func send_event(code: String, kind: String) -> void:
 	await Cloud.server_call("pompon_friend_visit", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_to": code, "p_kind": kind})
 
 
+## Le regala un dibujo de pixel art a un amigo de verdad: le llega a su juego como un cuadro para
+## colgar. Devuelve {"ok", "result"}: "ok", "limit" (ya le regalaste muchos hoy), "not_friends" u "off".
+func send_art(code: String, px: String) -> Dictionary:
+	if not is_active() or not is_available():
+		return {"ok": false, "result": "off"}
+	if not PixelArt.valid(px):
+		return {"ok": false, "result": "art"}
+	var res: Dictionary = await Cloud.server_call("pompon_friend_gift_art", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_to": code, "p_art": px})
+	if not res["ok"]:
+		return {"ok": false, "result": res["error"]}
+	var result := str(res["value"])
+	return {"ok": result == "ok", "result": result}
+
+
 ## Mira el buzon: solicitudes, amigos (con su tarjeta) y avisos nuevos (al diario y a Social).
 func refresh() -> Dictionary:
 	if not is_active() or not is_available():
@@ -185,7 +201,7 @@ func _entries(list) -> Array:
 
 ## Un amigo te visito: lo anota el diario de tu Pompon y suma Social.
 func _on_event(e) -> void:
-	if typeof(e) != TYPE_DICTIONARY or GameState.pompon == null or not GameState.pompon.hatched:
+	if typeof(e) != TYPE_DICTIONARY:
 		return
 	var kind := str(e.get("kind", ""))
 	if not EVENT_TEXT.has(kind):
@@ -194,6 +210,13 @@ func _on_event(e) -> void:
 	for f in GameState.friends:
 		if f["code"] == str(e.get("from", "")):
 			who = display_name(f)
+	if kind == "art":   # un dibujo de regalo: queda guardado para colgarlo (en Decorar), aunque el huevo no nacio
+		var px := str(e.get("data", ""))
+		if not PixelArt.valid(px):
+			return
+		GameState.add_painting(px, who)
+	if GameState.pompon == null or not GameState.pompon.hatched:
+		return
 	GameState.pompon.add_social(EVENT_SOCIAL, false)
 	GameState.pending_thoughts.append({"kind": "sentimiento", "text": String(EVENT_TEXT[kind]).replace("{n}", who), "stat": "amistad", "key": "friend:" + kind})
 
@@ -288,6 +311,17 @@ func fake_rpc(store: Dictionary, fn: String, body: Dictionary) -> Dictionary:
 					return _ok("already")   # (en el servidor real: dentro de las ultimas 20 horas)
 			store["events"].append({"to": to2, "from": me, "kind": body["p_kind"], "seen": false})
 			return _ok("ok")
+		"pompon_friend_gift_art":
+			var to3 := str(body["p_to"])
+			if not PixelArt.valid(str(body["p_art"])):
+				return {"ok": false, "value": null, "error": "server"}
+			if not linked.call(me, to3):
+				return _ok("not_friends")
+			var sent_today: int = store["events"].filter(func(ev): return ev["from"] == me and ev["to"] == to3 and ev["kind"] == "art").size()
+			if sent_today >= ART_PER_DAY:
+				return _ok("limit")
+			store["events"].append({"to": to3, "from": me, "kind": "art", "seen": false, "data": str(body["p_art"])})
+			return _ok("ok")
 		"pompon_friend_inbox":
 			var card := func(code: String) -> Dictionary:
 				return {"code": code, "snapshot": profiles[code]["snapshot"]}
@@ -305,7 +339,7 @@ func fake_rpc(store: Dictionary, fn: String, body: Dictionary) -> Dictionary:
 			var events := []
 			for ev in store["events"]:
 				if ev["to"] == me and not ev["seen"]:
-					events.append({"from": ev["from"], "kind": ev["kind"]})
+					events.append({"from": ev["from"], "kind": ev["kind"], "data": ev.get("data", null)})
 					ev["seen"] = true
 			return _ok(JSON.parse_string(JSON.stringify({"requests": requests, "sent": sent, "friends": friends, "events": events})))
 	return {"ok": false, "value": null, "error": "server"}

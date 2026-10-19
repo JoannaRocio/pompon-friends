@@ -102,11 +102,13 @@ create table if not exists public.friend_events (
 	id bigserial primary key,
 	to_code text not null references public.friend_profiles(code) on delete cascade,
 	from_code text not null references public.friend_profiles(code) on delete cascade,
-	kind text not null,                        -- 'visit', 'pet', 'play' o 'gift'
+	kind text not null,                        -- 'visit', 'pet', 'play', 'gift' o 'art' (dibujo regalado)
 	seen boolean not null default false,       -- ya se mostro en el juego del amigo
 	created_at timestamptz not null default now()
 );
 create index if not exists friend_events_to_idx on public.friend_events (to_code);
+-- (agregada despues) un dibujo de pixel art regalado: 256 letras de 0-9 y a-f
+alter table public.friend_events add column if not exists data text;
 
 alter table public.friend_profiles enable row level security;
 alter table public.friend_links enable row level security;
@@ -309,13 +311,41 @@ begin
 			from friend_profiles p
 			where p.code in (select to_code from friend_links where from_code = p_code and status = 'accepted'
 				union select from_code from friend_links where to_code = p_code and status = 'accepted')), '[]'::jsonb),
-		'events', coalesce((select jsonb_agg(jsonb_build_object('from', e.from_code, 'kind', e.kind, 'at', e.created_at) order by e.id)
+		'events', coalesce((select jsonb_agg(jsonb_build_object('from', e.from_code, 'kind', e.kind, 'at', e.created_at, 'data', e.data) order by e.id)
 			from friend_events e where e.to_code = p_code and e.id <= last_id and not e.seen), '[]'::jsonb)
 	) into box;
 	-- leidos: se marcan (no se borran enseguida) para que el limite de una visita por tipo cada 20 h siga valiendo
 	update friend_events set seen = true where to_code = p_code and id <= last_id and not seen;
 	delete from friend_events where to_code = p_code and created_at < now() - interval '2 days';
 	return box;
+end;
+$$;
+
+-- Regalar un dibujo de pixel art (16 x 16) a un amigo: le llega con el buzon como un cuadro para colgar.
+-- Hasta 3 por dia al mismo amigo. Devuelve 'ok', 'limit' o 'not_friends'.
+create or replace function public.pompon_friend_gift_art(p_code text, p_secret text, p_to text, p_art text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+	if not pompon_friend_auth(p_code, p_secret) then
+		raise exception 'auth';
+	end if;
+	if p_art is null or p_art !~ '^[0-9a-f]{256}$' then
+		raise exception 'dibujo invalido';
+	end if;
+	if not exists (select 1 from friend_links where status = 'accepted'
+			and ((from_code = p_code and to_code = p_to) or (from_code = p_to and to_code = p_code))) then
+		return 'not_friends';
+	end if;
+	if (select count(*) from friend_events where from_code = p_code and to_code = p_to and kind = 'art'
+			and created_at > now() - interval '20 hours') >= 3 then
+		return 'limit';
+	end if;
+	insert into friend_events (to_code, from_code, kind, data) values (p_to, p_code, 'art', p_art);
+	return 'ok';
 end;
 $$;
 
@@ -326,6 +356,7 @@ revoke all on function public.pompon_friend_answer(text, text, text, boolean) fr
 revoke all on function public.pompon_friend_remove(text, text, text) from public;
 revoke all on function public.pompon_friend_visit(text, text, text, text) from public;
 revoke all on function public.pompon_friend_inbox(text, text) from public;
+revoke all on function public.pompon_friend_gift_art(text, text, text, text) from public;
 grant execute on function public.pompon_friend_register(text) to anon;
 grant execute on function public.pompon_friend_update(text, text, jsonb) to anon;
 grant execute on function public.pompon_friend_request(text, text, text) to anon;
@@ -333,5 +364,6 @@ grant execute on function public.pompon_friend_answer(text, text, text, boolean)
 grant execute on function public.pompon_friend_remove(text, text, text) to anon;
 grant execute on function public.pompon_friend_visit(text, text, text, text) to anon;
 grant execute on function public.pompon_friend_inbox(text, text) to anon;
+grant execute on function public.pompon_friend_gift_art(text, text, text, text) to anon;
 
 notify pgrst, 'reload schema';

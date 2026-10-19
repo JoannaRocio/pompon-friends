@@ -20,6 +20,9 @@ static func stickers() -> Array:
 		_s("game:math", 0, "Jugó a Matemáticas", "Juega a Matemáticas", "calc", Color("5bb8f5")),
 		_s("game:simon", 0, "Jugó a Memoria", "Juega a Memoria", "note", Color("a98bea")),
 		_s("game:pattern", 0, "Jugó a Patrones", "Juega a Patrones", "puzzle", Color("3cc9b0")),
+		_s("game:jump", 0, "Saltó al cielo", "Juega a Salto al cielo", "star", Color("5bb8f5")),
+		_s("game:paint", 0, "Pintó su primer dibujo", "Juega a Pintar", "heart", Color("ff7aa8")),
+		_s("game:music", 0, "Hizo su primera canción", "Juega a Hacer música", "note", Color("a98bea")),
 	]
 	for f in PomponTastes.FOODS:
 		out.append(_s("food:" + f["id"], 1, String(f["name"]), "Dale de comer %s" % String(f["name"]).to_lower(), "apple", FOOD_TINT[int(f["tier"])]))

@@ -95,6 +95,9 @@ const PLAYS := {
 		"stats": {}, "say": ["¡Una copa! ¡Soy un campeón!"]},
 }
 
+const ART_PLAY := {"pose": "look", "secs": [12.0, 20.0], "fx": "heart", "text": "admira su dibujo",
+	"stats": {"comodidad": 6.0}, "say": ["¡Qué dibujo tan lindo!", "¡Es una obra de arte!", "¡Lo voy a mirar todos los días!"]}
+
 # Comentarios para lo que no tiene uno propio.
 const GENERIC_SAY := ["¡Qué lindo! ¿Es para mí?", "¡Algo nuevo en mi cuarto!", "¡Me encanta cómo queda!"]
 const COOLDOWN := 25.0   # segundos entre una actividad y la siguiente (camina un rato entre medio)
@@ -105,6 +108,8 @@ static func play_of(item_id: String) -> Dictionary:
 		return PLAYS[item_id]
 	if Catalog.is_bed(item_id):   # la cama de nube (dibujo propio) descansa como la cama amplia
 		return PLAYS["furn_bed"]
+	if PixelArt.is_art(item_id):  # un dibujo pintado (o regalado): lo admira como un cuadro
+		return ART_PLAY
 	return PLAYS.get(Catalog.shape_of(item_id), {})
 
 

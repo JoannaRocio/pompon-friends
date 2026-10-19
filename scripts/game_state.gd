@@ -9,7 +9,9 @@ var pompon: Pompon = null
 var coins := 0
 var gems := 0
 var last_saved := 0
-var owned: Array = []        # ids de items comprados
+var owned: Array = []        # ids de items comprados (y los dibujos de pixel art, "art_...")
+var paintings: Array = []    # dibujos de pixel art: [{"id", "px", "from" (quien lo regalo), "t"}] (ver PixelArt)
+var discover_next: Array = []   # algo recien colgado fuera de Decorar: al volver a la casa, el Pompon va a verlo
 var equipped := {}           # categoria -> id (hat, glasses, shirt, floor, wall)
 var placed: Array = []       # muebles/decoracion en el cuarto: {"id", "x", "y"} (x,y de 0 a 1)
 
@@ -81,6 +83,8 @@ func place_item(item_id: String, at := Vector2(-1.0, -1.0), near_x := 0.5) -> vo
 	if at.x < 0.0:
 		var is_wall: bool = Catalog.get_item(item_id)["category"] == "deco"
 		var spots := _world_spots(WALL_SPOTS if is_wall else FLOOR_SPOTS, near_x)
+		if current_room == 0:   # en la sala, lo nuevo no tapa la puerta al pueblo (a la izquierda de todo)
+			spots = spots.filter(func(sp): return sp.x * ROOM_REF_WORLD.x > 240.0)
 		# solo cuentan los items de la misma zona (pared o piso): no chocan entre si
 		var same_zone := in_room.filter(func(p): return (Catalog.get_item(p["id"])["category"] == "deco") == is_wall)
 		at = ItemArt.best_spot(item_id, spots, same_zone, ROOM_REF_WORLD)
@@ -797,7 +801,7 @@ func save_dict() -> Dictionary:
 	return {
 		"version": SAVE_VERSION,
 		"coins": coins, "gems": gems, "last_saved": last_saved,
-		"owned": owned, "equipped": equipped, "placed": placed,
+		"owned": owned, "equipped": equipped, "placed": placed, "paintings": paintings,
 		"room_layout": 2, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
@@ -830,6 +834,7 @@ func reset_game() -> void:
 	MathProblems.current_track = "addsub"
 	EnglishProblems.current_track = "en_words"
 	Jobs.current = "math"
+	PixelArt.cache = {}
 
 
 ## Lista de amigos guardada: solo entradas con codigo valido y tarjeta.
@@ -874,12 +879,59 @@ func load_game() -> void:
 	apply_save(parsed)
 
 
+## Dibujos guardados: solo los validos (y se anotan en PixelArt.cache para dibujarlos).
+func _load_paintings(list) -> void:
+	paintings = []
+	PixelArt.cache = {}
+	if typeof(list) != TYPE_ARRAY:
+		return
+	for e in list:
+		if typeof(e) == TYPE_DICTIONARY and PixelArt.is_art(str(e.get("id", ""))) and PixelArt.valid(str(e.get("px", ""))):
+			var entry := {"id": str(e["id"]), "px": str(e["px"]), "from": str(e.get("from", "")).left(30), "t": int(e.get("t", 0))}
+			paintings.append(entry)
+			PixelArt.cache[entry["id"]] = entry
+
+
+## Guarda un dibujo nuevo (pintado o regalado por `from`) y lo deja para colgar. Devuelve su id.
+func add_painting(px: String, from := "") -> String:
+	if not PixelArt.valid(px):
+		return ""
+	var id := ""
+	while id == "" or PixelArt.cache.has(id):
+		id = PixelArt.PREFIX + "%06x" % (randi() % 0xffffff)
+	var entry := {"id": id, "px": px, "from": from, "t": int(Time.get_unix_time_from_system())}
+	paintings.append(entry)
+	PixelArt.cache[id] = entry
+	owned.append(id)
+	# demasiados: se borran los mas viejos que no estan colgados
+	var i := 0
+	while paintings.size() > PixelArt.MAX_SAVED and i < paintings.size():
+		var old: String = paintings[i]["id"]
+		if old != id and not is_placed(old):
+			paintings.remove_at(i)
+			PixelArt.cache.erase(old)
+			owned.erase(old)
+		else:
+			i += 1
+	save_game()
+	return id
+
+
+## Cuelga un dibujo en la habitacion actual (el Pompon va a verlo al volver a la casa).
+func hang_painting(id: String) -> void:
+	place_item(id)
+	if is_placed(id):
+		discover_next = [id]
+	save_game()
+
+
 ## Pone en el juego una partida leida (del archivo o bajada de la nube), descartando lo invalido.
 func apply_save(parsed: Dictionary) -> void:
 	coins = maxi(0, int(parsed.get("coins", 0)))
 	gems = maxi(0, int(parsed.get("gems", 0)))
 	last_saved = int(parsed.get("last_saved", 0))
 	# Se descartan datos invalidos (items que ya no existen, entradas incompletas).
+	_load_paintings(parsed.get("paintings", []))   # antes que `owned`: los dibujos son items
 	owned = []
 	for id in parsed.get("owned", []):
 		if typeof(id) == TYPE_STRING and not Catalog.get_item(id).is_empty() and not owned.has(id):
@@ -940,7 +992,7 @@ func apply_save(parsed: Dictionary) -> void:
 				p.erase("ox")
 	# Partidas anteriores: los muebles ya comprados se colocan solos.
 	for id in owned:
-		if Catalog.is_placeable(id) and not is_placed(id):
+		if Catalog.is_placeable(id) and not is_placed(id) and not PixelArt.is_art(id):
 			place_item(id)
 	missions_day = int(parsed.get("missions_day", 0))
 	mission_progress = parsed.get("mission_progress", {})
@@ -1070,7 +1122,7 @@ func _on_back() -> void:
 			get_tree().change_scene_to_file("res://scenes/job_board.tscn")
 		"job_game":
 			get_tree().change_scene_to_file("res://scenes/job_menu.tscn")
-		"math_game", "simon_game", "pattern_game":
+		"math_game", "simon_game", "pattern_game", "jump_game", "paint_game", "music_game":
 			get_tree().change_scene_to_file("res://scenes/minigames.tscn")
 		_:
 			get_tree().change_scene_to_file("res://scenes/home.tscn")

@@ -6,6 +6,9 @@ const GAMES := [
 	{"name": "Matemáticas", "tag": "Tu nivel", "scene": "res://scenes/math_game.tscn", "color": "5bb8f5", "icon": "math", "max": 10},
 	{"name": "Simón Dice", "tag": "Memoria", "scene": "res://scenes/simon_game.tscn", "color": "ff7aa8", "icon": "simon", "max": 12},
 	{"name": "Patrones", "tag": "Lógica", "scene": "res://scenes/pattern_game.tscn", "color": "5fd48a", "icon": "patterns", "max": 10},
+	{"name": "Salto al cielo", "tag": "Físico", "scene": "res://scenes/jump_game.tscn", "color": "ffb938", "icon": "jump", "max": 20},
+	{"name": "Pintar", "tag": "Creatividad", "scene": "res://scenes/paint_game.tscn", "color": "e0609e", "icon": "paint", "max": 10},
+	{"name": "Hacer música", "tag": "Música", "scene": "res://scenes/music_game.tscn", "color": "8a7be0", "icon": "music", "max": 10},
 ]
 
 
@@ -39,6 +42,18 @@ class GameIcon extends Control:
 					var p := c + Vector2((i - 1) * r * 0.5, 0)
 					draw_circle(p, r * 0.22, Color.WHITE)
 					draw_circle(p, r * 0.17, cols2[i])
+			"jump":   # nube y flecha hacia arriba
+				for part in [[-0.3, 0.38, 0.2], [0.0, 0.32, 0.26], [0.3, 0.38, 0.2]]:
+					draw_circle(c + Vector2(part[0], part[1]) * r, part[2] * r, Color.WHITE)
+				draw_line(c + Vector2(0, 0.2) * r, c + Vector2(0, -0.5) * r, Color.WHITE, r * 0.14, true)
+				draw_colored_polygon(PackedVector2Array([c + Vector2(0, -0.72) * r, c + Vector2(-0.28, -0.38) * r, c + Vector2(0.28, -0.38) * r]), Color.WHITE)
+			"paint":  # cuadritos de pixel art
+				var cols3 := [Color("ff6b7a"), Color("ffd24d"), Color("5bb8f5"), Color("5fd48a")]
+				for i in 9:
+					var cell := Vector2(i % 3 - 1, i / 3 - 1) * r * 0.36
+					draw_rect(Rect2(c + cell - Vector2(r, r) * 0.16, Vector2(r, r) * 0.32), Color.WHITE if i % 2 == 1 else cols3[i / 2 % 4])
+			"music":
+				Hud.draw_icon(self, "note", c, r * 1.2, Color.WHITE, Color(0, 0, 0, 0))
 
 
 var _int_bar: StatBar
@@ -88,8 +103,17 @@ func _ready() -> void:
 	# tu Pompon: lo que mejora al jugar
 	root.add_child(_pompon_card())
 
+	# los juegos, en una lista que se desliza (son seis)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(scroll)
+	var list := VBoxContainer.new()
+	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	list.add_theme_constant_override("separation", 16)
+	scroll.add_child(list)
 	for g in GAMES:
-		root.add_child(_game_card(g))
+		list.add_child(_game_card(g))
 	if GameState.minigame_gain_pending:
 		_show_gain.call_deferred()
 
@@ -159,7 +183,7 @@ func _pompon_card() -> Control:
 func _game_card(g: Dictionary) -> Control:
 	var color := Color(g["color"])
 	var card := PanelContainer.new()
-	card.size_flags_vertical = Control.SIZE_EXPAND_FILL   # las tarjetas se reparten el alto que sobra
+	card.custom_minimum_size = Vector2(0, 170)
 	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.95), 40, Color.WHITE, 3, 10))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)

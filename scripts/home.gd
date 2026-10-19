@@ -122,6 +122,8 @@ var _mystery_egg: Pompon
 
 func _ready() -> void:
 	Town.from_town = false   # desde la casa, la tienda y las visitas vuelven a la casa
+	_discover = GameState.discover_next.duplicate()   # algo recien colgado (por ejemplo un dibujo)
+	GameState.discover_next = []
 	_mystery_egg = PomponView.make_sample("Felino", Color("f5d0a9"), Color("fff6e8"))
 	_mystery_egg.born_at = int(Time.get_unix_time_from_system())
 	_mystery_egg.hatched = false  # huevo

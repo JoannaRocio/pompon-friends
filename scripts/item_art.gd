@@ -33,6 +33,8 @@ const SIZES := {
 
 
 static func size_of(id: String) -> Vector2:
+	if PixelArt.is_art(id):
+		return Vector2(120, 132)
 	return SIZES.get(id, SIZES.get(Catalog.shape_of(id), DEFAULT_SIZE))
 
 
@@ -265,6 +267,9 @@ static func draw_floor(cv: CanvasItem, rect: Rect2, id: String, k := 1.0) -> voi
 static func draw_item(cv: CanvasItem, id: String, center: Vector2) -> void:
 	var size := size_of(id)
 	var r := Rect2(center - size * 0.5, size)
+	if PixelArt.is_art(id):
+		PixelArt.draw_framed(cv, id, r)
+		return
 	var col := Catalog.color_of(id)
 	var light := col.lightened(0.35)
 	var dark := col.darkened(0.25)

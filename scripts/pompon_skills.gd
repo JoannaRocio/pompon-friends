@@ -35,6 +35,9 @@ const GAME_SKILL := {
 	"math": [["matematicas", 1.0]],
 	"pattern": [["logica", 1.0]],
 	"simon": [["musica", 0.75], ["logica", 0.25]],
+	"jump": [["fisico", 1.0]],
+	"paint": [["creatividad", 1.0]],
+	"music": [["musica", 1.0]],
 }
 const GAME_BASE_XP := 4.0
 const BUY_XP := 2.0
