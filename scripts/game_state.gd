@@ -13,6 +13,16 @@ var owned: Array = []        # ids de items comprados (y los dibujos de pixel ar
 var paintings: Array = []    # dibujos de pixel art: [{"id", "px", "from" (quien lo regalo), "t"}] (ver PixelArt)
 var discover_next: Array = []   # algo recien colgado fuera de Decorar: al volver a la casa, el Pompon va a verlo
 var movies_seen := {}        # cine: id de pelicula -> veces que la vio
+# progreso de largo plazo (ver Progress)
+var week_visits := {"week": -1, "days": [], "claimed": 0}   # dias distintos que entro esta semana y sellos cobrados
+var days_visited := 0        # dias distintos que entro en total
+var last_visit_day := -1
+var games_played := 0        # minijuegos terminados
+var paintings_made := 0      # dibujos pintados (los regalados no cuentan)
+var achievements_claimed := {}   # logro -> medallas ya cobradas (0 a 3)
+var notify_on := true        # aviso semanal en el celular (ver Notifier); se apaga con la campana del menu
+# tutorial guiado (ver TutorialSteps): capitulo y paso por hacer, si se salteo, y cuando termino el ultimo
+var tutorial := {"chapter": 0, "step": 0, "off": false, "done_at": 0, "done_day": -1}
 var equipped := {}           # categoria -> id (hat, glasses, shirt, floor, wall)
 var placed: Array = []       # muebles/decoracion en el cuarto: {"id", "x", "y"} (x,y de 0 a 1)
 
@@ -32,6 +42,7 @@ const ROOM_REF_WORLD := Vector2(720.0 * 2.0, 1280.0)   # habitacion completa (2 
 func _ready() -> void:
 	coins = 0  # se empieza sin monedas: hay que trabajar en el periodico
 	load_game()
+	mark_visit()
 
 
 func buy(item_id: String) -> bool:
@@ -626,6 +637,7 @@ func claim_daily_gift() -> int:
 func reward_minigame(earned_coins: int, game := "", ratio := 1.0) -> void:
 	var growth_before := PomponGrowth.quality(pompon, int(Time.get_unix_time_from_system())) if pompon != null else 0.0
 	coins += earned_coins
+	games_played += 1
 	Audio.play("success" if earned_coins > 0 else "fail")
 	track("minigame")
 	note_event("played")
@@ -803,6 +815,8 @@ func save_dict() -> Dictionary:
 		"version": SAVE_VERSION,
 		"coins": coins, "gems": gems, "last_saved": last_saved,
 		"owned": owned, "equipped": equipped, "placed": placed, "paintings": paintings, "movies_seen": movies_seen,
+		"week_visits": week_visits, "days_visited": days_visited, "last_visit_day": last_visit_day, "games_played": games_played,
+		"paintings_made": paintings_made, "achievements_claimed": achievements_claimed, "notify_on": notify_on, "tutorial": tutorial,
 		"room_layout": 2, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
@@ -837,6 +851,7 @@ func reset_game() -> void:
 	GeographyProblems.current_track = "geo_capitals"
 	Jobs.current = "math"
 	PixelArt.cache = {}
+	mark_visit()
 
 
 ## Lista de amigos guardada: solo entradas con codigo valido y tarjeta.
@@ -881,6 +896,195 @@ func load_game() -> void:
 	apply_save(parsed)
 
 
+func _load_progress(parsed: Dictionary) -> void:
+	var wv = parsed.get("week_visits", {})
+	week_visits = {"week": -1, "days": [], "claimed": 0}
+	if typeof(wv) == TYPE_DICTIONARY:
+		var days: Array = []
+		for d in wv.get("days", []):
+			if not days.has(int(d)):
+				days.append(int(d))
+		week_visits = {"week": int(wv.get("week", -1)), "days": days.slice(0, 7), "claimed": clampi(int(wv.get("claimed", 0)), 0, 7)}
+	days_visited = maxi(0, int(parsed.get("days_visited", 0)))
+	last_visit_day = int(parsed.get("last_visit_day", -1))
+	games_played = maxi(0, int(parsed.get("games_played", 0)))
+	paintings_made = maxi(0, int(parsed.get("paintings_made", 0)))
+	notify_on = bool(parsed.get("notify_on", true))
+	tutorial = {"chapter": 0, "step": 0, "off": false, "done_at": 0, "done_day": -1}
+	var tut = parsed.get("tutorial", {})
+	if typeof(tut) == TYPE_DICTIONARY:
+		tutorial = {"chapter": clampi(int(tut.get("chapter", 0)), 0, TutorialSteps.CHAPTERS.size()), "step": 0,
+			"off": bool(tut.get("off", false)), "done_at": int(tut.get("done_at", 0)), "done_day": int(tut.get("done_day", -1))}
+	achievements_claimed = {}
+	var ac = parsed.get("achievements_claimed", {})
+	if typeof(ac) == TYPE_DICTIONARY:
+		for k in ac:
+			if not Progress.get_def(str(k)).is_empty():
+				achievements_claimed[str(k)] = clampi(int(ac[k]), 0, 3)
+
+
+# --- Progreso de largo plazo: calendario semanal y logros (ver Progress) ---
+
+# --- Tutorial guiado (ver TutorialSteps y TutorialOverlay) ---
+
+func tutorial_active() -> bool:
+	return not tutorial["off"] and int(tutorial["chapter"]) < TutorialSteps.CHAPTERS.size()
+
+
+## El paso que toca ahora ({} si no hay).
+func tutorial_current() -> Dictionary:
+	if not tutorial_active():
+		return {}
+	var ch := TutorialSteps.chapter(tutorial["chapter"])
+	var steps: Array = ch["steps"]
+	return steps[clampi(int(tutorial["step"]), 0, steps.size() - 1)]
+
+
+func tutorial_chapter_id() -> String:
+	return TutorialSteps.chapter(tutorial["chapter"]).get("id", "") if tutorial_active() else ""
+
+
+## ¿Ya puede empezar el capitulo que sigue? (espera un rato o al otro dia, para no agobiar)
+func tutorial_ready(now := -1) -> bool:
+	if not tutorial_active():
+		return false
+	if int(tutorial["step"]) > 0:
+		return true   # (un capitulo empezado sigue enseguida)
+	if now < 0:
+		now = int(Time.get_unix_time_from_system())
+	var wait = TutorialSteps.chapter(tutorial["chapter"])["wait"]
+	if typeof(wait) == TYPE_STRING and wait == "day":
+		return Missions.today(now) > int(tutorial["done_day"])
+	return now - int(tutorial["done_at"]) >= int(wait)
+
+
+func tutorial_step_done() -> void:
+	if not tutorial_active():
+		return
+	if int(tutorial["chapter"]) == 0 and int(tutorial["step"]) == 0:
+		for tip in TutorialSteps.COVERS_TIPS:   # los avisos sueltos que el tutorial ya explica
+			if not tips_seen.has(tip):
+				tips_seen.append(tip)
+	tutorial["step"] = int(tutorial["step"]) + 1
+	if int(tutorial["step"]) >= TutorialSteps.chapter(tutorial["chapter"])["steps"].size():
+		tutorial["chapter"] = int(tutorial["chapter"]) + 1
+		tutorial["step"] = 0
+		var now := int(Time.get_unix_time_from_system())
+		tutorial["done_at"] = now
+		tutorial["done_day"] = Missions.today(now)
+	save_game()
+
+
+func tutorial_skip() -> void:
+	tutorial["off"] = true
+	for tip in TutorialSteps.COVERS_TIPS:
+		if not tips_seen.has(tip):
+			tips_seen.append(tip)
+	save_game()
+
+
+## Anota que hoy entro (un sello por dia distinto en la semana, y un dia mas en total).
+func mark_visit(now := -1) -> void:
+	if now < 0:
+		now = int(Time.get_unix_time_from_system())
+	var day := Missions.today(now)
+	var week := Movies.week_of(day)
+	if int(week_visits.get("week", -1)) != week:
+		week_visits = {"week": week, "days": [], "claimed": 0}
+	if not week_visits["days"].has(day):
+		week_visits["days"].append(day)
+	if day != last_visit_day:
+		last_visit_day = day
+		days_visited += 1
+
+
+func week_stamps() -> int:
+	return week_visits["days"].size()
+
+
+## ¿Hay un sello de la semana para cobrar?
+func week_claimable() -> bool:
+	return week_stamps() > int(week_visits["claimed"])
+
+
+## Cobra el proximo sello de la semana. Devuelve las monedas (0 si no habia).
+func claim_week_stamp() -> int:
+	if not week_claimable():
+		return 0
+	var i: int = week_visits["claimed"]
+	var reward: int = Progress.WEEK_REWARDS[mini(i, 6)]
+	coins += reward
+	pass_xp += Progress.WEEK_XP
+	week_visits["claimed"] = i + 1
+	Audio.play("success")
+	save_game()
+	return reward
+
+
+## Cuanto lleva en un logro.
+func achievement_value(id: String) -> int:
+	var now := int(Time.get_unix_time_from_system())
+	match id:
+		"days":
+			return days_visited
+		"growth":
+			return pompon.stage_index(now) if pompon != null and pompon.hatched else 0
+		"jobs":
+			return jobs_done
+		"career":
+			return career_level()
+		"games":
+			return games_played
+		"art":
+			return paintings_made
+		"movies":
+			var n := 0
+			for k in movies_seen:
+				n += int(movies_seen[k])
+			return n
+		"album":
+			return int(PomponAlbum.progress(pompon, now)["won"]) if pompon != null and pompon.hatched else 0
+		"friends":
+			return friends.size()
+		"neighbors":
+			var pts := 0
+			for k in friend_points:
+				pts += int(friend_points[k])
+			return pts
+		"decor":
+			return owned.filter(func(id): return not PixelArt.is_art(id)).size()
+	return 0
+
+
+## Medallas ganadas que todavia no se cobraron.
+func achievement_claimable(id: String) -> bool:
+	var def := Progress.get_def(id)
+	return not def.is_empty() and Progress.tier_for(def, achievement_value(id)) > int(achievements_claimed.get(id, 0))
+
+
+## Cobra la proxima medalla de un logro. Devuelve las monedas (0 si no habia).
+func claim_achievement(id: String) -> int:
+	if not achievement_claimable(id):
+		return 0
+	var tier := int(achievements_claimed.get(id, 0))
+	var reward: int = Progress.TIER_COINS[tier]
+	coins += reward
+	achievements_claimed[id] = tier + 1
+	Audio.play("success")
+	save_game()
+	return reward
+
+
+## ¿Hay algo para cobrar en Misiones (sello de la semana o medalla)? Pone el punto rojo.
+func progress_to_claim() -> bool:
+	if week_claimable():
+		return true
+	for a in Progress.ACHIEVEMENTS:
+		if achievement_claimable(a["id"]):
+			return true
+	return false
+
+
 ## Dibujos guardados: solo los validos (y se anotan en PixelArt.cache para dibujarlos).
 func _load_paintings(list) -> void:
 	paintings = []
@@ -902,6 +1106,8 @@ func add_painting(px: String, from := "") -> String:
 	while id == "" or PixelArt.cache.has(id):
 		id = PixelArt.PREFIX + "%06x" % (randi() % 0xffffff)
 	var entry := {"id": id, "px": px, "from": from, "t": int(Time.get_unix_time_from_system())}
+	if from == "":
+		paintings_made += 1
 	paintings.append(entry)
 	PixelArt.cache[id] = entry
 	owned.append(id)
@@ -957,6 +1163,7 @@ func apply_save(parsed: Dictionary) -> void:
 	last_saved = int(parsed.get("last_saved", 0))
 	# Se descartan datos invalidos (items que ya no existen, entradas incompletas).
 	_load_paintings(parsed.get("paintings", []))   # antes que `owned`: los dibujos son items
+	_load_progress(parsed)
 	movies_seen = {}
 	var seen_movies = parsed.get("movies_seen", {})
 	if typeof(seen_movies) == TYPE_DICTIONARY:
@@ -1124,6 +1331,7 @@ func _notification(what: int) -> void:
 			save_game()
 		NOTIFICATION_APPLICATION_RESUMED:
 			_catch_up_after_pause()
+			mark_visit()
 		NOTIFICATION_WM_CLOSE_REQUEST:
 			save_game()
 		NOTIFICATION_WM_GO_BACK_REQUEST:  # boton "atras" de Android

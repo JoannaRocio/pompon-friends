@@ -86,6 +86,11 @@ var _play_new := false             # va a ver algo recien puesto: al llegar dice
 var _discover: Array = []          # objetos recien colocados que todavia no fue a ver
 var _edit_before: Array = []       # lo que estaba colocado al empezar a decorar
 var _door: Button                  # puerta de la sala: sale al pueblo
+var _missions_dot: Control         # punto rojo en Misiones (sello o medalla para cobrar)
+var _tut: TutorialOverlay          # paso del tutorial que se esta mostrando
+var _tut_check := 1.5
+var _tut_tips_done := false
+var _dot_check := 0.0
 var _tip_id := ""                  # aviso que se esta mostrando
 const DOOR_W := 130.0
 const DOOR_H := 250.0
@@ -163,6 +168,11 @@ func _process(delta: float) -> void:
 	_update_arrow()
 	_place_arrows()
 	_place_door()
+	_update_tutorial(delta)
+	_dot_check -= delta
+	if _missions_dot != null and _dot_check <= 0.0:   # (cada tanto: mirar todos los logros cuesta)
+		_dot_check = 2.0
+		_missions_dot.visible = GameState.progress_to_claim()
 	_place_tip()
 	_update_mood(delta)
 	_update_activity(delta)
@@ -249,6 +259,99 @@ func _wander(delta: float) -> void:
 		if sx < size.x * 0.2 or sx > size.x * 0.8:
 			room.scroll = move_toward(room.scroll, _pet_pos.x - size.x * 0.5, 150.0 * delta)
 	_place_pet(bounds)
+
+
+# ------------------------------------------------- tutorial guiado
+
+## El boton que se resalta en un paso del tutorial (null si no hay o no se ve).
+func _tutorial_target(key: String) -> Control:
+	if key == "":
+		return null
+	var parts := key.split(":")
+	match parts[0]:
+		"dock":
+			return _dock.buttons.get(parts[1], null)
+		"tab":
+			return _dock.tab_button(0 if parts[1] == "Pompon" else 1)
+		"top":
+			for tb in _top_buttons:
+				if tb is ActionButton and (tb as ActionButton).caption == parts[1]:
+					return tb
+		"info":
+			return $InfoPanel
+		"door":
+			return _door
+	return null
+
+
+## Muestra el paso del tutorial que toca (de a uno, sin tapar otras ventanas).
+func _update_tutorial(delta: float) -> void:
+	if _tut != null:
+		return
+	_tut_check -= delta
+	if _tut_check > 0.0:
+		return
+	_tut_check = 0.5
+	var p := GameState.pompon
+	if GameState.tutorial_active() and not _tut_tips_done:   # el tutorial explica lo mismo que esos avisos sueltos
+		_tut_tips_done = true
+		for tip in TutorialSteps.COVERS_TIPS:
+			if not GameState.tips_seen.has(tip):
+				GameState.tips_seen.append(tip)
+		if _tip_panel != null and _tip_id in TutorialSteps.COVERS_TIPS:
+			_dismiss_tip()
+	if not GameState.tutorial_ready() or not _is_born(p) or _needs_name() or _any_modal() or _edit or _night \
+			or _prehatch or _tip_panel != null or GameState.farewell != "":
+		return
+	var step := GameState.tutorial_current()
+	if step.has("screen"):   # este paso es en otra pantalla: se vuelve a pedir que vaya
+		GameState.tutorial["step"] = 0
+		step = GameState.tutorial_current()
+	var target := _tutorial_target(step["target"])
+	if step["target"] != "" and (target == null or not target.is_visible_in_tree()):
+		if step["target"] == "door" and GameState.current_room != 0:
+			_on_room_pressed(0)   # la puerta esta en la sala
+			return
+		GameState.tutorial_step_done()   # (no se ve: se saltea este paso)
+		return
+	if step["target"] == "door":
+		room.scroll_to(0.0)
+		_follow_pause = 6.0
+	var now := int(Time.get_unix_time_from_system())
+	var days := PomponGrowth.days_left(p, now)
+	var text := TutorialSteps.fill(step["text"], p.display_name(), days)
+	var extra: Control = null
+	if step.get("card", "") == "growth":
+		extra = TutorialOverlay.growth_card(p.stage_index(now))
+		if p.stage_index(now) > 1:
+			text = "¡%s ya creció! Cada etapa le enseña algo nuevo: bebé, niño, adolescente y grande." % p.display_name()
+	_tut = TutorialOverlay.new().setup(text, target, step["mode"], extra)
+	add_child(_tut)
+	_tut.done.connect(func():
+		GameState.tutorial_step_done()
+		_close_tutorial())
+	_tut.skipped.connect(func():
+		GameState.tutorial_skip()
+		_close_tutorial())
+
+
+func _close_tutorial() -> void:
+	if _tut != null and is_instance_valid(_tut):
+		_tut.queue_free()
+	_tut = null
+	_tut_check = 0.6
+
+
+func _red_dot() -> Control:
+	var dot := Control.new()
+	dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dot.position = Vector2(62, 2)
+	dot.size = Vector2(22, 22)
+	dot.draw.connect(func():
+		dot.draw_circle(Vector2(11, 11), 11.0, Color.WHITE)
+		dot.draw_circle(Vector2(11, 11), 8.0, Color("e0295f")))
+	dot.visible = false
+	return dot
 
 
 ## Puerta de la sala (a la izquierda de todo): sale al pueblo. Se dibuja sobre la pared, con un
@@ -1226,6 +1329,9 @@ func _build_actions() -> void:
 		_top_buttons.append(tb)
 		if entry[0] == "Trabajo":
 			_job_button = tb
+		if entry[0] == "Misiones":  # punto rojo: hay un sello de la semana o una medalla para cobrar
+			_missions_dot = _red_dot()
+			tb.add_child(_missions_dot)
 		if entry[0] == "Vecinos":  # punto rojo: hay solicitudes de amistad esperando
 			_friends_dot = Control.new()
 			_friends_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE

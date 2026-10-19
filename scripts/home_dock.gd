@@ -20,6 +20,7 @@ const POMPON_PAGE_HEIGHT := 140.0  # solapa Pompon (una fila)
 const LOCKED_TINT := Color("b9b1bd")
 
 var shop_button: ActionButton
+var buttons := {}               # nombre -> boton ("Comer", "Caricia", "Tienda"...), para el tutorial
 
 var _tab_bar: HBoxContainer
 var _tab_buttons: Array[Button] = []
@@ -108,12 +109,17 @@ func _divider() -> ColorRect:
 
 func _button(row: HBoxContainer, label: String, kind: String, color: Color, callback: Callable, badge: float, label_size := 20) -> ActionButton:
 	var b := ActionButton.new().setup(kind, label, color, badge)
+	buttons[label] = b
 	b.label_size = label_size
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	b.custom_minimum_size = Vector2(0, badge + 34.0)
 	b.pressed.connect(callback)
 	row.add_child(b)
 	return b
+
+
+func tab_button(i: int) -> Button:
+	return _tab_buttons[i]
 
 
 func show_tab(i: int) -> void:

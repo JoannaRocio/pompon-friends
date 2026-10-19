@@ -22,6 +22,8 @@ var _missions_box: VBoxContainer
 var _xp_bar: StatBar
 var _track: Control
 var _nodes: HBoxContainer
+var _week_box: VBoxContainer       # calendario de la semana (sellos)
+var _achievements_box: VBoxContainer
 
 
 func _ready() -> void:
@@ -78,6 +80,11 @@ func _ready() -> void:
 	list.add_theme_constant_override("separation", 14)
 	scroll.add_child(list)
 
+	# la semana: un sello por cada dia distinto que entras (no hace falta que sean seguidos)
+	_week_box = VBoxContainer.new()
+	_week_box.add_theme_constant_override("separation", 10)
+	list.add_child(_week_box)
+
 	# misiones de hoy
 	var head := HBoxContainer.new()
 	list.add_child(head)
@@ -98,6 +105,15 @@ func _ready() -> void:
 	spacer.custom_minimum_size = Vector2(0, 6)
 	list.add_child(spacer)
 	list.add_child(_make_pass())
+
+	# logros de largo plazo (medallas de bronce, plata y oro)
+	var spacer2 := Control.new()
+	spacer2.custom_minimum_size = Vector2(0, 6)
+	list.add_child(spacer2)
+	list.add_child(_section_title("Logros", "star"))
+	_achievements_box = VBoxContainer.new()
+	_achievements_box.add_theme_constant_override("separation", 12)
+	list.add_child(_achievements_box)
 
 	_rebuild()
 
@@ -148,6 +164,169 @@ func _rebuild() -> void:
 	for m in Missions.DAILY:
 		_missions_box.add_child(_mission_card(m))
 	_update_pass()
+	_build_week()
+	_build_achievements()
+
+
+# ------------------------------------------------------------------ la semana
+
+## Siete sellos: los dias que ya entraste esta semana. Cada sello trae su premio (el septimo, el grande).
+func _build_week() -> void:
+	for c in _week_box.get_children():
+		c.queue_free()
+	var head := HBoxContainer.new()
+	_week_box.add_child(head)
+	head.add_child(_section_title("Esta semana", "check"))
+	var left := Movies.days_left(Missions.today(int(Time.get_unix_time_from_system())))
+	var renew := _small("Se renueva en %d %s" % [left, "día" if left == 1 else "días"], 20, Color(Hud.INK, 0.6))
+	renew.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	renew.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	head.add_child(renew)
+	var card := PanelContainer.new()
+	var claimable := GameState.week_claimable()
+	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.96), 32, GREEN if claimable else Color.WHITE, 5 if claimable else 3, 10))
+	_week_box.add_child(card)
+	var col := VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	card.add_child(col)
+	var intro := _small("Entra cualquier día de la semana y gana un sello. ¡Si faltas un día no pierdes nada!", 21, Hud.INK)
+	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	intro.custom_minimum_size = Vector2(400, 0)
+	col.add_child(intro)
+	var stamps := HBoxContainer.new()
+	stamps.alignment = BoxContainer.ALIGNMENT_CENTER
+	stamps.add_theme_constant_override("separation", 6)
+	col.add_child(stamps)
+	var got := GameState.week_stamps()
+	var claimed: int = GameState.week_visits["claimed"]
+	for i in 7:
+		var stamp := Control.new()
+		stamp.custom_minimum_size = Vector2(76, 104)
+		var big := i == 6
+		var state := 2 if i < claimed else (1 if i < got else 0)   # 2 cobrado, 1 para cobrar, 0 falta
+		var reward: int = Progress.WEEK_REWARDS[i]
+		stamp.draw.connect(func():
+			var c := Vector2(stamp.size.x * 0.5, 40.0)
+			var r := 34.0 if big else 30.0
+			var fill: Color = [Color("f1eaf0"), GREEN, GOLD][state]
+			if big and state == 0:
+				fill = Color("fff1c9")
+			stamp.draw_circle(c, r, fill)
+			stamp.draw_arc(c, r, 0.0, TAU, 32, Hud.INK if state > 0 else Color(Hud.INK, 0.25), 3.0, true)
+			if state == 2:
+				Hud.draw_icon(stamp, "check", c, r * 1.2, Color.WHITE, Color(0, 0, 0, 0))
+			elif big:
+				Hud.draw_icon(stamp, "gift", c, r * 1.2, Color.WHITE if state == 1 else GOLD, Color(0, 0, 0, 0))
+			else:
+				var font := stamp.get_theme_default_font()
+				stamp.draw_string(font, c + Vector2(-r, 9), str(i + 1), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0, 28, Color.WHITE if state == 1 else Color(Hud.INK, 0.35))
+			var font2 := stamp.get_theme_default_font()
+			stamp.draw_string(font2, Vector2(0, 98), "+%d" % reward, HORIZONTAL_ALIGNMENT_CENTER, stamp.size.x, 20, Color("b87400")))
+		stamps.add_child(stamp)
+	if claimable:
+		var b := Button.new()
+		b.text = "Cobrar el sello %d  +%d" % [claimed + 1, Progress.WEEK_REWARDS[mini(claimed, 6)]]
+		b.custom_minimum_size = Vector2(0, 78)
+		Hud.style_primary(b, 28, GREEN)
+		b.pressed.connect(func():
+			var coins := GameState.claim_week_stamp()
+			if coins > 0:
+				_float_reward(b, "+%d" % coins)
+			_rebuild())
+		col.add_child(b)
+	elif got < 7:
+		col.add_child(_small("Vuelve otro día para el sello %d" % (got + 1), 22, Color("a0527a")))
+	else:
+		col.add_child(_small("¡Semana completa! El lunes empieza otra.", 22, Color("2f9e6e")))
+
+
+# ------------------------------------------------------------------ logros
+
+func _build_achievements() -> void:
+	for c in _achievements_box.get_children():
+		c.queue_free()
+	# primero los que tienen medalla para cobrar
+	var defs: Array = Progress.ACHIEVEMENTS.duplicate()
+	defs.sort_custom(func(a, b): return GameState.achievement_claimable(a["id"]) and not GameState.achievement_claimable(b["id"]))
+	for def in defs:
+		_achievements_box.add_child(_achievement_card(def))
+
+
+func _achievement_card(def: Dictionary) -> Control:
+	var id: String = def["id"]
+	var value := GameState.achievement_value(id)
+	var tier := Progress.tier_for(def, value)
+	var claimed := int(GameState.achievements_claimed.get(id, 0))
+	var claimable := tier > claimed
+	var card := PanelContainer.new()
+	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.96), 30, GREEN if claimable else Color.WHITE, 5 if claimable else 3, 8))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	var icon := Control.new()
+	icon.custom_minimum_size = Vector2(70, 70)
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var tint: Color = Progress.TIER_COLORS[clampi(claimed - 1, 0, 2)] if claimed > 0 else Color("c9bfd0")
+	var kind: String = def["icon"]
+	icon.draw.connect(func():
+		var c := icon.size * 0.5
+		icon.draw_circle(c, 35.0, tint)
+		Hud.draw_icon(icon, kind, c, 40.0, Color.WHITE, tint.darkened(0.3)))
+	row.add_child(icon)
+	var col := VBoxContainer.new()
+	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	col.add_theme_constant_override("separation", 4)
+	row.add_child(col)
+	var name_row := HBoxContainer.new()
+	name_row.add_theme_constant_override("separation", 8)
+	col.add_child(name_row)
+	var name_label := _small(def["name"], 24, Hud.INK)
+	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	name_row.add_child(name_label)
+	var medals := Control.new()   # tres medallitas: bronce, plata y oro
+	medals.custom_minimum_size = Vector2(84, 28)
+	medals.draw.connect(func():
+		for i in 3:
+			var c := Vector2(14 + i * 28, 14)
+			medals.draw_circle(c, 11.0, Progress.TIER_COLORS[i] if i < claimed else Color("ece3ea"))
+			medals.draw_arc(c, 11.0, 0.0, TAU, 20, Hud.INK if i < claimed else Color(Hud.INK, 0.25), 2.0, true))
+	name_row.add_child(medals)
+	var goal := Progress.next_goal(def, value)
+	var done_all := tier >= 3
+	var text := _small("¡Completo!" if done_all and not claimable else Progress.goal_text(def, goal), 19, Color("a0527a"))
+	text.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	col.add_child(text)
+	if not done_all:
+		var bar := StatBar.new().setup("", kind, Progress.TIER_COLORS[mini(tier, 2)])
+		bar.custom_minimum_size = Vector2(0, 32)
+		bar.font_size = 17
+		bar.warn_low = false
+		bar.max_value = float(goal)
+		bar.value = float(mini(value, goal))
+		bar.text = "%d / %d" % [mini(value, goal), goal]
+		col.add_child(bar)
+	if claimable:
+		var b := Button.new()
+		b.custom_minimum_size = Vector2(124, 84)
+		b.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		b.focus_mode = Control.FOCUS_NONE
+		Hud.style_primary(b, 24, GREEN)
+		var inner := VBoxContainer.new()
+		inner.set_anchors_preset(Control.PRESET_FULL_RECT)
+		inner.alignment = BoxContainer.ALIGNMENT_CENTER
+		inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		b.add_child(inner)
+		inner.add_child(_small(Progress.TIER_NAMES[claimed], 18, Color.WHITE))
+		inner.add_child(_reward_row("+%d" % Progress.TIER_COINS[claimed], 26, Color.WHITE, Color("2f7a4d")))
+		b.pressed.connect(func():
+			var coins := GameState.claim_achievement(id)
+			if coins > 0:
+				_float_reward(b, "+%d" % coins)
+			_rebuild())
+		row.add_child(b)
+	return card
 
 
 func _mission_card(m: Dictionary) -> Control:

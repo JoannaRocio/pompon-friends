@@ -28,6 +28,7 @@ Audio="*res://scripts/audio.gd"
 Look="*res://scripts/look.gd"
 Cloud="*res://scripts/cloud.gd"
 Friends="*res://scripts/friends.gd"
+Notifier="*res://scripts/notifier.gd"
 
 [display]
 

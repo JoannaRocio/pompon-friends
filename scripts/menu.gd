@@ -18,6 +18,7 @@ var _logo_top := 0.0
 var _play: Button
 var _reset_button: IconButton
 var _cloud_button: IconButton
+var _bell_button: IconButton
 var _notice: BigNotice
 
 
@@ -39,6 +40,14 @@ class IconButton extends Button:
 			draw_polyline(PackedVector2Array([c + Vector2(-5, 4), c + Vector2(2, -3), c + Vector2(9, 4)]), Color.WHITE, 4.0, true)
 			if not on:
 				draw_circle(c + Vector2(26, -26), 9.0, Color("e0295f"))
+			return
+		if kind == "bell":  # campana: el aviso semanal en el celular
+			draw_colored_polygon(PackedVector2Array([c + Vector2(-16, 10), c + Vector2(-12, -6), c + Vector2(-6, -15), c + Vector2(0, -17),
+				c + Vector2(6, -15), c + Vector2(12, -6), c + Vector2(16, 10)]), line)
+			draw_rect(Rect2(c + Vector2(-19, 8), Vector2(38, 6)), line)
+			draw_circle(c + Vector2(0, 18), 5.0, line)
+			if not on:
+				draw_line(c + Vector2(-24, -24), c + Vector2(24, 24), Color("e0609e"), 6.0, true)
 			return
 		if kind == "reset":  # flecha en circulo: empezar de nuevo
 			draw_arc(c, 17.0, -0.4 * PI, 1.3 * PI, 24, line, 5.0, true)
@@ -180,6 +189,11 @@ func _ready() -> void:
 	_sfx_button = _icon_button(opts, "sound", func():
 		Audio.set_sfx_on(not Audio.sfx_on)
 		_update_labels())
+	_bell_button = _icon_button(opts, "bell", func():
+		GameState.notify_on = not GameState.notify_on
+		GameState.save_game()
+		_update_labels()
+		_toast("Te avisaremos como mucho una vez por semana" if GameState.notify_on else "Avisos apagados"))
 	_cloud_button = _icon_button(opts, "cloud", _open_cloud)
 	_reset_button = _icon_button(opts, "reset", _ask_reset)
 	_reset_button.visible = _has_progress()   # sin partida no hay nada que borrar
@@ -271,11 +285,28 @@ func _enter_game() -> void:
 	get_tree().change_scene_to_file(scene)
 
 
+## Cartelito que aparece abajo un ratito.
+func _toast(text: String) -> void:
+	var chip := Hud.chip(text, Color("fff3d1"), Color("8a6d00"), 24)
+	chip.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	chip.offset_top = -150
+	chip.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(chip)
+	var tw := chip.create_tween()
+	tw.tween_interval(2.2)
+	tw.tween_property(chip, "modulate:a", 0.0, 0.5)
+	tw.tween_callback(chip.queue_free)
+
+
 func _update_labels() -> void:
 	_music_button.on = Audio.music_on
 	_sfx_button.on = Audio.sfx_on
 	_music_button.queue_redraw()
 	_sfx_button.queue_redraw()
+	if _bell_button != null:
+		_bell_button.on = GameState.notify_on
+		_bell_button.queue_redraw()
 	if _cloud_button != null:
 		_cloud_button.on = not Cloud.conflict   # punto rojo: la partida se jugo en otro dispositivo
 		_cloud_button.queue_redraw()

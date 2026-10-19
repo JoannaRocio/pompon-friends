@@ -13,8 +13,13 @@ var _notice: BigNotice
 var _dirty := false
 
 
+var _friends_card_node: Control
+var _tut: TutorialOverlay
+
+
 func _ready() -> void:
 	Town.from_town = false
+	_tutorial_step.call_deferred()
 	var bg := Control.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -90,8 +95,31 @@ func _rebuild() -> void:
 	var friends_card := _friends_card()
 	if friends_card != null:
 		_list.add_child(friends_card)
+	_friends_card_node = friends_card
 	for entry in Neighbors.all():
 		_list.add_child(_make_row(entry))
+
+
+## Tutorial (capitulo "amigos"): resalta la tarjeta de amigos de verdad y explica el codigo.
+func _tutorial_step() -> void:
+	var step := GameState.tutorial_current()
+	if step.get("screen", "") != "neighbors" or _tut != null:
+		return
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if _friends_card_node == null or not is_instance_valid(_friends_card_node):
+		GameState.tutorial_step_done()   # (sin servidor de amigos: no hay nada que mostrar)
+		return
+	_tut = TutorialOverlay.new().setup(step["text"], _friends_card_node, "next")
+	add_child(_tut)
+	_tut.done.connect(func():
+		GameState.tutorial_step_done()
+		_tut.queue_free()
+		_tut = null)
+	_tut.skipped.connect(func():
+		GameState.tutorial_skip()
+		_tut.queue_free()
+		_tut = null)
 
 
 ## Tu Pompon y su barra Social: para que se entienda por que visitar.

@@ -70,6 +70,7 @@ func _initialize() -> void:
 	gs.owned = []  # sin compras: la guia de Decorar todavia no corresponde
 	gs.placed = []
 	gs.tips_seen = []
+	gs.tutorial["off"] = true   # (el tutorial guiado reemplaza a estas guias: aca se prueban las guias sueltas)
 	gs.daily_gift_day = int(Time.get_unix_time_from_system()) / 86400  # sin regalo hoy
 	var h: Control = load("res://scenes/home.tscn").instantiate()
 	root.add_child(h)
