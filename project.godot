@@ -29,6 +29,7 @@ Look="*res://scripts/look.gd"
 Cloud="*res://scripts/cloud.gd"
 Friends="*res://scripts/friends.gd"
 Notifier="*res://scripts/notifier.gd"
+TouchScroll="*res://scripts/touch_scroll.gd"
 
 [display]
 
