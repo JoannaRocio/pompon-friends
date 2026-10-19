@@ -723,7 +723,7 @@ var _stage_check := 0.0
 func _process(delta: float) -> void:
 	if pompon == null:
 		return
-	if pompon.advance(delta, Catalog.has_required_furniture(pompon.species, placed_ids())):
+	if pompon.advance(delta, PomponPlay.cozy(placed_ids())):
 		_pompon_abandons()
 		return
 	_check_stage(delta)
@@ -982,7 +982,7 @@ func apply_save(parsed: Dictionary) -> void:
 		# Tiempo transcurrido con la app cerrada.
 		var away := float(int(Time.get_unix_time_from_system()) - last_saved)
 		offline_seconds = int(maxf(away, 0.0))
-		if pompon.advance(away, Catalog.has_required_furniture(pompon.species, placed_ids())):
+		if pompon.advance(away, PomponPlay.cozy(placed_ids())):
 			_pompon_abandons()
 		elif not pompon.hatched and owns_crib():
 			hatch_now()
@@ -1053,7 +1053,7 @@ func _catch_up_after_pause() -> void:
 		return
 	var away := float(int(Time.get_unix_time_from_system()) - _paused_at)
 	_paused_at = 0
-	if pompon.advance(away, Catalog.has_required_furniture(pompon.species, placed_ids())):
+	if pompon.advance(away, PomponPlay.cozy(placed_ids())):
 		_pompon_abandons()
 
 

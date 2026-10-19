@@ -32,10 +32,11 @@ const STAT_NAMES := [
 	"sueno", "amor", "amistad", "inteligencia",
 ]
 # Sueño: de dia baja; de noche (22 a 8 h, hora del jugador) duerme y se recupera, mas rapido si tiene
-# su mueble especial. (Reemplaza a la vieja "felicidad".)
+# una cama de verdad en su cuarto. (Reemplaza a la vieja "felicidad".)
 const SLEEP_DRAIN := 5.0
 const SLEEP_REST := 11.0
 const SLEEP_REST_COZY := 15.0
+const COZY_FLOOR := 50.0   # con un mueble para descansar, la comodidad no baja de aca aunque no juegue
 
 var id := ""
 var nickname := ""          # el nombre que le pone el jugador cuando nace
@@ -168,18 +169,16 @@ func _advance_sleep(seconds: float, cozy: bool) -> void:
 
 
 ## Aplica el paso del tiempo. Devuelve true si el Pompon se va por abandono.
-## Comodidad: con su mueble clave queda al 100%; sin el, baja con el tiempo.
-func advance(seconds: float, has_key_furniture := false) -> bool:
+## Comodidad: baja con el tiempo y sube cuando usa los muebles de su cuarto (sentarse, acostarse,
+## calentarse junto al fuego... ver PomponPlay). `cozy` = tiene donde descansar: no baja de COZY_FLOOR.
+func advance(seconds: float, cozy := false) -> bool:
 	if seconds <= 0.0 or not hatched:
 		return false  # el huevo no tiene necesidades: no gasta nada ni se abandona
 	var hours := seconds / 3600.0
 	for s in DECAY_PER_HOUR:
-		if s == "comodidad" and has_key_furniture:
-			continue
-		stats[s] = clampf(stats[s] - DECAY_PER_HOUR[s] * hours, 0.0, 100.0)
-	if has_key_furniture:
-		stats["comodidad"] = 100.0
-	_advance_sleep(seconds, has_key_furniture)
+		var floor_v := COZY_FLOOR if s == "comodidad" and cozy else 0.0
+		stats[s] = clampf(stats[s] - DECAY_PER_HOUR[s] * hours, minf(floor_v, stats[s]), 100.0)
+	_advance_sleep(seconds, cozy)
 	# Descuido continuo: necesidades basicas en cero.
 	var basics_low: bool = stats["alimentacion"] <= 0.0 or stats["hidratacion"] <= 0.0 or stats["aseo"] <= 0.0
 	if basics_low:

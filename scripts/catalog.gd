@@ -259,7 +259,8 @@ static func is_placeable(id: String) -> bool:
 	return get_item(id).get("category", "") in PLACEABLE
 
 
-## Mueble clave que exige cada especie para estar comoda.
+## Mueble tipico de cada especie (rascador, tunel...). Ya no es obligatorio: solo decora los cuartos
+## de los vecinos. La comodidad ahora sale de usar los muebles (ver PomponPlay).
 static func required_furniture(species: String) -> Dictionary:
 	if species == "":
 		return {}
@@ -288,9 +289,8 @@ static func color_of(id: String) -> Color:
 
 
 ## Los 10 items de hoy: cambian cada 24 h. Prefiere items que aun no tienes.
-## Si se indica `species` y aun no tienes su mueble clave, ese mueble siempre aparece
-## (reemplaza un item al azar) para que nunca tengas que esperar dias a que salga.
-static func daily_shop(unix_time: int, species := "", owned: Array = [], must_include: Array = [], level := 9999) -> Array:
+## (`_species` ya no se usa: antes forzaba el mueble clave de la especie.)
+static func daily_shop(unix_time: int, _species := "", owned: Array = [], must_include: Array = [], level := 9999) -> Array:
 	var day := unix_time / 86400
 	var rng := RandomNumberGenerator.new()
 	rng.seed = day * 2654435761
@@ -305,9 +305,6 @@ static func daily_shop(unix_time: int, species := "", owned: Array = [], must_in
 	var picked := []
 	while picked.size() < SHOP_SIZE and not pool.is_empty():
 		picked.append(pool.pop_at(rng.randi() % pool.size()))
-	var req := required_furniture(species)
-	if not req.is_empty() and not owned.has(req["id"]) and not picked.has(req):
-		picked[rng.randi() % picked.size()] = req
 	# lo imprescindible (por ejemplo la cuna del huevo) va siempre primero en la lista
 	for i in range(must_include.size() - 1, -1, -1):
 		var pinned := get_item(must_include[i])
@@ -317,7 +314,7 @@ static func daily_shop(unix_time: int, species := "", owned: Array = [], must_in
 			picked.erase(pinned)
 		else:
 			for j in range(picked.size() - 1, -1, -1):
-				if picked[j]["id"] != req.get("id", "") and not must_include.has(picked[j]["id"]):
+				if not must_include.has(picked[j]["id"]):
 					picked.remove_at(j)
 					break
 		picked.insert(0, pinned)

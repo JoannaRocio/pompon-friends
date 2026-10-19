@@ -72,9 +72,19 @@ var _activity_label: Label
 var _activity_timer := 0.0
 var _activity_walking := false
 var _activity_last := ""
-var _practice_timer := 100.0
-var _practice_text := ""
+var _practice_text := ""          # lo que esta haciendo con un objeto ("Mochi toca el piano")
 var _practice_left := 0.0
+# jugar con los objetos del cuarto (ver PomponPlay)
+var _play_id := ""                 # objeto con el que juega (o hacia el que va)
+var _play_state := ""              # "" | "going" (caminando) | "using" (jugando)
+var _play_t := 0.0
+var _play_spot := {}               # {"pos", "walk", "pose", "face", "fx_at", "info"}
+var _play_cd := 8.0                # pausa entre una actividad y otra
+var _play_last := ""
+var _play_fx_t := 0.0
+var _play_new := false             # va a ver algo recien puesto: al llegar dice un comentario
+var _discover: Array = []          # objetos recien colocados que todavia no fue a ver
+var _edit_before: Array = []       # lo que estaba colocado al empezar a decorar
 var _thought_timer := 90.0
 var _stat_check := 0.0
 var _offline_checked := false
@@ -181,6 +191,8 @@ func _wander(delta: float) -> void:
 	var p := GameState.pompon
 	var grown: bool = p != null and p.stage_index(int(Time.get_unix_time_from_system())) > 0
 	var busy := _edit or _any_modal() or _prehatch
+	if _play_state != "" and (busy or not grown or _night):
+		_end_play(false)
 	if _night and grown and not _edit and not _prehatch:   # de noche: en su camita (ver _night_wander)
 		_night_wander(delta)
 		_place_pet(bounds)
@@ -191,6 +203,8 @@ func _wander(delta: float) -> void:
 		_moving = false
 		if not grown or _prehatch:
 			_pet_pos = _world_center()  # el huevo se queda en el centro
+	elif _play_state == "using":
+		_play_step(delta)
 	elif _moving:
 		var to := _wander_target - _pet_pos
 		var step := WALK_SPEED * delta
@@ -199,6 +213,8 @@ func _wander(delta: float) -> void:
 			_moving = false
 			pet.walking = false
 			_wander_wait = randf_range(2.0, 5.5)
+			if _play_state == "going":
+				_start_play()
 		else:
 			_pet_pos += to.normalized() * step
 			var step_news := PomponSkills.add_walk_xp(p, step / PomponSkills.WALK_PIXELS_PER_XP)   # explorar entrena el fisico
@@ -208,7 +224,7 @@ func _wander(delta: float) -> void:
 			pet.walking = true
 	else:
 		_wander_wait -= delta
-		if _wander_wait <= 0.0:
+		if _wander_wait <= 0.0 and not _try_play():
 			# a veces camina cerca de donde esta mirando el jugador y a veces se va lejos
 			var near_view := randf() < 0.6
 			var lo := bounds.position.x
@@ -251,6 +267,174 @@ func _place_pet(bounds: Rect2) -> void:
 	_bubble.position = Vector2(
 		clampf(sx - mid_w * 0.5, 10.0, maxf(10.0, size.x - mid_w - 10.0)),
 		maxf(_pet_pos.y - 412.0 * pet.scale.y - _bubble.size.y, top_limit))
+
+
+# ------------------------------------------------- jugar con los objetos del cuarto
+
+## Lo colocado de esta habitacion con ese id ({} si no esta).
+func _placed_entry(id: String) -> Dictionary:
+	for pl in GameState.placed:
+		if pl["id"] == id and int(pl.get("room", 0)) == GameState.current_room:
+			return pl
+	return {}
+
+
+## Que hace con el objeto: lo de PomponPlay, o si no tiene nada propio (estantes...), lo mira un ratito.
+func _play_info(id: String) -> Dictionary:
+	var info := PomponPlay.play_of(id)
+	if info.is_empty():
+		info = {"pose": "look", "secs": [4.0, 6.0], "fx": "sparkle", "text": "mira " + PomponThoughts._poss(id).replace("mi ", "su ").replace("mis ", "sus "), "stats": {}}
+	return info
+
+
+## Donde se pone para jugar con `id` (en px del mundo): {} si ya no esta en esta habitacion.
+func _play_spot_for(id: String) -> Dictionary:
+	var pl := _placed_entry(id)
+	if pl.is_empty():
+		return {}
+	var info := _play_info(id)
+	var rect: Rect2 = room._item_rect(pl)
+	var c := rect.get_center()
+	var bounds := _floor_bounds()
+	var floor_y := clampf(rect.end.y, bounds.position.y, bounds.end.y)
+	var pose: String = info["pose"]
+	if pl.has("on") or Catalog.get_item(id).get("category", "") == "deco":
+		pose = "look"   # lo de la pared y lo apoyado en estantes o mesas se mira desde abajo
+	var spot := {"pose": pose, "info": info, "fx_at": Vector2(c.x, rect.position.y + 10.0)}
+	match pose:
+		"sit", "swing", "run":
+			spot["pos"] = Vector2(c.x, rect.end.y - rect.size.y * float(info.get("seat", 0.35)))
+			spot["walk"] = Vector2(c.x, floor_y)
+			spot["face"] = 1.0
+		"lie":
+			spot["pos"] = Vector2(c.x, c.y + rect.size.y * 0.42)
+			spot["walk"] = Vector2(c.x, floor_y)
+			spot["face"] = 1.0
+		"look":
+			var x := clampf(c.x + randf_range(-25.0, 25.0), bounds.position.x, bounds.end.x)
+			spot["pos"] = Vector2(x, bounds.position.y + bounds.size.y * 0.25)
+			spot["walk"] = spot["pos"]
+			spot["face"] = -1.0 if randf() < 0.5 else 1.0
+		_:  # "side": parado al lado, mirandolo
+			var gap := 70.0 if info.get("near", false) else 105.0
+			var left := rect.position.x - gap
+			var right := rect.end.x + gap
+			var x2 := left if absf(_pet_pos.x - left) < absf(_pet_pos.x - right) else right
+			if x2 < bounds.position.x or x2 > bounds.end.x:
+				x2 = right if x2 == left else left
+			x2 = clampf(x2, bounds.position.x, bounds.end.x)
+			spot["pos"] = Vector2(x2, floor_y)
+			spot["walk"] = spot["pos"]
+			spot["face"] = 1.0 if c.x >= x2 else -1.0
+	return spot
+
+
+## Al terminar de pasear: a veces va a jugar con algo del cuarto (y siempre a ver lo recien puesto).
+func _try_play() -> bool:
+	var id := ""
+	_play_new = false
+	while id == "" and not _discover.is_empty():
+		id = _discover.pop_front()
+		_play_new = not _placed_entry(id).is_empty()
+		if not _play_new:
+			id = ""
+	if id == "" and _play_cd <= 0.0 and randf() < 0.6:
+		id = PomponPlay.pick(_thought_ctx()["items"], _play_last, _mood_rng)
+	if id == "":
+		return false
+	var spot := _play_spot_for(id)
+	if spot.is_empty():
+		return false
+	_play_id = id
+	_play_spot = spot
+	_play_state = "going"
+	_wander_target = spot["walk"]
+	_moving = true
+	if _play_new:
+		room.center_on(spot["walk"].x)
+		_follow_pause = 1.5
+	return true
+
+
+## Llego: se sienta, se acuesta o se pone a jugar (y si es nuevo, dice algo).
+func _start_play() -> void:
+	var p := GameState.pompon
+	var info: Dictionary = _play_spot["info"]
+	_play_state = "using"
+	var secs: Array = info.get("secs", [8.0, 12.0])
+	_play_t = _mood_rng.randf_range(secs[0], secs[1])
+	_play_fx_t = 0.6
+	_moving = false
+	pet.walking = false
+	if _play_spot["pose"] in ["sit", "swing", "run", "lie"]:
+		_pet_pos = _play_spot["pos"]
+		pet.celebrate(0)   # saltito para subirse
+	pet.facing = _play_spot["face"]
+	pet.face_mood = "happy" if _play_spot["pose"] in ["look", "lie", "sit"] else ""
+	if _play_spot["pose"] == "lie":
+		pet.sleep_props = "bed"
+	_practice_text = "%s %s" % [p.display_name(), info["text"]]
+	_practice_left = _play_t
+	_activity_timer = 0.0
+	if _play_new:
+		pet.celebrate(4)
+		Audio.play("ding")
+		_log_thought({"kind": PomponThoughts.KIND_SAY, "text": PomponPlay.comment(_play_id, _mood_rng), "stat": "comodidad"})
+	elif PomponSkills.item_skill(_play_id) != "":   # primera vez con un objeto de practica: al diario
+		_log_first(PomponFirsts.experience(p, "item", _play_id, PomponThoughts._poss(_play_id), int(Time.get_unix_time_from_system()), _mood_rng))
+
+
+## Mientras juega: la pose se mueve un poquito y salen notas, brillitos o burbujas.
+func _play_step(delta: float) -> void:
+	var info: Dictionary = _play_spot["info"]
+	var t := Time.get_ticks_msec() / 1000.0
+	_play_t -= delta
+	_practice_left = maxf(_play_t, 0.0)
+	match _play_spot["pose"]:
+		"swing":
+			pet.lean = sin(t * 2.6) * 0.22
+		"run":
+			pet.walking = true
+		"look":
+			pet.lean = -0.07 * pet.facing   # mirando hacia arriba
+		"side":
+			pet.lean = sin(t * 7.0) * float(info.get("bob", 0.03)) * pet.facing
+	_play_fx_t -= delta
+	if _play_fx_t <= 0.0:
+		_play_fx_t = randf_range(0.9, 1.4)
+		var fx: String = info.get("fx", "")
+		var at: Vector2 = _play_spot["fx_at"] if fx in ["note", "bubble", "sparkle"] and _play_spot["pose"] != "sit" else _pet_pos + Vector2(0, -300.0 * pet.scale.y)
+		if fx == "zzz":
+			at = _pet_pos + Vector2(60.0, -260.0 * pet.scale.y)
+		PlayFx.spawn(self, fx, Vector2(at.x - room.scroll, at.y))
+	if _play_t <= 0.0:
+		_end_play(true)
+
+
+## Termina de jugar (`done`: llego al final y suma lo suyo) y vuelve a pasear.
+func _end_play(done: bool) -> void:
+	var p := GameState.pompon
+	if done and _play_state == "using" and p != null:
+		PomponPlay.apply_stats(p, _play_id)
+		var skill := PomponSkills.item_skill(_play_id)
+		if skill != "":   # los objetos de practica entrenan sus habilidades
+			var news := PomponSkills.add_xp(p, skill, PomponSkills.PRACTICE_XP)
+			if not news.is_empty():
+				GameState.pending_thoughts.append(news)
+	if _play_state == "using" and _play_spot.get("pose", "") in ["sit", "swing", "run", "lie"]:
+		_pet_pos = _play_spot["walk"]   # se baja
+	pet.lean = 0.0
+	pet.face_mood = ""
+	pet.walking = false
+	if not _night:
+		pet.sleep_props = ""
+	_play_last = _play_id
+	_play_id = ""
+	_play_state = ""
+	_play_cd = PomponPlay.COOLDOWN if done else 6.0
+	_practice_left = 0.0
+	_moving = false
+	_wander_wait = randf_range(1.5, 3.0)
 
 
 ## "Tofu se siente un poco aburrido": una frase bajo la tarjeta de estado que cambia cada tanto y
@@ -1130,26 +1314,11 @@ func _update_growth(delta: float) -> void:
 		GameState.pending_thoughts.append(e)
 
 
-## De vez en cuando practica con un objeto de su cuarto que entrena una habilidad (piano, rueda, escritorio...).
+## La pausa entre una actividad con objetos y la siguiente (las actividades estan en _try_play).
 func _update_practice(delta: float) -> void:
-	_practice_left = maxf(_practice_left - delta, 0.0)
-	var p := GameState.pompon
-	if not _is_born(p) or _edit or _any_modal() or pet.walking:
-		return
-	_practice_timer -= delta
-	if _practice_timer > 0.0:
-		return
-	_practice_timer = randf_range(90.0, 150.0)
-	var items: Array = PomponSkills.trainers(_thought_ctx()["items"])
-	if items.is_empty():
-		return
-	var id: String = items[_mood_rng.randi() % items.size()]
-	var news := PomponSkills.add_xp(p, PomponSkills.item_skill(id), PomponSkills.PRACTICE_XP)
-	if not news.is_empty():
-		GameState.pending_thoughts.append(news)
-	_practice_text = "%s %s" % [p.display_name(), PomponSkills.practice_text(id)]
-	_practice_left = 14.0
-	_log_first(PomponFirsts.experience(p, "item", id, PomponThoughts._poss(id), int(Time.get_unix_time_from_system()), _mood_rng))
+	if _play_state != "using":
+		_practice_left = maxf(_practice_left - delta, 0.0)
+	_play_cd = maxf(_play_cd - delta, 0.0)
 
 
 ## Perfil: todo lo que se sabe del Pompon y lo que fue aprendiendo (se abre tocando su foto).
@@ -1194,7 +1363,7 @@ func _update_activity(delta: float) -> void:
 	_activity_timer -= delta
 	if _night:  # de noche: durmiendo, jugando en la cama o tomando algo
 		_activity_label.text = _night_activity_text()
-	elif _practice_left > 0.0 and not pet.walking:  # practicando con un objeto de su cuarto
+	elif _practice_left > 0.0 and (not pet.walking or _play_state == "using"):  # jugando con un objeto de su cuarto
 		_activity_label.text = _practice_text
 		_activity_timer = 8.0   # despues de practicar, se queda un rato antes de cambiar
 		_activity_walking = false
@@ -1517,9 +1686,16 @@ func _set_edit(on: bool) -> void:
 	_edit_panel.visible = on
 	pet.mouse_filter = Control.MOUSE_FILTER_IGNORE if on else Control.MOUSE_FILTER_STOP
 	if on:
+		_edit_before = GameState.placed_ids()
 		_rebuild_tray()
 	else:
 		GameState.save_game()
+		# lo recien puesto en esta habitacion: el Pompon va a verlo y dice algo (lo ultimo primero)
+		var fresh: Array = _thought_ctx()["items"].filter(func(id): return not _edit_before.has(id))
+		fresh.reverse()
+		_discover = fresh.slice(0, 3)
+		if not _discover.is_empty():
+			_wander_wait = minf(_wander_wait, 0.4)
 
 
 ## Bandeja con los muebles comprados que todavia no estan en el cuarto.
@@ -1675,6 +1851,8 @@ func _on_food(food: Dictionary) -> void:
 	var p := GameState.pompon
 	if p == null or GameState.coins < food["price"]:
 		return
+	if _play_state != "":   # deja lo que estaba haciendo para comer
+		_end_play(false)
 	GameState.coins -= food["price"]
 	var now := int(Time.get_unix_time_from_system())
 	var taste := {}
@@ -1711,6 +1889,8 @@ func _on_action(action_name: String) -> void:
 	if p == null:
 		return
 	var action: Dictionary = ACTIONS[action_name]
+	if _play_state != "":   # deja lo que estaba haciendo para beber, bañarse o recibir mimos
+		_end_play(false)
 	for stat in action["stats"]:
 		p.add_stat(stat, action["stats"][stat])
 	GameState.track("care")
@@ -1987,8 +2167,6 @@ func _refresh() -> void:
 	details.text = "%s · %s" % [Pompon.species_label(p.species), Pompon.personality_label(p.personality)]
 	if p.nickname != "":
 		details.text += " · " + p.id  # el ID (para amigos) se muestra cuando ya tiene nombre
-	if not Catalog.has_required_furniture(p.species, GameState.placed_ids()):
-		details.text += "\nNecesita: %s (en la tienda)" % Catalog.required_furniture(p.species)["name"]
 	for s in _bar_nodes:
 		_bar_nodes[s].value = p.stats[s]
 	for s in _mini_nodes:
