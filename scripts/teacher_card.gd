@@ -104,13 +104,16 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 
 ## Las materias que ya dio (sin clases todavia: la que eligio en el periodico).
 static func subjects() -> String:
-	var math := GameState.taught("math")
-	var english := GameState.taught("english")
-	if math and english:
-		return "Matemáticas e Inglés"
-	if math or english:
-		return Jobs.SUBJECT_NAMES["english" if english else "math"]
-	return Jobs.SUBJECT_NAMES.get(Jobs.current, "Matemáticas")
+	var names: Array = []
+	for s in Jobs.SUBJECTS:
+		if GameState.taught(s):
+			names.append(Jobs.SUBJECT_NAMES[s])
+	if names.is_empty():
+		return Jobs.SUBJECT_NAMES.get(Jobs.current, "Matemáticas")
+	if names.size() == 1:
+		return names[0]
+	var last: String = names.pop_back()
+	return "%s %s %s" % [", ".join(names), "e" if last.begins_with("I") else "y", last]
 
 
 func _draw_star() -> void:

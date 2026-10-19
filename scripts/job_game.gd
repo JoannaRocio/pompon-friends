@@ -9,7 +9,8 @@ extends Control
 enum State { INTRO, PLAY, QUESTION, END }
 
 const INK := Color("5b3a4a")
-const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "Hi!", "en_phrases": "I am"}
+const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "Hi!", "en_phrases": "I am",
+	"geo_capitals": "Mundo", "geo_flags": "Mundo", "geo_mix": "Mundo"}
 const SIGNAL_FIRST := 6.0
 const SIGNAL_GAP := Vector2(11.0, 15.0)
 const EXAM_HINT := 4.0     # segundos con la mano levantada antes de que la flecha señale el examen
@@ -17,7 +18,7 @@ const TIP_FIRST_SHIFT := "job_first_shift"   # cartel "¡Perfecto! ya sabes lo b
 const OPTION_HINT := 8.0   # segundos sin responder antes de que la flecha recorra las respuestas
 
 var camino := "addsub"
-var subject := "math"          # "math" o "english" (ver Jobs.current)
+var subject := "math"          # "math", "english" o "geography" (ver Jobs.current)
 var problems: GDScript = MathProblems
 var level := 1
 var state := State.INTRO
@@ -99,9 +100,9 @@ class StarsRow extends Control:
 
 func _ready() -> void:
 	rng.randomize()
-	subject = "english" if Jobs.current == "english" else "math"
+	subject = Jobs.current if Jobs.current in Jobs.SUBJECTS else "math"
 	problems = Jobs.problems(subject)
-	camino = EnglishProblems.current_track if subject == "english" else MathProblems.current_track
+	camino = Jobs.current_track(subject)
 	level = GameState.math_level(camino)
 	_build_ui()
 	if GameState.jobs_done == 0:
@@ -415,9 +416,13 @@ func _open_question() -> void:
 		row_chip.add_child(Hud.chip("Repaso", Color("fff0cf"), Color("8a6d3b"), 22))
 		box.add_child(row_chip)
 	var row: BoxContainer
+	var flag_options: bool = _problem.get("option_flags", false)
 	if subject == "english":
 		_english_prompt(box)
 		row = VBoxContainer.new()
+	elif subject == "geography":
+		_geo_prompt(box)
+		row = HBoxContainer.new() if flag_options else VBoxContainer.new()
 	else:
 		var eq := _label("%s = ?" % _problem["text"], 96)
 		eq.name = "Equation"
@@ -429,10 +434,20 @@ func _open_question() -> void:
 	_option_buttons = []
 	for value in _problem["options"]:
 		var b := Button.new()
-		b.text = str(value)
+		b.text = "" if flag_options else str(value)
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 96 if subject == "english" else 150)
-		Hud.style_soft(b, 44 if subject == "english" else 70)
+		b.custom_minimum_size = Vector2(0, 150 if subject == "math" or flag_options else 96)
+		Hud.style_soft(b, 70 if subject == "math" else 40)
+		if flag_options:   # se elige entre tres banderas
+			var flag := FlagArt.new()
+			flag.set_anchors_preset(Control.PRESET_FULL_RECT)
+			flag.offset_left = 14
+			flag.offset_right = -14
+			flag.offset_top = 14
+			flag.offset_bottom = -14
+			flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			flag.show_flag(str(value))
+			b.add_child(flag)
 		b.set_meta("value", value)
 		b.pressed.connect(_on_option.bind(b))
 		row.add_child(b)
@@ -445,6 +460,40 @@ func _open_question() -> void:
 	info.visible = false
 	info.add_theme_constant_override("separation", 10)
 	box.add_child(info)
+
+
+## Pregunta de geografia: la bandera (si va), el pais o la capital, la pregunta y la pista ("T…").
+func _geo_prompt(box: VBoxContainer) -> void:
+	if _problem["flag"] != "":
+		var flag := FlagArt.new()
+		flag.custom_minimum_size = Vector2(0, 170)
+		flag.show_flag(_problem["flag"])
+		box.add_child(flag)
+	if _problem["prompt"] != "":
+		var prompt := _label(_problem["prompt"], 54)
+		prompt.name = "Prompt"
+		box.add_child(prompt)
+	box.add_child(_label(_problem["ask"], 30, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+	if _problem["hint"] != "":   # niveles con pista: la primera letra
+		var hint_row := HBoxContainer.new()
+		hint_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		hint_row.add_child(Hud.chip("Pista: %s" % _problem["hint"], Color("fff3d1"), Color("8a6d00"), 30))
+		box.add_child(hint_row)
+
+
+## Geografia, ya respondido: la bandera chiquita con el pais y su capital, para recordarlo.
+func _geo_answered(box: VBoxContainer) -> void:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 10)
+	var flag := FlagArt.new()
+	flag.custom_minimum_size = Vector2(66, 44)
+	flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	flag.show_flag(_problem["id"])
+	row.add_child(flag)
+	row.add_child(Hud.chip("%s · capital: %s" % [_problem["country"], _problem["capital"]], Color("e3f6ea"), Color("1f7a4d"), 24))
+	box.add_child(row)
+	box.move_child(row, box.get_node("Options").get_index() + 1)
 
 
 ## Pregunta de ingles: el dibujo (si tiene), la palabra o la frase grande y que hay que hacer.
@@ -516,18 +565,20 @@ func _on_option(button: Button) -> void:
 	_dots.queue_redraw()
 	if subject == "english":
 		_english_answered(box)
+	elif subject == "geography":
+		_geo_answered(box)
 	if right:
 		correct += 1
 		result.text = "¡Correcto!" if seconds > problems.fast_seconds(camino, level) else "¡Correcto y rápido!"
 		result.add_theme_color_override("font_color", Color("2f9e6e"))
 		Audio.play("coin")
-		await get_tree().create_timer(1.8 if subject == "english" else 1.0).timeout
+		await get_tree().create_timer(1.0 if subject == "math" else 1.8).timeout
 		_end_question()
 	else:
 		var explanation: String = problems.explanation(_problem)
-		var review: String = _problem["text"] if subject == "english" else "%s = %d" % [_problem["text"], answer]
+		var review: String = "%s = %d" % [_problem["text"], answer] if subject == "math" else _problem["text"]
 		mistakes.append({"text": _problem["text"], "answer": answer, "picked": value, "explanation": explanation, "review": review})
-		result.text = "¡Casi! Es %s" % str(answer)
+		result.text = "¡Casi! Es %s" % (str(answer) if not _problem.get("option_flags", false) else "la de %s" % _problem["country"])
 		result.add_theme_color_override("font_color", Color("d6336c"))
 		Audio.play("fail")
 		info.visible = true
@@ -697,7 +748,7 @@ func _show_result(res: Dictionary) -> void:
 	var chips := HBoxContainer.new()
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	chips.add_theme_constant_override("separation", 12)
-	chips.add_child(Hud.chip("%s: %d de %d" % ["Bien" if subject == "english" else "Cuentas bien", correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
+	chips.add_child(Hud.chip("%s: %d de %d" % ["Cuentas bien" if subject == "math" else "Bien", correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
 	chips.add_child(Hud.chip("Ordenados: %d" % sorter.sorted_total, Color("e6efff"), Color("3f66b0"), 24))
 	box.add_child(chips)
 	var pay := HBoxContainer.new()

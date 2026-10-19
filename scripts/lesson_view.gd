@@ -28,6 +28,17 @@ func setup(camino: String, level: int) -> void:
 	sub.add_theme_color_override("font_color", Color("a0527a"))
 	box.add_child(sub)
 
+	if data.has("flags"):   # geografia: las banderas de la region, para mirarlas antes de jugar
+		var flags := HFlowContainer.new()
+		flags.alignment = FlowContainer.ALIGNMENT_CENTER
+		flags.add_theme_constant_override("h_separation", 8)
+		flags.add_theme_constant_override("v_separation", 8)
+		box.add_child(flags)
+		for id in data["flags"]:
+			var f := FlagArt.new()
+			f.custom_minimum_size = Vector2(72, 48)
+			f.show_flag(id)
+			flags.add_child(f)
 	var lines: Array = data["lines"]
 	var first := String(lines[0]).split("\n")
 	var trick := Label.new()

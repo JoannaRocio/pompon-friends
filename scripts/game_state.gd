@@ -383,7 +383,7 @@ func math_level(camino: String) -> int:
 	return clampi(int(math_state(camino)["level"]), 1, Jobs.problems(Jobs.subject_of(camino)).MAX_LEVEL)
 
 
-## ¿Ya dio alguna clase de esa materia ("math" o "english")?
+## ¿Ya dio alguna clase de esa materia ("math", "english" o "geography")?
 func taught(subject: String) -> bool:
 	for camino in Jobs.problems(subject).TRACKS:
 		if int(math_progress.get(camino, {}).get("answered", 0)) > 0:
@@ -833,6 +833,7 @@ func reset_game() -> void:
 	Neighbors.set_friends([])
 	MathProblems.current_track = "addsub"
 	EnglishProblems.current_track = "en_words"
+	GeographyProblems.current_track = "geo_capitals"
 	Jobs.current = "math"
 	PixelArt.cache = {}
 
@@ -1053,7 +1054,7 @@ func _load_math(parsed: Dictionary) -> void:
 	math_weak = {}
 	var saved = parsed.get("math_progress", {})
 	if typeof(saved) == TYPE_DICTIONARY:
-		for camino in MathProblems.TRACKS + EnglishProblems.TRACKS:
+		for camino in MathProblems.TRACKS + EnglishProblems.TRACKS + GeographyProblems.TRACKS:
 			if not (saved.has(camino) and typeof(saved[camino]) == TYPE_DICTIONARY):
 				continue
 			var s: Dictionary = saved[camino]
@@ -1077,10 +1078,11 @@ func _load_math(parsed: Dictionary) -> void:
 				if typeof(w) == TYPE_DICTIONARY and w.get("op", "") in ["add", "sub", "mul", "div"] and w.has("a") and w.has("b"):
 					list.append({"op": w["op"], "a": int(w["a"]), "b": int(w["b"]), "streak": int(w.get("streak", 0))})
 			math_weak[camino] = list
-		for camino in EnglishProblems.TRACKS:  # palabras de ingles: solo las que siguen existiendo
+		for camino in EnglishProblems.TRACKS + GeographyProblems.TRACKS:  # palabras y paises: solo los que siguen existiendo
 			var words := []
+			var problems := Jobs.problems(Jobs.subject_of(camino))
 			for w in weak.get(camino, []):
-				if typeof(w) == TYPE_DICTIONARY and typeof(w.get("key")) == TYPE_STRING and not EnglishProblems.find_item(camino, w["key"]).is_empty():
+				if typeof(w) == TYPE_DICTIONARY and typeof(w.get("key")) == TYPE_STRING and not (problems.find_item(camino, w["key"]) as Dictionary).is_empty():
 					words.append({"key": w["key"], "streak": int(w.get("streak", 0))})
 			math_weak[camino] = words
 

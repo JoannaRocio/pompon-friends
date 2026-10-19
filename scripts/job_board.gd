@@ -6,6 +6,7 @@ const INK := Color("5b3a4a")
 const TIP_INTRO := "job_intro"    # cartel "para cuidar a tu Pompon necesitas monedas" (ya visto)
 const TIP_HIRED := "job_hired"    # cartel "¡conseguiste tu primer trabajo!" (ya visto)
 const TIP_ENGLISH := "job_english"  # cartel "¡ahora tambien enseñas ingles!" (ya visto)
+const TIP_GEOGRAPHY := "job_geography"  # lo mismo para geografia
 
 var _list: VBoxContainer
 var _slot: VBoxContainer       # nombre o ficha de profesor/a
@@ -272,27 +273,35 @@ func _open(job_id: String) -> void:
 		Audio.play("fail")
 		return
 	Jobs.current = job_id
+	var tip := _subject_tip(job_id)
 	if not hired():
-		if job_id == "english":  # (el primer trabajo ya se festeja con su cartel)
-			GameState.tips_seen.append(TIP_ENGLISH)
+		if tip != "":  # (el primer trabajo ya se festeja con su cartel)
+			GameState.tips_seen.append(tip)
 		_show_hired(job)
 		return
-	if job_id == "english" and not GameState.tips_seen.has(TIP_ENGLISH):
+	if tip != "" and not GameState.tips_seen.has(tip):
 		_show_new_subject(job)
 		return
 	get_tree().change_scene_to_file(job["scene"])
 
 
-## Ya trabaja de profesor/a y suma Ingles: su nivel y su paga siguen iguales (es una sola carrera).
+## Cartel de "nueva materia" de ese trabajo ("" para matematicas, que es la primera).
+static func _subject_tip(job_id: String) -> String:
+	return {"english": TIP_ENGLISH, "geography": TIP_GEOGRAPHY}.get(job_id, "")
+
+
+## Ya trabaja de profesor/a y suma otra materia: su nivel y su paga siguen iguales (es una sola carrera).
 func _show_new_subject(job: Dictionary) -> void:
 	var notice := BigNotice.new(660.0)
 	_layer = notice
 	add_child(notice)
-	notice.add(BigNotice.icon_strip([["book", Color("5aa9e6")], ["star", Color("ffcf3f")], ["coin", Color("ffcf3f")]]))
-	notice.title("¡Ahora también enseñas Inglés!")
-	notice.text_line("Tu nivel y tu paga son los mismos en las dos materias.", 28, Color("a0527a"))
+	var tint := Color(job["color"])
+	notice.add(BigNotice.icon_strip([["book" if job["id"] == "english" else "house", tint], ["star", Color("ffcf3f")], ["coin", Color("ffcf3f")]]))
+	notice.title("¡Ahora también enseñas %s!" % Jobs.SUBJECT_NAMES.get(job["id"], ""))
+	notice.text_line("Tu nivel y tu paga son los mismos en todas las materias.", 28, Color("a0527a"))
+	var tip := _subject_tip(job["id"])
 	notice.button("¡A enseñar!", func():
-		GameState.tips_seen.append(TIP_ENGLISH)
+		GameState.tips_seen.append(tip)
 		GameState.save_game()
 		get_tree().change_scene_to_file(job["scene"]))
 	Audio.play("success")

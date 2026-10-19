@@ -4,8 +4,9 @@ extends Control
 ## Poco texto: todo se entiende de un vistazo.
 
 const COLORS := {"addsub": Color("ff9b54"), "mul": Color("e0609e"), "div": Color("4cb782"),
-	"en_words": Color("5aa9e6"), "en_meaning": Color("8a7be0"), "en_phrases": Color("3cb8a0")}
-const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "¿?", "en_phrases": "Hi!"}
+	"en_words": Color("5aa9e6"), "en_meaning": Color("8a7be0"), "en_phrases": Color("3cb8a0"),
+	"geo_capitals": Color("4cb782"), "geo_flags": Color("ff8a5b"), "geo_mix": Color("5aa9e6")}
+const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "¿?", "en_phrases": "Hi!", "geo_capitals": "", "geo_flags": "", "geo_mix": ""}
 
 var _layer: Control
 var _arrow: GuideArrow
@@ -150,6 +151,14 @@ func _track_card(camino: String) -> Control:
 	symbol.add_theme_font_size_override("font_size", 62 if SYMBOLS[camino].length() == 1 else (48 if camino == "addsub" else 42))
 	symbol.add_theme_color_override("font_color", Color.WHITE)
 	badge.add_child(symbol)
+	if SYMBOLS[camino] == "":   # geografia: una banderita en lugar del simbolo
+		var flag := FlagArt.new()
+		flag.custom_minimum_size = Vector2(76, 52)
+		flag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		flag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		flag.show_flag({"geo_capitals": "japon", "geo_flags": "brasil", "geo_mix": "francia"}.get(camino, "japon"))
+		badge.add_child(flag)
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -186,10 +195,7 @@ func _track_card(camino: String) -> Control:
 	go.custom_minimum_size = Vector2(160, 72)
 	Hud.style_primary(go, 28, color)
 	go.pressed.connect(func():
-		if Jobs.subject_of(camino) == "english":
-			EnglishProblems.current_track = camino
-		else:
-			MathProblems.current_track = camino
+		Jobs.set_track(camino)
 		get_tree().change_scene_to_file("res://scenes/job_game.tscn"))
 	buttons.add_child(go)
 	_work_buttons.append(go)

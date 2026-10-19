@@ -17,13 +17,14 @@ const JOBS := [
 		"blurb": "Palabras y frases en inglés",
 	},
 	{
-		"id": "geography", "available": false, "scene": "", "color": "4cb782",
+		"id": "geography", "available": true, "scene": "res://scenes/job_menu.tscn", "color": "4cb782",
 		"title": {"f": "Profesora de Geografía", "m": "Profesor de Geografía", "n": "Profesor/a de Geografía"},
-		"blurb": "Países y mapas",
+		"blurb": "Capitales y banderas del mundo",
 	},
 ]
 
-const SUBJECT_NAMES := {"math": "Matemáticas", "english": "Inglés"}
+const SUBJECT_NAMES := {"math": "Matemáticas", "english": "Inglés", "geography": "Geografía"}
+const SUBJECTS := ["math", "english", "geography"]
 
 static var current := "math"   # materia que se esta dando (la elige el periodico)
 
@@ -43,12 +44,39 @@ static func get_job(id: String) -> Dictionary:
 
 ## La materia de un camino: los de ingles empiezan con "en_".
 static func subject_of(track: String) -> String:
-	return "english" if track.begins_with("en_") else "math"
+	if track.begins_with("en_"):
+		return "english"
+	return "geography" if track.begins_with("geo_") else "math"
 
 
-## El script con las preguntas de la materia (MathProblems o EnglishProblems).
+## El script con las preguntas de la materia (MathProblems, EnglishProblems o GeographyProblems).
 static func problems(subject: String) -> GDScript:
-	return EnglishProblems if subject == "english" else MathProblems
+	match subject:
+		"english":
+			return EnglishProblems
+		"geography":
+			return GeographyProblems
+	return MathProblems
+
+
+## El camino elegido en el aula de esa materia.
+static func current_track(subject: String) -> String:
+	match subject:
+		"english":
+			return EnglishProblems.current_track
+		"geography":
+			return GeographyProblems.current_track
+	return MathProblems.current_track
+
+
+static func set_track(track: String) -> void:
+	match subject_of(track):
+		"english":
+			EnglishProblems.current_track = track
+		"geography":
+			GeographyProblems.current_track = track
+		_:
+			MathProblems.current_track = track
 
 
 ## "f", "m" o "n" (neutro). Cualquier otra cosa cuenta como neutro.
