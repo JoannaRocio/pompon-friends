@@ -85,6 +85,10 @@ var _play_fx_t := 0.0
 var _play_new := false             # va a ver algo recien puesto: al llegar dice un comentario
 var _discover: Array = []          # objetos recien colocados que todavia no fue a ver
 var _edit_before: Array = []       # lo que estaba colocado al empezar a decorar
+var _door: Button                  # puerta de la sala: sale al pueblo
+var _tip_id := ""                  # aviso que se esta mostrando
+const DOOR_W := 130.0
+const DOOR_H := 250.0
 var _thought_timer := 90.0
 var _stat_check := 0.0
 var _offline_checked := false
@@ -117,6 +121,7 @@ var _mystery_egg: Pompon
 
 
 func _ready() -> void:
+	Town.from_town = false   # desde la casa, la tienda y las visitas vuelven a la casa
 	_mystery_egg = PomponView.make_sample("Felino", Color("f5d0a9"), Color("fff6e8"))
 	_mystery_egg.born_at = int(Time.get_unix_time_from_system())
 	_mystery_egg.hatched = false  # huevo
@@ -134,6 +139,7 @@ func _ready() -> void:
 	var fx := AmbientFx.new()
 	add_child(fx)
 	move_child(fx, room.get_index() + 1)
+	_build_door()
 	_build_bubble()
 	_build_bars()
 	_build_actions()
@@ -154,6 +160,7 @@ func _process(delta: float) -> void:
 	_wander(delta)
 	_update_arrow()
 	_place_arrows()
+	_place_door()
 	_place_tip()
 	_update_mood(delta)
 	_update_activity(delta)
@@ -240,6 +247,65 @@ func _wander(delta: float) -> void:
 		if sx < size.x * 0.2 or sx > size.x * 0.8:
 			room.scroll = move_toward(room.scroll, _pet_pos.x - size.x * 0.5, 150.0 * delta)
 	_place_pet(bounds)
+
+
+## Puerta de la sala (a la izquierda de todo): sale al pueblo. Se dibuja sobre la pared, con un
+## cartelito, y se desliza con la habitacion.
+func _build_door() -> void:
+	_door = Button.new()
+	_door.flat = true
+	_door.focus_mode = Control.FOCUS_NONE
+	for st in ["normal", "hover", "pressed", "focus", "hover_pressed"]:
+		_door.add_theme_stylebox_override(st, StyleBoxEmpty.new())
+	_door.size = Vector2(DOOR_W, DOOR_H)
+	_door.draw.connect(func():
+		var out := Color("5b3a4a")
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color("c9925f")
+		sb.border_color = out
+		sb.set_border_width_all(5)
+		sb.corner_radius_top_left = 60
+		sb.corner_radius_top_right = 60
+		sb.anti_aliasing = true
+		_door.draw_style_box(sb, Rect2(8, 40, DOOR_W - 16, DOOR_H - 40))
+		var inner := sb.duplicate() as StyleBoxFlat
+		inner.bg_color = Color("b07a52")
+		inner.set_border_width_all(3)
+		inner.corner_radius_top_left = 40
+		inner.corner_radius_top_right = 40
+		_door.draw_style_box(inner, Rect2(26, 64, DOOR_W - 52, 70))
+		_door.draw_style_box(inner, Rect2(26, 146, DOOR_W - 52, 80))
+		_door.draw_circle(Vector2(DOOR_W - 30, 150), 7.0, Color("ffd84d"))
+		_door.draw_arc(Vector2(DOOR_W - 30, 150), 7.0, 0.0, TAU, 14, out, 2.0, true)
+		# cartelito con una casita y una flecha: "al pueblo"
+		var sign := StyleBoxFlat.new()
+		sign.bg_color = Color("fffaf0")
+		sign.border_color = out
+		sign.set_border_width_all(4)
+		sign.set_corner_radius_all(12)
+		sign.anti_aliasing = true
+		_door.draw_style_box(sign, Rect2(10, 0, DOOR_W - 20, 44))
+		Hud.draw_icon(_door, "house", Vector2(44, 22), 30.0, Color("5fc77f"), Color(0, 0, 0, 0))
+		_door.draw_line(Vector2(66, 22), Vector2(96, 22), out, 4.0, true)
+		_door.draw_colored_polygon(PackedVector2Array([Vector2(104, 22), Vector2(92, 13), Vector2(92, 31)]), out))
+	_door.pressed.connect(_go_town)
+	add_child(_door)
+	move_child(_door, room.get_index() + 1)
+
+
+func _place_door() -> void:
+	if _door == null:
+		return
+	_door.visible = GameState.current_room == 0 and not _edit and GameState.pompon != null and _hatch_layer == null
+	_door.position = Vector2(18.0 - room.scroll, size.y * 0.61 - DOOR_H)
+
+
+func _go_town() -> void:
+	if _any_modal() or _edit:
+		return
+	Audio.play("click")
+	GameState.save_game()
+	get_tree().change_scene_to_file("res://scenes/town.tscn")
 
 
 ## Lleva la camara hasta el Pompon si esta fuera de la pantalla (por ejemplo al darle de comer).
@@ -634,6 +700,7 @@ Toca Decorar para ponerlos."},
 	{"id": "coins", "when": "born", "text": "¿Faltan monedas?
 Ve a Trabajo."},
 	{"id": "friends", "when": "born", "text": "Visita a tus Vecinos para hacer amigos."},
+	{"id": "town1", "when": "door", "text": "¡Toca la puerta para salir al pueblo!"},
 ]
 var _hatch_layer: HatchAnimation
 # antes de nacer: el huevo golpea la cascara ("toc, toc") y se raja con cada toque
@@ -682,6 +749,8 @@ func _update_arrow() -> void:
 		target = _egg_anchor  # "¡tócalo!"
 	elif GameState.egg_waiting() and not GameState.owns_crib() and not _edit and not _any_modal():
 		target = _shop_button if GameState.coins >= _crib_price() else _job_button
+	elif _tip_id == "town1" and _tip_panel != null and _door.visible:
+		target = _door   # "¡toca la puerta!"
 	_arrow.set_target(target)
 
 
@@ -700,6 +769,8 @@ func _tip_ready(tip: Dictionary) -> bool:
 			return _is_born(p)
 		"furniture":
 			return _is_born(p) and GameState.owned.any(func(id): return Catalog.is_placeable(id))
+		"door":
+			return _is_born(p) and _door != null and _door.visible
 	return true
 
 
@@ -764,6 +835,7 @@ func _check_tips() -> void:
 
 ## Aviso chico sobre la barra de abajo: desaparece solo a los 8 segundos o al tocarlo.
 func _show_tip(tip: Dictionary) -> void:
+	_tip_id = tip["id"]
 	if tip["id"] != "":
 		GameState.tips_seen.append(tip["id"])  # se marca como vista al mostrarse: no se repite
 		GameState.save_game()

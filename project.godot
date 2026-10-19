@@ -17,6 +17,10 @@ config/features=PackedStringArray("4.7", "Mobile")
 run/max_fps=60
 config/icon="res://assets/icon.png"
 
+[audio]
+
+general/text_to_speech=true
+
 [autoload]
 
 GameState="*res://scripts/game_state.gd"
@@ -24,10 +28,6 @@ Audio="*res://scripts/audio.gd"
 Look="*res://scripts/look.gd"
 Cloud="*res://scripts/cloud.gd"
 Friends="*res://scripts/friends.gd"
-
-[audio]
-
-general/text_to_speech=true
 
 [display]
 

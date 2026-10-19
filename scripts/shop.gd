@@ -45,7 +45,7 @@ func _ready() -> void:
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 12)
 	root.add_child(top)
-	top.add_child(Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/home.tscn")))
+	top.add_child(Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/town.tscn" if Town.from_town else "res://scenes/home.tscn")))
 	var title := Label.new()
 	title.text = "Tienda"
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL

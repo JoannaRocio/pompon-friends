@@ -10,6 +10,7 @@ extends Node
 signal changed   # cambiaron los amigos, las solicitudes o el estado (la pantalla se redibuja)
 
 const CODE_LEN := 8
+const MAX_FRIENDS := 10         # amigos de verdad como maximo (contando las solicitudes que mandaste)
 const REFRESH_EVERY := 300.0   # mira el buzon cada 5 minutos
 const EVENT_SOCIAL := 5.0      # Social que suma cada aviso de un amigo
 const EVENT_TEXT := {
@@ -97,14 +98,27 @@ func publish() -> Dictionary:
 
 # ------------------------------------------------------------------ solicitudes y amigos
 
+## Lugares libres en la lista (amigos + solicitudes enviadas, hasta MAX_FRIENDS).
+func room_left() -> int:
+	return maxi(0, MAX_FRIENDS - GameState.friends.size() - GameState.friend_sent.size())
+
+
+func is_full() -> bool:
+	return GameState.friends.size() >= MAX_FRIENDS
+
+
 ## Manda una solicitud. Devuelve {"ok", "result"}: "sent", "accepted", "friends", "self", "not_found",
-## "limit", "code" (mal escrito) o el error de red.
+## "limit", "full" (ya tiene 10 amigos), "code" (mal escrito) o el error de red.
 func request(text: String) -> Dictionary:
 	var code := clean_code(text)
 	if code == "":
 		return {"ok": false, "result": "code"}
 	if not is_active():
 		return {"ok": false, "result": "off"}
+	if GameState.friends.any(func(f): return f.get("code", "") == code):
+		return {"ok": true, "result": "friends"}
+	if room_left() <= 0:
+		return {"ok": false, "result": "full"}
 	var res: Dictionary = await Cloud.server_call("pompon_friend_request", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_to": code})
 	if not res["ok"]:
 		return {"ok": false, "result": res["error"]}
@@ -114,6 +128,8 @@ func request(text: String) -> Dictionary:
 
 
 func answer(code: String, accept: bool) -> Dictionary:
+	if accept and is_full():   # con 10 amigos hay que quitar uno antes de aceptar otro
+		return {"ok": false, "error": "full"}
 	var res: Dictionary = await Cloud.server_call("pompon_friend_answer", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_from": code, "p_accept": accept})
 	await refresh()
 	return res

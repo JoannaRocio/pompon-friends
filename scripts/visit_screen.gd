@@ -125,7 +125,7 @@ func _build_top() -> void:
 	row.offset_top = 20
 	row.add_theme_constant_override("separation", 12)
 	add_child(row)
-	var back := Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/neighbors.tscn"))
+	var back := Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/town.tscn" if Town.from_town else "res://scenes/neighbors.tscn"))
 	back.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	row.add_child(back)
 

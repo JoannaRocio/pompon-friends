@@ -14,6 +14,7 @@ var _dirty := false
 
 
 func _ready() -> void:
+	Town.from_town = false
 	var bg := Control.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -282,6 +283,10 @@ func _friends_card() -> Control:
 	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", Color("d6336c"))
 	head.add_child(title)
+	if Friends.is_active():   # cuantos tiene (maximo 10)
+		var full := GameState.friends.size() >= Friends.MAX_FRIENDS
+		head.add_child(Hud.chip("%d / %d" % [GameState.friends.size(), Friends.MAX_FRIENDS],
+			Color("ffe6ef") if full else Color("d8f5e3"), Color("d6336c") if full else Color("1f7a4d"), 22))
 
 	if not Friends.is_active():
 		col.add_child(_small("Agrega a tus amigos con su código y visítense.", 22))
@@ -324,7 +329,11 @@ func _request_row(f: Dictionary) -> Control:
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(text)
 	var code: String = f["code"]
-	row.add_child(_pill_button("Aceptar", func(): Friends.answer(code, true), GREEN, Vector2(140, 64)))
+	row.add_child(_pill_button("Aceptar", func():
+		if Friends.is_full():
+			_show_message("¡Lista llena!", "Ya tienes %d amigos. Para aceptar a otro, primero quita uno." % Friends.MAX_FRIENDS)
+		else:
+			Friends.answer(code, true), GREEN, Vector2(140, 64)))
 	var no := Button.new()
 	no.text = "No"
 	no.custom_minimum_size = Vector2(80, 64)
@@ -405,6 +414,7 @@ func _send(text: String) -> void:
 		"self": "Ese es tu propio código.",
 		"not_found": "No encontramos ese código. Revisa las letras.",
 		"limit": "Ya mandaste muchas solicitudes hoy. Prueba mañana.",
+		"full": "Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno." % Friends.MAX_FRIENDS,
 	}.get(res["result"], _error_text(res["result"]))
 	_show_message("¡Listo!" if res["ok"] else "¡Ups!", msg)
 
