@@ -59,3 +59,5 @@ func _draw() -> void:
 			draw_set_transform_matrix(Transform2D(0.0, Vector2(s, s), 0.0, size * 0.5))
 			ItemArt.draw_item(self, item_id, Vector2.ZERO)
 			draw_set_transform_matrix(Transform2D.IDENTITY)
+	if Catalog.is_special(item_id):  # especial: brillitos (quietos en la miniatura)
+		ItemArt.draw_shine(self, Rect2(Vector2(6, 6), size - Vector2(12, 12)), 0.35)

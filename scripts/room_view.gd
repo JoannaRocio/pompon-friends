@@ -20,6 +20,7 @@ var floor_id := ""
 var placed: Array = []      # misma lista que GameState.placed (se edita en el lugar)
 var room_index := -1        # que habitacion se muestra (-1 = todos los items, para las visitas)
 var world_screens := Rooms.WORLD_SCREENS
+var _shine: Control   # chispitas de los especiales
 var scroll := 0.0:
 	set(v):
 		scroll = clampf(v, 0.0, max_scroll())
@@ -82,9 +83,26 @@ func _time_state() -> Array:
 
 func _ready() -> void:
 	resized.connect(func(): scroll = scroll)  # vuelve a acotar la camara si cambia el tamaño
+	# capa liviana encima: solo las chispitas de los items especiales (se redibuja cada cuadro)
+	_shine = Control.new()
+	_shine.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_shine.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shine.draw.connect(_draw_shine)
+	add_child(_shine)
+
+
+func _draw_shine() -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	for p in _items():
+		if Catalog.is_special(p["id"]):
+			var r := _item_rect(p)
+			r.position.x -= scroll
+			ItemArt.draw_shine(_shine, r, t + float(hash(p["id"]) % 100) * 0.1)
 
 
 func _process(delta: float) -> void:
+	if _shine != null and _items().any(func(p): return Catalog.is_special(p["id"])):
+		_shine.queue_redraw()
 	if _dragging and selected != "":
 		var dx := 0.0
 		if _pointer.x < EDGE_ZONE:
@@ -237,8 +255,9 @@ func _draw() -> void:
 		draw_rect(Rect2(0, 0, ww, h), Color(1.0, 0.6, 0.3, 0.10 * warm))
 	if night > 0.2:  # lamparas y chimenea siguen encendidas
 		for p in items:
-			if LIGHT_SOURCES.has(p["id"]):
-				var c: Vector2 = _item_center(p) + LIGHT_SOURCES[p["id"]]
+			var shape := Catalog.shape_of(p["id"])
+			if LIGHT_SOURCES.has(shape):
+				var c: Vector2 = _item_center(p) + LIGHT_SOURCES[shape]
 				draw_circle(c, 120.0, Color(1.0, 0.85, 0.5, 0.10 * night))
 				draw_circle(c, 70.0, Color(1.0, 0.88, 0.55, 0.16 * night))
 

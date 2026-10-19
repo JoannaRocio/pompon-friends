@@ -66,6 +66,16 @@ static func make_sample(species: String, c1: Color, c2: Color, eyes := "redondos
 	return p
 
 
+## Chispitas sobre la ropa especial que tiene puesta (corona de diamantes, capa real...).
+func _draw_worn_shine() -> void:
+	if not animated:
+		return
+	var spots := {"hat": Rect2(-90, -230, 180, 120), "glasses": Rect2(-90, -40, 180, 50), "shirt": Rect2(-110, 60, 220, 110)}
+	for cat in spots:
+		if Catalog.is_special(str(equipped.get(cat, ""))):
+			ItemArt.draw_shine(self, spots[cat], _t + spots[cat].position.y * 0.01)
+
+
 ## De noche: colchoneta (si duerme en el piso) y almohada, detras del Pompon.
 func _draw_pillow() -> void:
 	if sleep_props == "mat":
@@ -315,6 +325,8 @@ func _draw() -> void:
 		if sleep_props != "":
 			draw_set_transform_matrix(base_xf)
 			_draw_blanket()
+		draw_set_transform_matrix(base_xf)
+		_draw_worn_shine()
 		_base_xf = base_xf
 		_draw_activity()
 		for h in _hearts:
@@ -331,7 +343,7 @@ func _draw_item_only() -> void:
 	var span := 200.0            # ancho aproximado que ocupa
 	match cat:
 		"hat":
-			var fit: Array = HAT_FIT.get(item_only_id, [Vector2(0, -104), 220.0])
+			var fit: Array = HAT_FIT.get(Catalog.shape_of(item_only_id), [Vector2(0, -104), 220.0])
 			center = fit[0]
 			span = fit[1]
 		"glasses":
@@ -350,7 +362,7 @@ func _draw_item_only() -> void:
 		"shirt":
 			_draw_shirt_sleeves(item_only_id)
 			_draw_shirt(item_only_id)
-			if item_only_id in ["shirt_red", "shirt_sweater", "shirt_green", "shirt_pajama"]:
+			if Catalog.shape_of(item_only_id) in ["shirt_red", "shirt_sweater", "shirt_green", "shirt_pajama"]:
 				_ell(Vector2(0, 66), 28.0, 11.0, Color("fff8ea"))  # cuello
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 
@@ -358,7 +370,7 @@ func _draw_item_only() -> void:
 ## Mangas para que la prenda suelta se lea como ropa (en el Pompon las cubren sus brazos).
 func _draw_shirt_sleeves(id: String) -> void:
 	var col := Catalog.color_of(id)
-	match id:
+	match Catalog.shape_of(id):
 		"shirt_tutu":
 			return
 		"shirt_overalls", "shirt_scarf":
@@ -699,7 +711,7 @@ func _item_color(id: String) -> Color:
 
 func _draw_shirt(id: String) -> void:
 	var col := _item_color(id)
-	match id:
+	match Catalog.shape_of(id):
 		"shirt_star":
 			_ell(Vector2(0, 112), 68.0, 56.0, col)
 			_ell(Vector2(0, 76), 46.0, 15.0, col.lightened(0.25))
@@ -784,7 +796,7 @@ func _draw_shirt(id: String) -> void:
 func _draw_hat(id: String, hry: float) -> void:
 	var col := _item_color(id)
 	var top := -hry
-	match id:
+	match Catalog.shape_of(id):
 		"hat_beret":
 			_ell(Vector2(-12, top + 14.0), 86.0, 34.0, col)
 			_ell(Vector2(-12, top + 30.0), 76.0, 12.0, col.darkened(0.15), false)
@@ -857,16 +869,15 @@ func _draw_hat(id: String, hry: float) -> void:
 				_ell(p, 34.0, 34.0, col)
 			_poly([Vector2(-54, top + 34), Vector2(54, top + 34), Vector2(54, top + 6), Vector2(-54, top + 6)], col)
 		"hat_crown":
-			var gold := Color("ffd33d")
 			_poly([Vector2(-58, top + 26), Vector2(-62, top - 30), Vector2(-30, top - 4), Vector2(0, top - 44),
-				Vector2(30, top - 4), Vector2(62, top - 30), Vector2(58, top + 26)], gold)
-			for x in [-34.0, 0.0, 34.0]:
-				draw_circle(Vector2(x, top + 8.0), 7.0, Color("ff6b8b"))
+				Vector2(30, top - 4), Vector2(62, top - 30), Vector2(58, top + 26)], col)
+			for x in [-34.0, 0.0, 34.0]:   # gemas (blancas en la corona de diamantes)
+				draw_circle(Vector2(x, top + 8.0), 7.0, Color.WHITE if Catalog.is_special(id) else Color("ff6b8b"))
 
 
 func _draw_glasses(id: String) -> void:
 	var col := _item_color(id)
-	match id:
+	match Catalog.shape_of(id):
 		"glasses_pixel":
 			for sx in [-1.0, 1.0]:
 				var lens := Rect2(Vector2(38.0 * sx - 30.0, -22.0), Vector2(60, 34))

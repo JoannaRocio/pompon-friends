@@ -28,11 +28,25 @@ const SIZES := {
 	"toy_blocks": Vector2(90, 80), "toy_books": Vector2(100, 62), "toy_vase": Vector2(70, 110),
 	"toy_cactus": Vector2(70, 100), "toy_cake": Vector2(90, 90), "toy_frame": Vector2(80, 90),
 	"toy_musicbox": Vector2(90, 80), "toy_robot": Vector2(80, 110), "toy_trophy": Vector2(70, 100),
+	"furn_bed_cloud": Vector2(230, 150),
 }
 
 
 static func size_of(id: String) -> Vector2:
-	return SIZES.get(id, DEFAULT_SIZE)
+	return SIZES.get(id, SIZES.get(Catalog.shape_of(id), DEFAULT_SIZE))
+
+
+## Chispitas que titilan alrededor de un item especial (`t` = tiempo en segundos).
+static func draw_shine(cv: CanvasItem, rect: Rect2, t: float) -> void:
+	for i in 5:
+		var k := fmod(t * 0.55 + i * 0.37, 1.0)
+		var a := sin(k * PI)
+		var p := rect.position + Vector2(fmod(i * 0.61 + 0.13, 1.0) * rect.size.x, fmod(i * 0.43 + 0.21, 1.0) * rect.size.y * 0.8)
+		var r := (5.0 + 7.0 * a) * clampf(rect.size.x / 160.0, 0.5, 1.2)
+		var col := Color(1.0, 0.78, 0.2, a)   # dorado (se ve sobre fondos claros y oscuros)
+		cv.draw_line(p - Vector2(r, 0), p + Vector2(r, 0), col, 3.0, true)
+		cv.draw_line(p - Vector2(0, r), p + Vector2(0, r), col, 3.0, true)
+		cv.draw_circle(p, r * 0.32, Color(1, 1, 1, a))
 
 
 const REF_ROOM := Vector2(720, 1280)   # cuarto de referencia para calcular choques entre items
@@ -165,6 +179,16 @@ static func draw_wall(cv: CanvasItem, rect: Rect2, id: String, k := 1.0) -> void
 			cv.draw_arc(rect.position + Vector2(rect.size.x * 0.78, rect.size.y * 0.3), 66.0 * k, 3.6, 6.1, 20, Color("ffd9a0"), 6.0 * k, true)
 			cv.draw_circle(rect.position + Vector2(rect.size.x * 0.2, rect.size.y * 0.68), 26.0 * k, Color("8fd1ff"))
 			cv.draw_circle(rect.position + Vector2(rect.size.x * 0.2 - 8.0 * k, rect.size.y * 0.68 - 8.0 * k), 8.0 * k, Color(1, 1, 1, 0.5))
+		"rainbow":  # bandas suaves de colores y nubecitas
+			var bands := [Color("ffd6d6"), Color("ffe6c7"), Color("fff6c2"), Color("d8f5d0"), Color("d4ecff"), Color("e6dcff")]
+			var bh := rect.size.y / bands.size()
+			for i in bands.size():
+				cv.draw_rect(Rect2(rect.position.x, rect.position.y + i * bh, rect.size.x, bh + 1.0), bands[i])
+			var ccx := rect.position.x + 110.0 * k
+			while ccx < end.x:
+				for part in [[-22, 4, 18], [0, -4, 24], [24, 4, 18]]:
+					cv.draw_circle(Vector2(ccx + part[0] * k, rect.position.y + rect.size.y * 0.3 + part[1] * k), part[2] * k, Color(1, 1, 1, 0.8))
+				ccx += 300.0 * k
 		"stripes":
 			var w := 56.0 * k
 			var x3 := rect.position.x
@@ -246,7 +270,17 @@ static func draw_item(cv: CanvasItem, id: String, center: Vector2) -> void:
 	var dark := col.darkened(0.25)
 	var pos := r.position
 	var c := r.get_center()
-	match id:
+	match Catalog.shape_of(id):
+		"furn_bed_cloud":  # cama de nube: colchon de nubes, almohada y mantita con estrellas
+			for part in [[-78, 30, 42], [-30, 18, 50], [26, 20, 48], [76, 32, 40], [0, 44, 56]]:
+				_ellipse(cv, c + Vector2(part[0], part[1]), part[2], part[2] * 0.75, col.darkened(0.06))
+			for part in [[-78, 24, 36], [-30, 12, 44], [26, 14, 42], [76, 26, 34], [0, 36, 50]]:
+				_ellipse(cv, c + Vector2(part[0], part[1]), part[2], part[2] * 0.72, Color.WHITE, false)
+			_ellipse(cv, c + Vector2(-62, -6), 34.0, 20.0, Color("fff8fb"))
+			_round(cv, Rect2(c + Vector2(-34, -2), Vector2(122, 40)), Color("c8b8f5"), 18)
+			for sp in [Vector2(-12, 16), Vector2(28, 10), Vector2(64, 20)]:
+				_star(cv, c + sp, 7.0, Color("fff3a0"))
+			_star(cv, c + Vector2(90, -38), 12.0, Color("ffe066"))
 		"furn_bed":
 			_round(cv, Rect2(pos + Vector2(0, 50), Vector2(r.size.x, 80)), dark, 22)
 			_round(cv, Rect2(pos + Vector2(8, 28), Vector2(r.size.x - 16, 70)), col, 22)
@@ -387,8 +421,9 @@ static func draw_item(cv: CanvasItem, id: String, center: Vector2) -> void:
 			_round(cv, Rect2(pos + Vector2(-6, 28), Vector2(r.size.x + 12, 22)), col.lightened(0.2), 10)
 			_star(cv, c + Vector2(0, 26), 14.0, Color("fff1d6"))
 		"deco_window":
-			_poly(cv, [pos + Vector2(0, 0), pos + Vector2(44, 0), pos + Vector2(36, 150), pos + Vector2(0, 150)], Color("ffb3c8"))
-			_poly(cv, [pos + Vector2(r.size.x, 0), pos + Vector2(r.size.x - 44, 0), pos + Vector2(r.size.x - 36, 150), pos + Vector2(r.size.x, 150)], Color("ffb3c8"))
+			var curtain := col if Catalog.is_special(id) else Color("ffb3c8")   # la ventana magica tiene cortinas de su color
+			_poly(cv, [pos + Vector2(0, 0), pos + Vector2(44, 0), pos + Vector2(36, 150), pos + Vector2(0, 150)], curtain)
+			_poly(cv, [pos + Vector2(r.size.x, 0), pos + Vector2(r.size.x - 44, 0), pos + Vector2(r.size.x - 36, 150), pos + Vector2(r.size.x, 150)], curtain)
 			_round(cv, Rect2(pos + Vector2(26, 8), Vector2(98, 134)), Color("fff6e6"), 10)
 			for px in 2:
 				for py in 2:

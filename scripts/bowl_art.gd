@@ -15,6 +15,8 @@ const STYLES := {
 	"bowl_water_heart": {"body": "ff9ecb", "rim": "ff7aa8", "accent": "ffffff", "pattern": "heart"},
 	"bowl_water_lilac": {"body": "d2b8f0", "rim": "b08be0", "accent": "ffffff", "pattern": "dots"},
 	"bowl_water_fish": {"body": "7fd0f0", "rim": "4aa8d8", "accent": "ffffff", "pattern": "fish"},
+	"bowl_food_diamond": {"body": "cfefff", "rim": "8ecae6", "accent": "ffffff", "pattern": "shine"},
+	"bowl_water_crystal": {"body": "e0d7ff", "rim": "b39ddb", "accent": "ffffff", "pattern": "stars"},
 }
 
 

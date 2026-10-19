@@ -2051,13 +2051,19 @@ func _leave_night() -> void:
 ## Donde duerme: {"pos": pies en el mundo, "props": "bed" o "mat"}.
 func _night_spot() -> Dictionary:
 	var p := GameState.pompon
-	var want := "furn_crib" if p.stage_index(int(Time.get_unix_time_from_system())) <= 2 else "furn_bed"
+	var small := p.stage_index(int(Time.get_unix_time_from_system())) <= 2
+	var beds := []
 	for pl in GameState.placed:
-		if pl["id"] == want and int(pl.get("room", 0)) == GameState.current_room:
-			var c: Vector2 = room._item_center(pl)
-			var h: float = ItemArt.size_of(want).y
-			# en la cuna queda adentro; en la cama amplia (mas chica que un Pompon grande) la mantita la tapa
-			return {"pos": Vector2(c.x, c.y + h * (0.2 if want == "furn_crib" else 0.42)), "props": "bed"}
+		if int(pl.get("room", 0)) == GameState.current_room:
+			if (small and pl["id"] == "furn_crib") or (not small and Catalog.is_bed(pl["id"])):
+				beds.append(pl)
+	beds.sort_custom(func(a, b): return Catalog.is_special(a["id"]) and not Catalog.is_special(b["id"]))   # la cama de nube primero
+	if not beds.is_empty():
+		var bed: Dictionary = beds[0]
+		var c: Vector2 = room._item_center(bed)
+		var h: float = ItemArt.size_of(bed["id"]).y
+		# en la cuna queda adentro; en las camas (mas chicas que un Pompon grande) la mantita las tapa
+		return {"pos": Vector2(c.x, c.y + h * (0.2 if bed["id"] == "furn_crib" else 0.42)), "props": "bed"}
 	var bounds := _floor_bounds()   # sin su cama en esta habitacion: una mantita en el piso
 	var x := clampf(room.scroll + size.x * 0.5, bounds.position.x, bounds.end.x)
 	return {"pos": Vector2(x, bounds.position.y + bounds.size.y * 0.6), "props": "mat"}

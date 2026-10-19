@@ -41,6 +41,12 @@ const UNLOCK := {
 	"toy_blocks": 3, "toy_books": 4, "furn_stool": 5, "toy_vase": 6, "furn_dresser": 7, "deco_shelf_long": 8,
 	"toy_cactus": 9, "toy_cake": 11, "toy_frame": 13, "furn_desk": 15, "toy_musicbox": 17, "toy_robot": 21,
 	"furn_wardrobe": 23, "deco_shelf_cloud": 27, "toy_trophy": 33,
+	# especiales (caros, para ahorrar; siempre a la vista en "Especial")
+	"deco_garland_lights": 9, "furn_lamp_stars": 12, "deco_window_magic": 15, "floor_cloud": 18, "furn_sofa_royal": 20,
+	"wall_rainbow": 20, "glasses_star_gold": 22, "furn_bed_cloud": 22, "furn_fireplace_crystal": 24,
+	"shirt_dress_princess": 25, "bowl_food_diamond": 25, "bowl_water_crystal": 25, "hat_wizard": 26,
+	"hat_crown_diamond": 30, "furn_aquarium_rainbow": 30, "floor_gold": 30, "shirt_cape_royal": 35,
+	"wall_galaxy": 40, "hat_halo_gold": 42, "furn_piano_gold": 45, "shirt_tux_gold": 52,
 }
 
 # Adornos chicos: se pueden apoyar sobre una superficie (mesa, estante, comoda...).
@@ -174,7 +180,51 @@ const ITEMS := [
 	{"id": "toy_musicbox", "name": "Caja musical", "category": "furniture", "price": 20, "color": "d2b8f0"},
 	{"id": "toy_robot", "name": "Robot de juguete", "category": "furniture", "price": 22, "color": "9fb4c9"},
 	{"id": "toy_trophy", "name": "Copa", "category": "furniture", "price": 26, "color": "ffd34d"},
+	# --- especiales: caros y con brillo. "base" = usa el dibujo de ese item con su propio color.
+	{"id": "hat_crown_diamond", "name": "Corona de diamantes", "category": "hat", "price": 1200, "color": "bfe9ff", "base": "hat_crown", "special": true},
+	{"id": "hat_halo_gold", "name": "Aureola dorada", "category": "hat", "price": 900, "color": "ffcc33", "base": "hat_halo", "special": true},
+	{"id": "hat_wizard", "name": "Sombrero de mago", "category": "hat", "price": 800, "color": "3f51b5", "base": "hat_witch", "special": true},
+	{"id": "glasses_star_gold", "name": "Lentes de estrellas doradas", "category": "glasses", "price": 600, "color": "ffcc33", "base": "glasses_star", "special": true},
+	{"id": "shirt_dress_princess", "name": "Vestido de princesa", "category": "shirt", "price": 1200, "color": "c77dff", "base": "shirt_dress", "special": true},
+	{"id": "shirt_cape_royal", "name": "Capa real", "category": "shirt", "price": 1500, "color": "7b2cbf", "base": "shirt_cape", "special": true},
+	{"id": "shirt_tux_gold", "name": "Smoking dorado", "category": "shirt", "price": 2000, "color": "c9a227", "base": "shirt_tux", "special": true},
+	{"id": "furn_bed_cloud", "name": "Cama de nube", "category": "furniture", "price": 1800, "color": "e3f2fd", "special": true, "bed": true},
+	{"id": "furn_piano_gold", "name": "Piano de cola dorado", "category": "furniture", "price": 2500, "color": "e9c46a", "base": "furn_piano", "special": true},
+	{"id": "furn_sofa_royal", "name": "Sofá real", "category": "furniture", "price": 1300, "color": "b5179e", "base": "furn_sofa", "special": true},
+	{"id": "furn_fireplace_crystal", "name": "Chimenea de cristal", "category": "furniture", "price": 1500, "color": "a8dadc", "base": "furn_fireplace", "special": true},
+	{"id": "furn_lamp_stars", "name": "Lámpara de estrellas", "category": "furniture", "price": 700, "color": "b39ddb", "base": "furn_lamp", "special": true},
+	{"id": "furn_aquarium_rainbow", "name": "Acuario de colores", "category": "furniture", "price": 900, "color": "ff9ecb", "base": "furn_aquarium", "special": true},
+	{"id": "deco_window_magic", "name": "Ventana mágica", "category": "deco", "price": 800, "color": "c3b1e1", "base": "deco_window", "special": true},
+	{"id": "deco_garland_lights", "name": "Guirnalda de luces", "category": "deco", "price": 500, "color": "ffe066", "base": "deco_garland", "special": true},
+	{"id": "wall_rainbow", "name": "Pared arcoíris", "category": "wall", "price": 900, "color": "fff6e5", "pattern": "rainbow", "special": true},
+	{"id": "wall_galaxy", "name": "Pared galaxia", "category": "wall", "price": 1100, "color": "1a1446", "pattern": "space", "special": true},
+	{"id": "floor_gold", "name": "Piso dorado", "category": "floor", "price": 800, "color": "e9c46a", "pattern": "planks", "special": true},
+	{"id": "floor_cloud", "name": "Piso de nubes", "category": "floor", "price": 700, "color": "e3f2fd", "pattern": "carpet", "special": true},
+	{"id": "bowl_food_diamond", "name": "Tazón de diamante", "category": "bowl_food", "price": 600, "color": "cfefff", "special": true},
+	{"id": "bowl_water_crystal", "name": "Tazón de cristal", "category": "bowl_water", "price": 600, "color": "e0d7ff", "special": true},
 ]
+
+
+## Dibujo que usa el item (los especiales reutilizan el de otro item con su propio color).
+static func shape_of(id: String) -> String:
+	return str(get_item(id).get("base", id))
+
+
+## Especiales: caros, con brillo y siempre a la vista en la tienda (no rotan).
+static func is_special(id: String) -> bool:
+	return bool(get_item(id).get("special", false))
+
+
+## Camas donde puede dormir un Pompon grande de noche.
+static func is_bed(id: String) -> bool:
+	return id == "furn_bed" or bool(get_item(id).get("bed", false))
+
+
+## Todos los especiales, de mas barato a mas caro.
+static func specials() -> Array:
+	var out := ITEMS.filter(func(it): return it.get("special", false))
+	out.sort_custom(func(a, b): return int(a["price"]) < int(b["price"]))
+	return out
 
 
 ## Nivel del Pompon (dia de vida) que hace falta para comprar el item.
@@ -190,19 +240,19 @@ static func is_unlocked(id: String, level: int) -> bool:
 static func locked_items(level: int, limit := 6) -> Array:
 	var out := []
 	for it in ITEMS:
-		if not is_unlocked(it["id"], level):
+		if not is_unlocked(it["id"], level) and not it.get("special", false):
 			out.append(it)
 	out.sort_custom(func(a, b): return unlock_level(a["id"]) < unlock_level(b["id"]))
 	return out.slice(0, limit)
 
 
 static func is_small(id: String) -> bool:
-	return SMALL.has(id)
+	return SMALL.has(id) or SMALL.has(shape_of(id))
 
 
 ## Superficie del item ({"dy", "hw"}) o {} si no se puede apoyar nada encima.
 static func surface_of(id: String) -> Dictionary:
-	return SURFACES.get(id, {})
+	return SURFACES.get(id, SURFACES.get(shape_of(id), {}))
 
 
 static func is_placeable(id: String) -> bool:
@@ -246,11 +296,11 @@ static func daily_shop(unix_time: int, species := "", owned: Array = [], must_in
 	rng.seed = day * 2654435761
 	var pool := []
 	for it in ITEMS:
-		if not owned.has(it["id"]) and is_unlocked(it["id"], level):
+		if not owned.has(it["id"]) and is_unlocked(it["id"], level) and not it.get("special", false):
 			pool.append(it)
 	if pool.size() < SHOP_SIZE:  # casi lo tienes todo: se rellena con repetidos
 		for it in ITEMS:
-			if owned.has(it["id"]) and is_unlocked(it["id"], level) and pool.size() < SHOP_SIZE:
+			if owned.has(it["id"]) and is_unlocked(it["id"], level) and pool.size() < SHOP_SIZE and not it.get("special", false):
 				pool.append(it)
 	var picked := []
 	while picked.size() < SHOP_SIZE and not pool.is_empty():

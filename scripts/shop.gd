@@ -8,6 +8,7 @@ const FILTERS := [
 	{"key": "furn", "label": "Muebles", "cats": ["furniture", "deco"]},
 	{"key": "room", "label": "Cuarto", "cats": ["wall", "floor"]},
 	{"key": "bowls", "label": "Tazones", "cats": ["bowl_food", "bowl_water"]},
+	{"key": "special", "label": "Especial", "cats": []},   # caros y con brillo: siempre a la vista
 ]
 
 var _coins_label: Label
@@ -221,6 +222,16 @@ func _rebuild() -> void:
 	var level := GameState.pompon_level()
 	# mientras el huevo espera su cuna, la cuna siempre va primera en la lista
 	var must: Array = [GameState.CRIB_ID] if _locked else []
+	if _filter == "special":  # los especiales no rotan: todos, del mas barato al mas caro
+		for item in Catalog.specials():
+			if Catalog.is_unlocked(item["id"], level):
+				_grid.add_child(_make_card(item))
+			else:
+				_grid.add_child(_make_locked_card(item))
+		_locked_title.visible = false
+		_locked_grid.visible = false
+		_arrow.set_target(null)
+		return
 	var cats := _filter_cats()
 	for item in Catalog.daily_shop(int(Time.get_unix_time_from_system()), species, GameState.owned, must, level):
 		if cats.is_empty() or item["category"] in cats:   # la cuna es un mueble: sale en Todo y en Muebles
