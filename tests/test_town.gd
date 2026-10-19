@@ -55,9 +55,9 @@ func _initialize() -> void:
 	print("carteles: ", town.buildings.map(func(b): return b["node"].title).slice(0, 7))
 	print("abren pronto: ", town.buildings.filter(func(b): return b["node"].locked).map(func(b): return b["kind"]))
 	print("la calle se desliza: ancho=", town._street.custom_minimum_size.x, " > pantalla=", town.size.x)
-	town._enter("cinema", {}, town.buildings[2]["node"])
+	town._enter("museum", {}, town.buildings[4]["node"])
 	await process_frame
-	print("tocar el cine: '", _labels(town._toast) if town._toast != null else "", "'")
+	print("tocar el museo: '", _labels(town._toast) if town._toast != null else "", "'")
 
 	# amigo de verdad: visitar o dejar de ser amigos
 	var entry := {"id": "f:ABCDEFGH", "name": "Kiwi", "real": true, "code": "ABCDEFGH"}

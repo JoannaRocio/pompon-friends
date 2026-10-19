@@ -12,6 +12,7 @@ var last_saved := 0
 var owned: Array = []        # ids de items comprados (y los dibujos de pixel art, "art_...")
 var paintings: Array = []    # dibujos de pixel art: [{"id", "px", "from" (quien lo regalo), "t"}] (ver PixelArt)
 var discover_next: Array = []   # algo recien colgado fuera de Decorar: al volver a la casa, el Pompon va a verlo
+var movies_seen := {}        # cine: id de pelicula -> veces que la vio
 var equipped := {}           # categoria -> id (hat, glasses, shirt, floor, wall)
 var placed: Array = []       # muebles/decoracion en el cuarto: {"id", "x", "y"} (x,y de 0 a 1)
 
@@ -801,7 +802,7 @@ func save_dict() -> Dictionary:
 	return {
 		"version": SAVE_VERSION,
 		"coins": coins, "gems": gems, "last_saved": last_saved,
-		"owned": owned, "equipped": equipped, "placed": placed, "paintings": paintings,
+		"owned": owned, "equipped": equipped, "placed": placed, "paintings": paintings, "movies_seen": movies_seen,
 		"room_layout": 2, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
@@ -918,6 +919,28 @@ func add_painting(px: String, from := "") -> String:
 	return id
 
 
+## Ver una pelicula en el cine (la entrada ya se pago): diversion, pochoclos y, si fue con un vecino,
+## Social. Lo que le parecio va a su diario. Devuelve {"reaction", "fun", "social"}.
+func watch_movie(id: String, companion := {}) -> Dictionary:
+	movies_seen[id] = int(movies_seen.get(id, 0)) + 1
+	var fun := 25.0
+	var social := 0.0
+	var m := Movies.get_movie(id)
+	var pool: Array = m.get("reactions", ["¡me encantó!"])
+	var with := "" if companion.is_empty() else " con %s" % companion.get("name", "un amigo")
+	var text := "Fui al cine%s a ver %s: %s" % [with, m.get("title", "una película"), pool[randi() % pool.size()]]
+	if pompon != null and pompon.hatched:
+		pompon.add_stat("diversion", fun)
+		pompon.add_stat("alimentacion", 6.0)   # los pochoclos
+		if not companion.is_empty():
+			social = 12.0
+			pompon.add_social(social, false)
+		pending_thoughts.append({"kind": "sentimiento", "text": text, "stat": "diversion", "key": "movie:" + id})
+	note_event("played")
+	save_game()
+	return {"reaction": text, "fun": fun, "social": social}
+
+
 ## Cuelga un dibujo en la habitacion actual (el Pompon va a verlo al volver a la casa).
 func hang_painting(id: String) -> void:
 	place_item(id)
@@ -933,6 +956,12 @@ func apply_save(parsed: Dictionary) -> void:
 	last_saved = int(parsed.get("last_saved", 0))
 	# Se descartan datos invalidos (items que ya no existen, entradas incompletas).
 	_load_paintings(parsed.get("paintings", []))   # antes que `owned`: los dibujos son items
+	movies_seen = {}
+	var seen_movies = parsed.get("movies_seen", {})
+	if typeof(seen_movies) == TYPE_DICTIONARY:
+		for k in seen_movies:
+			if not Movies.get_movie(str(k)).is_empty():
+				movies_seen[str(k)] = maxi(0, int(seen_movies[k]))
 	owned = []
 	for id in parsed.get("owned", []):
 		if typeof(id) == TYPE_STRING and not Catalog.get_item(id).is_empty() and not owned.has(id):
@@ -1124,6 +1153,8 @@ func _on_back() -> void:
 			get_tree().change_scene_to_file("res://scenes/job_board.tscn")
 		"job_game":
 			get_tree().change_scene_to_file("res://scenes/job_menu.tscn")
+		"cinema":
+			get_tree().change_scene_to_file("res://scenes/town.tscn")
 		"math_game", "simon_game", "pattern_game", "jump_game", "paint_game", "music_game":
 			get_tree().change_scene_to_file("res://scenes/minigames.tscn")
 		_:

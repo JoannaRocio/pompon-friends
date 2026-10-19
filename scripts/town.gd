@@ -2,8 +2,8 @@ class_name Town
 extends Control
 ## El pueblo: se sale por la puerta de la casa. Una calle que se desliza de costado con la casa de tu
 ## Pompon, la tienda, el cine, el supermercado, el museo y la casa de cada vecino (los del barrio y
-## tus amigos de verdad). Tocar un edificio entra: tu casa, la tienda y las casas de los vecinos ya se
-## pueden visitar; el cine, el supermercado y el museo abren pronto.
+## tus amigos de verdad). Tocar un edificio entra: tu casa, la tienda, el cine y las casas de los vecinos
+## ya se pueden visitar; el supermercado y el museo abren pronto.
 
 const INK := Color("5b3a4a")
 const GAP := 26.0
@@ -88,7 +88,7 @@ func _build() -> void:
 	var home_name := "Mi casa" if p == null or p.nickname == "" else "Casa de %s" % p.display_name()
 	_add("home", home_name, p.color_primary if p != null else Color("ffb3cc"), {})
 	_add("shop", "Tienda", Color("ff7aa8"), {})
-	_add("cinema", "Cine", Color("7b5ea7"), {}, true)
+	_add("cinema", "Cine", Color("7b5ea7"), {})
 	_add("market", "Supermercado", Color("5fc77f"), {}, true)
 	_add("museum", "Museo", Color("c9a86a"), {}, true)
 	for entry in Neighbors.all():
@@ -187,6 +187,8 @@ func _enter(kind: String, entry: Dictionary, node: TownBuilding) -> void:
 		"shop":
 			from_town = true
 			get_tree().change_scene_to_file("res://scenes/shop.tscn")
+		"cinema":
+			get_tree().change_scene_to_file("res://scenes/cinema.tscn")
 		"house":
 			if entry.get("real", false):
 				_friend_menu(entry)
