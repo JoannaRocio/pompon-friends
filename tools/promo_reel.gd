@@ -2,7 +2,8 @@ extends SceneTree
 ## Reel vertical para TikTok con escenas reales del juego y textos encima. Graba un cuadro por paso
 ## (correr con --fixed-fps 30) en la carpeta que se pasa como argumento; despues se unen con ffmpeg
 ## (que los agranda a 1080 x 1920).
-## Uso: ver tools/promo_reel.ps1 (respalda la partida guardada antes, porque el reel juega partidas de prueba).
+## Respaldar antes la partida guardada (save.json*): el reel juega partidas de prueba. Imprime "TEXTO <cuadro>"
+## al empezar cada texto, para ubicar la voz en ingles al mezclar.
 
 const W := 720
 const H := 1280
@@ -66,13 +67,13 @@ func _initialize() -> void:
 	await _wait(0.6)
 	recording = true
 	_caption("¿Te imaginas un Tamagotchi con inteligencia artificial?", 58)
-	await _wait(3.4)
+	await _wait(3.9)
 	# 2) es mi proyecto
 	_caption("Este es mi proyecto...", 60, "¡y está a punto de estrenarse en Android!")
 	h._on_action("Caricia")
 	await _wait(1.4)
 	h._say("¡Te quiero mucho!", 4.0)
-	await _wait(1.8)
+	await _wait(2.5)
 
 	# 3) nace de un huevo
 	_egg()
@@ -92,7 +93,7 @@ func _initialize() -> void:
 	await _wait(1.6)
 	h._show_thought_pill({"kind": PomponThoughts.KIND_FEEL, "text": "Me encanta cuando me hacen mimos", "stat": "amor"})
 	h._on_action("Caricia")
-	await _wait(1.6)
+	await _wait(1.9)
 
 	# 5) el vestidor
 	_grown(12.0)
@@ -110,13 +111,13 @@ func _initialize() -> void:
 	visit._on_action("play")
 	await _wait(1.6)
 	visit._on_action("pet")
-	await _wait(1.4)
+	await _wait(1.6)
 
 	# 7) la noche
 	_grown(23.0)
 	await _cut("res://scenes/home.tscn", 0.8)
 	_caption("De noche se pone el pijama y duerme", 54)
-	await _wait(2.6)
+	await _wait(3.9)
 
 	# 8) aprender trabajando
 	DayClock.debug_hour = 12.0
@@ -247,6 +248,7 @@ func _caption(text: String, size := 56, sub := "") -> void:
 		c.queue_free()
 	if text == "":
 		return
+	print("TEXTO ", frame, " ", text)   # cuadro donde empieza (para poner la voz en su lugar)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.93), 36, Color("ffb3d1"), 6, 14))
 	panel.position = Vector2(40, 150)
@@ -307,7 +309,7 @@ func _end_card() -> void:
 	flash.create_tween().tween_property(flash, "color:a", 0.0, 0.25)
 	_caption("Si quieres apoyar este proyecto, me ayudaría muchísimo que me sigas", 50, "¡para enterarte del estreno!")
 	view.celebrate(8)
-	await _wait(3.4)
+	await _wait(5.6)
 	_caption("¡Te lo agradecería muchísimo!", 54, "Voy a leer cada comentario. ¡Gracias!")
 	view.celebrate(10)
-	await _wait(3.4)
+	await _wait(5.6)
