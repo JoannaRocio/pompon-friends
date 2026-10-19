@@ -333,7 +333,8 @@ begin
 	if not pompon_friend_auth(p_code, p_secret) then
 		raise exception 'auth';
 	end if;
-	if p_art is null or p_art !~ '^[0-9a-f]{256}$' then
+	-- (Postgres no deja repetir mas de 255 en una expresion regular: el largo se mira aparte)
+	if p_art is null or length(p_art) <> 256 or p_art !~ '^[0-9a-f]+$' then
 		raise exception 'dibujo invalido';
 	end if;
 	if not exists (select 1 from friend_links where status = 'accepted'
