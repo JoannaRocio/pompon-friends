@@ -36,10 +36,13 @@ static func _pick(rng: RandomNumberGenerator, list: Array) -> String:
 
 
 static func _place(room: int) -> String:
-	return Rooms.place_name(room).substr(3)   # "en la sala" -> "la sala"
+	var place := Rooms.place_name(room)   # "en la sala" -> "la sala" ("in the living room" -> "the living room")
+	return place.substr(3) if place.begins_with("en ") or place.begins_with("in ") or place.begins_with("on ") else place
 
 
 static func _poss(id: String) -> String:
+	if T.lang() == "en":
+		return "{his} " + Catalog.item_name(id).to_lower()
 	var name: String = Catalog.get_item(id).get("name", id)
 	return ("a sus " if name.split(" ")[0] in ["Lentes", "Cubos"] else "a su ") + name.to_lower()
 
@@ -47,8 +50,8 @@ static func _poss(id: String) -> String:
 ## `ctx` es el mismo de PomponThoughts ("now", "hour", "room", "items", "events"...).
 static func walking(p: Pompon, ctx: Dictionary, rng: RandomNumberGenerator) -> String:
 	var stage := p.stage_index(int(ctx["now"]))
-	var line := _pick(rng, BABY_WALK if stage <= 1 else GROWN_WALK) % _place(int(ctx.get("room", 0)))
-	return "%s %s" % [p.display_name(), line]
+	var line := T.s(_pick(rng, BABY_WALK if stage <= 1 else GROWN_WALK)) % _place(int(ctx.get("room", 0)))
+	return "%s %s" % [p.display_name(), line.format(T.pron(p.sex))]
 
 
 static func idle(p: Pompon, ctx: Dictionary, rng: RandomNumberGenerator, last := "") -> String:
@@ -72,14 +75,14 @@ static func idle(p: Pompon, ctx: Dictionary, rng: RandomNumberGenerator, last :=
 		pool.append("busca algo para jugar")
 	if stage <= 1:
 		pool.append_array(BABY)
-		pool.append("mira %s con curiosidad" % _place(room))
+		pool.append(T.s("mira %s con curiosidad") % _place(room))
 		for id in ctx.get("items", []):
 			if id != "furn_crib":
-				pool.append("mira %s sin parpadear" % _poss(id))
+				pool.append(T.s("mira %s sin parpadear") % _poss(id))
 				break
 	else:
 		pool.append_array(GROWN)
-		pool.append("mira %s" % _place(room))
+		pool.append(T.s("mira %s") % _place(room))
 		pool.append_array(PERSONALITY.get(p.personality, []))
 		if float(p.stats.get("inteligencia", 0.0)) >= 5.0:
 			pool.append_array(SMART)
@@ -87,7 +90,7 @@ static func idle(p: Pompon, ctx: Dictionary, rng: RandomNumberGenerator, last :=
 		if not items.is_empty():
 			var id: String = items[rng.randi() % items.size()]
 			if id != "furn_crib":
-				pool.append("mira %s con atención" % _poss(id))
+				pool.append(T.s("mira %s con atención") % _poss(id))
 	if pool.size() > 1:
 		pool = pool.filter(func(x): return x != last)
-	return "%s %s" % [p.display_name(), _pick(rng, pool)]
+	return "%s %s" % [p.display_name(), T.s(_pick(rng, pool)).format(T.pron(p.sex))]

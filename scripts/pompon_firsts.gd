@@ -104,14 +104,16 @@ static func experience(p: Pompon, kind: String, subject: String, label: String, 
 	var stat := "alimentacion"
 	if kind == "food":
 		var pool: Array = (FOOD_FIRST_R if count == 1 else FOOD_AGAIN_R)[1 - clampi(liking, -1, 1)]
-		text = (FOOD_FIRST if count == 1 else FOOD_AGAIN).replace("{r}", pool[rng.randi() % pool.size()])
+		text = T.s(FOOD_FIRST if count == 1 else FOOD_AGAIN).replace("{r}", T.s(pool[rng.randi() % pool.size()]))
 	else:
 		var pool2: Array = info["first_r" if count == 1 else "again_r"]
-		text = String(info["first" if count == 1 else "again"]).replace("{r}", pool2[rng.randi() % pool2.size()])
+		text = T.s(String(info["first" if count == 1 else "again"])).replace("{r}", T.s(pool2[rng.randi() % pool2.size()]))
 		stat = info["stat"]
 	text = text.replace("{x}", label).replace("{a}", "a" if p.sex == "Hembra" else "o")
+	if text.contains("{"):
+		text = text.format(T.pron(p.sex))
 	return {"kind": "sentimiento", "text": text, "stat": stat, "key": "first:" + key}
 
 
 static func room_label(i: int) -> String:
-	return ROOM_NAMES[clampi(i, 0, ROOM_NAMES.size() - 1)]
+	return T.s(ROOM_NAMES[clampi(i, 0, ROOM_NAMES.size() - 1)])

@@ -65,6 +65,13 @@ cartel de nombres nuevos, la despedida (solo los botones) y el tutorial guiado c
   (`EXTRA_CAPITALS_EN`, `EXTRA_COUNTRIES_EN`). La pista ("B…") solo sale si las tres opciones empiezan con
   esa letra; si no hay suficientes (Quito y Ottawa en español, Quito y Jakarta en inglés), esa pregunta va
   sin pista. `test_locale` lo revisa en los dos idiomas.
+- Diario y Pompon: pensamientos, sueños y reacciones (`PomponThoughts`), primeras veces (`PomponFirsts`),
+  lo que hace con los objetos (`PomponPlay`), la cajita de actividad (`PomponActivity`), gustos
+  (`PomponTastes`), cómo se siente (`PomponMood`), el globo (`PomponSpeech`), habilidades, crecimiento
+  (palabras y rasgos), el álbum y la ficha del Pompon. En inglés, las frases usan he/she según el sexo del
+  Pompon: el CSV lleva `{he}`, `{He}`, `{his}`, `{His}`, `{him}` y se completan con `T.pron(sexo)` /
+  `T.with_pron(texto, sexo)` (en español se sigue usando `{a}`). Lo que ya está escrito en el diario queda
+  en el idioma en que se escribió; lo nuevo sale en el idioma elegido.
 
 ## Falta migrar (de más texto a menos)
 Cantidad aproximada de textos en español que quedan en cada archivo:

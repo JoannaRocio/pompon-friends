@@ -276,6 +276,138 @@ func _area_spanish_class(t: GDScript) -> void:
 	Jobs.current = "math"
 
 
+## Area 4: diario, primeras veces, juegos con objetos, actividad, gustos, animo, album y ficha (en inglés,
+## he/she segun el Pompon). Junta cientos de frases generadas y busca español o marcadores sin completar.
+func _area_diary(t: GDScript) -> void:
+	var Thoughts: GDScript = load("res://scripts/pompon_thoughts.gd")
+	var Activity: GDScript = load("res://scripts/pompon_activity.gd")
+	var Firsts: GDScript = load("res://scripts/pompon_firsts.gd")
+	var Play: GDScript = load("res://scripts/pompon_play.gd")
+	var Tastes: GDScript = load("res://scripts/pompon_tastes.gd")
+	var Mood: GDScript = load("res://scripts/pompon_mood.gd")
+	var PSpeech: GDScript = load("res://scripts/pompon_speech.gd")
+	var Growth: GDScript = load("res://scripts/pompon_growth.gd")
+	var Album: GDScript = load("res://scripts/pompon_album.gd")
+	var Skills: GDScript = load("res://scripts/pompon_skills.gd")
+	var Catalog: GDScript = load("res://scripts/catalog.gd")
+	var now := int(Time.get_unix_time_from_system())
+	gs.reset_game()
+	gs.set_language("en")
+	var all := []
+	for sex in ["Hembra", "Macho"]:
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 11
+		gs.new_pompon("Conejo", sex)
+		var p = gs.pompon
+		p.hatched = true
+		p.nickname = "Mochi"
+		p.born_at = now - 12 * 86400
+		var items := ["furn_sofa", "furn_piano", "toy_blocks", "deco_window", "furn_bookshelf", "hat_bow"]
+		for stat_v in [10.0, 45.0, 95.0]:
+			for k in p.stats:
+				p.stats[k] = stat_v
+			for hour in [8.0, 15.0, 23.0]:
+				for room in 6:
+					var ctx := {"now": now, "hour": hour, "room": room, "items": items, "on_pairs": [["toy_blocks", "furn_bookshelf"]],
+						"equipped": {"hat": "hat_bow"}, "events": {"fed": now - 30, "played": now - 30, "worked": now - 60, "visited": now - 60, "bought": now - 60, "petted": now - 60},
+						"jobs_done": 4, "level": 9}
+					for i in 6:
+						var e: Dictionary = Thoughts.spontaneous(p, ctx, [], rng)
+						if not e.is_empty():
+							all.append(e["text"])
+						all.append(Activity.idle(p, ctx, rng))
+					all.append(Activity.walking(p, ctx, rng))
+					ctx["sleeping"] = true
+					var d: Dictionary = Thoughts.spontaneous(p, ctx, [], rng)
+					if not d.is_empty():
+						all.append(d["text"])
+			for ev in Thoughts.REACTIONS:
+				var r: Dictionary = Thoughts.reaction(ev, p, {"now": now, "room": 2}, rng)
+				all.append(r.get("text", ""))
+			for st in Thoughts.NEED_TEXT:
+				all.append(Thoughts.urgent(p, st, now, rng).get("text", ""))
+			for m in Mood.messages(p):
+				all.append(m["text"])
+			for i in 8:
+				all.append(PSpeech.line(p, now, i))
+		for step in [1, 2, 3]:
+			all.append(Thoughts.birth(p, step).get("text", ""))
+		all.append(Thoughts.welcome_back(p, now, 30 * 3600, rng).get("text", ""))
+		for kind in ["bath", "drink", "pet", "sleep"]:
+			for i in 3:
+				p.tastes["firsts_last"] = 0
+				all.append(Firsts.experience(p, kind, "", "", now + i * 1000, rng).get("text", ""))
+		all.append(Firsts.experience(p, "game", "simon", Tastes.game_name("simon"), now, rng).get("text", ""))
+		all.append(Firsts.experience(p, "room", "2", Firsts.room_label(2), now, rng).get("text", ""))
+		all.append(Firsts.experience(p, "wear", "hat_bow", Thoughts._poss("hat_bow"), now, rng).get("text", ""))
+		all.append(Firsts.experience(p, "friend", "luna", "Luna", now, rng).get("text", ""))
+		all.append(Firsts.experience(p, "item", "furn_piano", Thoughts._poss("furn_piano"), now, rng).get("text", ""))
+		for f in Tastes.FOODS:
+			all.append(Firsts.experience(p, "food", f["id"], Tastes.food_name(f["id"]).to_lower(), now, rng, rng.randi_range(-1, 1)).get("text", ""))
+			for i in 4:
+				all.append(Tastes.eat(p, f["id"], now)["text"])
+		for e2 in Tastes.new_favorites(p, now):
+			all.append(e2["text"])
+		for id in Play.PLAYS:
+			all.append(Play.activity_text(p, id))
+			all.append(Play.comment(id, rng))
+		all.append(Play.activity_text(p, "deco_shelf"))
+		all.append(Play.comment("furn_piano_gold", rng))
+		for sk in Skills.SKILLS:
+			all.append(Skills.add_xp(p, sk, 500.0).get("text", ""))
+		for e3 in Growth.finish_stage(p, 1, now):
+			all.append(e3["text"])
+		for e4 in Growth.check_words(p, now):
+			all.append(e4["text"])
+		if sex == "Hembra":
+			print("diario (en, hembra): ", [Activity.idle(p, {"now": now, "hour": 12.0, "room": 1, "items": [], "events": {}}, rng),
+				Play.activity_text(p, "toy_robot"), Mood.messages(p)[0]["text"]])
+		else:
+			print("diario (en, macho): ", [Play.activity_text(p, "toy_robot"), Play.activity_text(p, "deco_shelf")])
+	for s in Album.stickers():   # (el album completa {his} con el sexo del Pompon al mostrarlas)
+		all.append(t.with_pron(s["title"], "Macho"))
+		all.append(t.with_pron(s["hint"], "Hembra"))
+	all = all.filter(func(x): return str(x) != "")
+	var leftover := all.filter(func(x): return str(x).contains("{") or str(x).contains("%"))
+	var uniq := {}
+	for x in all:
+		uniq[x] = true
+	print("frases generadas: ", all.size(), " (", uniq.size(), " distintas) | sigue en español: ", _spanish_left(uniq.keys(), ["Mochi"]).slice(0, 20), " | marcadores sin completar: ", leftover.slice(0, 10))
+	print("  ej: ", uniq.keys().slice(0, 6))
+	# pantallas: diario, ficha y album
+	gs.new_pompon("Conejo", "Hembra")
+	gs.pompon.hatched = true
+	gs.pompon.nickname = "Mochi"
+	gs.pompon.born_at = now - 3 * 86400
+	gs.hatch_anim_pending = false
+	gs.daily_gift_day = Missions.today(now)
+	gs.tips_seen = ["egg1", "job1", "shopcrib", "notify_ask", "night1"]
+	gs.tutorial = {"chapter": 0, "step": 0, "off": true, "done_at": 0, "done_day": -1}
+	gs.journal = [{"t": now - 30, "kind": "frase", "text": "Yum! That was delicious", "stat": "alimentacion"}]
+	var h: Control = load("res://scenes/home.tscn").instantiate()
+	root.add_child(h)
+	await create_timer(0.6).timeout
+	h._show_journal()
+	await process_frame
+	var jt := _texts(h._journal_panel)
+	print("diario (en): ", jt.slice(0, 6), " | sigue en español: ", _spanish_left(jt, ["Mochi"]))
+	h._journal_panel.queue_free()
+	h._journal_panel = null
+	h._show_profile()
+	await process_frame
+	var pt := _texts(h._profile_panel)
+	print("ficha (en): ", pt.slice(0, 8), " | sigue en español: ", _spanish_left(pt, ["Mochi"]))
+	h._profile_panel.queue_free()
+	h._profile_panel = null
+	h._show_album() if h.has_method("_show_album") else null
+	await process_frame
+	if h._album_panel != null:
+		var at := _texts(h._album_panel)
+		print("album (en): ", at.slice(0, 6), " | sigue en español: ", _spanish_left(at, ["Mochi"]))
+	h.queue_free()
+	await process_frame
+
+
 func _initialize() -> void:
 	_load_spanish_only()
 	await process_frame
@@ -423,6 +555,7 @@ func _initialize() -> void:
 	await _area_shop(t)
 	await _area_jobs(t)
 	await _area_spanish_class(t)
+	await _area_diary(t)
 
 	gs.language = ""
 	gs.reset_game()

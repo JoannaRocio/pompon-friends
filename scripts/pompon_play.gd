@@ -119,15 +119,31 @@ static func can_play(item_id: String) -> bool:
 
 ## "Mochi toca el piano"
 static func activity_text(p: Pompon, item_id: String) -> String:
-	return "%s %s" % [p.display_name(), play_of(item_id).get("text", "mira " + PomponThoughts._poss(item_id))]
+	return ("%s %s" % [p.display_name(), action_text(item_id)]).format(T.pron(p.sex))
+
+
+## Lo que hace con el objeto, en el idioma actual ("toca el piano"; sin nada propio: "mira su estante").
+## En inglés puede traer {his}: lo completa quien lo muestra con T.pron.
+static func action_text(item_id: String) -> String:
+	var info := play_of(item_id)
+	if info.has("text"):
+		return T.s(info["text"])
+	return T.s("mira %s") % look_target(item_id)
+
+
+## "su estante" / "sus cubos" ("{his} shelf" en inglés).
+static func look_target(item_id: String) -> String:
+	if T.lang() == "en":
+		return "{his} " + Catalog.item_name(item_id).to_lower()
+	return PomponThoughts._poss(item_id).replace("mi ", "su ").replace("mis ", "sus ")
 
 
 ## Lo que dice al ver algo nuevo en su cuarto (los especiales lo dicen con mas emocion).
 static func comment(item_id: String, rng: RandomNumberGenerator) -> String:
 	var pool: Array = play_of(item_id).get("say", GENERIC_SAY)
-	var text: String = pool[rng.randi() % pool.size()]
+	var text: String = T.s(pool[rng.randi() % pool.size()])
 	if Catalog.is_special(item_id):
-		text = "¡Wow! " + text
+		text = T.s("¡Wow!") + " " + text
 	return text
 
 

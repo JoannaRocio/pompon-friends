@@ -36,7 +36,11 @@ class TraitBar extends Control:
 			draw_style_box(fill, Rect2(Vector2.ZERO, Vector2(maxf(size.y, size.x * clampf(value / max_value, 0.0, 1.0)), size.y)))
 
 
+var _sex := ""   # (para {he}/{his} en inglés)
+
+
 func setup(p: Pompon) -> ProfilePanel:
+	_sex = p.sex
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	offset_left = 20
 	offset_right = -20
@@ -57,19 +61,19 @@ func setup(p: Pompon) -> ProfilePanel:
 	scroll.add_child(col)
 
 	_header(col, p, now)
-	_section(col, "Crecimiento")
+	_section(col, T.s("Crecimiento"))
 	_growth(col, p, now)
-	_section(col, "Personalidad")
+	_section(col, T.s("Personalidad"))
 	_personality(col, p, now)
-	_section(col, "Gustos")
+	_section(col, T.s("Gustos"))
 	_tastes(col, p)
-	_section(col, "Aspecto")
+	_section(col, T.s("Aspecto"))
 	_looks(col, p)
-	_section(col, "Habilidades")
+	_section(col, T.s("Habilidades"))
 	_skills(col, p)
 
 	var close := Button.new()
-	close.text = "Cerrar"
+	close.text = T.s("Cerrar")
 	close.custom_minimum_size = Vector2(0, 80)
 	Hud.style_primary(close, 34)
 	close.pressed.connect(func(): closed.emit())
@@ -81,7 +85,7 @@ func setup(p: Pompon) -> ProfilePanel:
 
 func _label(text: String, size: int, color := INK, center := false) -> Label:
 	var l := Label.new()
-	l.text = text
+	l.text = T.with_pron(text, _sex)
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -160,12 +164,12 @@ func _header(col: VBoxContainer, p: Pompon, now: int) -> void:
 	var name_label := _label(p.display_name(), 46, PINK, true)
 	col.add_child(name_label)
 	var level := p.level(now)
-	var line := "%s · %s" % [Pompon.species_label(p.species), p.stage_name(now)]
+	var line := "%s · %s" % [Pompon.species_label(p.species), T.label(p.stage_name(now))]
 	col.add_child(_label(line, 28, SOFT, true))
 	var next_level := p.next_stage_level(now)
-	var life := "Nivel %d · día %d de vida" % [level, p.days_alive(now) + 1]
+	var life := T.s("Nivel %d · día %d de vida") % [level, p.days_alive(now) + 1]
 	if next_level > 0:
-		life += "\nSerá %s en %d días" % [Pompon.stage_name_for_level(next_level), next_level - level]
+		life += T.s("\nSerá %s en %d días") % [T.label(Pompon.stage_name_for_level(next_level)), next_level - level]
 	col.add_child(_label(life, 24, INK, true))
 	col.add_child(_label(p.id, 20, SOFT, true))
 
@@ -175,7 +179,7 @@ func _growth(col: VBoxContainer, p: Pompon, now: int) -> void:
 		var q := PomponGrowth.quality(p, now)
 		var bar := StatBar.new().setup("", "sprout", PomponGrowth.tier_color(PomponGrowth.pace(p, now)))
 		bar.value = q
-		bar.text = "Crecimiento  %d%%" % int(q)
+		bar.text = T.s("Crecimiento  %d%%") % int(q)
 		bar.font_size = 24
 		bar.custom_minimum_size = Vector2(0, 58)
 		col.add_child(bar)
@@ -184,15 +188,15 @@ func _growth(col: VBoxContainer, p: Pompon, now: int) -> void:
 		var day := PomponGrowth.day_index(p, now)
 		# a este ritmo, como terminaria la etapa
 		var pace := PomponGrowth.pace(p, now)
-		var next_name: String = Pompon.STAGES[stage + 1]
-		var outlook := "Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas."
+		var next_name: String = T.label(Pompon.STAGES[stage + 1]).to_lower()
+		var outlook := T.s("Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas.")
 		if pace < PomponGrowth.NORMAL:
-			outlook = "Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario."
+			outlook = T.s("Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario.")
 		elif pace < PomponGrowth.EXCELLENT:
-			outlook = "Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!"
-		col.add_child(_label("Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti." % [day + 1, total_days, next_name, PomponGrowth.days_left(p, now)], 22, INK))
+			outlook = T.s("Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!")
+		col.add_child(_label(T.s("Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti.") % [day + 1, total_days, next_name, PomponGrowth.days_left(p, now)], 22, INK))
 		col.add_child(_label(outlook, 22, PomponGrowth.tier_color(pace).darkened(0.25)))
-		col.add_child(_label("Hoy puedes sumar:", 24, SOFT))
+		col.add_child(_label(T.s("Hoy puedes sumar:"), 24, SOFT))
 		for item in PomponGrowth.checklist(p, now):
 			var row := HBoxContainer.new()
 			row.add_theme_constant_override("separation", 12)
@@ -208,15 +212,15 @@ func _growth(col: VBoxContainer, p: Pompon, now: int) -> void:
 				if done >= 0.999:
 					Hud.draw_icon(mark, "check", c, 22.0, Color.WHITE))
 			row.add_child(mark)
-			var l := _label(item["label"], 22, INK if done >= 0.999 else SOFT)
+			var l := _label(T.s(item["label"]), 22, INK if done >= 0.999 else SOFT)
 			l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			row.add_child(l)
 	else:
-		col.add_child(_label("Ya terminó de crecer." if p.stage_index(now) >= 4 else "Todavía no empezó a crecer.", 22, SOFT))
+		col.add_child(_label(T.s("Ya terminó de crecer.") if p.stage_index(now) >= 4 else T.s("Todavía no empezó a crecer."), 22, SOFT))
 	var words := PomponGrowth.known_words(p, now)
-	col.add_child(_label("Palabras que sabe", 24, SOFT))
+	col.add_child(_label(T.s("Palabras que sabe"), 24, SOFT))
 	if words.is_empty():
-		col.add_child(_label("Todavía no dice palabras: solo sonidos.", 22, INK))
+		col.add_child(_label(T.s("Todavía no dice palabras: solo sonidos."), 22, INK))
 	else:
 		var flow := HFlowContainer.new()
 		flow.add_theme_constant_override("h_separation", 8)
@@ -225,26 +229,26 @@ func _growth(col: VBoxContainer, p: Pompon, now: int) -> void:
 		for w in words:
 			var chip := PanelContainer.new()
 			chip.add_theme_stylebox_override("panel", Hud.card(Color("e8f8ee"), 20, Color("a8e6bf"), 2, 0))
-			var wl := _label("«%s»" % w, 24, Color("2f7a4f"))
+			var wl := _label(T.s("«%s»") % T.s(w), 24, Color("2f7a4f"))
 			wl.autowrap_mode = TextServer.AUTOWRAP_OFF
 			chip.add_child(wl)
 			flow.add_child(chip)
 	var traits: Array = p.growth.get("traits", [])
 	if not traits.is_empty():
-		col.add_child(_label("Rasgos que ganó al crecer", 24, SOFT))
+		col.add_child(_label(T.s("Rasgos que ganó al crecer"), 24, SOFT))
 		for t in traits:
 			var tcolor: Color = Color("5fc77f") if t["tier"] == "excelente" else (Color("ffb938") if t["tier"] == "normal" else Color("ff7a6b"))
 			var after := int(t["stage"])
-			_row(col, _badge("sprout", tcolor), "De %s" % String(Pompon.STAGES[after]).to_lower(), "%s · %s" % [t["name"], PomponGrowth.TRAIT_INFO.get(t["name"], "")])
+			_row(col, _badge("sprout", tcolor), T.s("De %s") % T.label(Pompon.STAGES[after]).to_lower(), "%s · %s" % [T.s(t["name"]), T.s(PomponGrowth.TRAIT_INFO.get(t["name"], ""))])
 
 
 func _personality(col: VBoxContainer, p: Pompon, now: int) -> void:
 	var tr: String = p.personality
 	_row(col, _badge(Hud.STAT_ICONS.get(PomponTastes.TRAIT_STAT.get(tr, "felicidad"), "smile"), TRAIT_COLORS.get(tr, PINK)),
-		"Es", Pompon.personality_label(tr), -1)
-	col.add_child(_label(TRAIT_TEXT.get(tr, ""), 24, INK))
+		T.s("Es"), Pompon.personality_label(tr), -1)
+	col.add_child(_label(T.s(TRAIT_TEXT.get(tr, "")), 24, INK))
 	var forming := p.stage_index(now) <= 2
-	col.add_child(_label("Su personalidad se está formando: lo que viven juntos la moldea." if forming else "Su personalidad ya está formada.", 22, SOFT))
+	col.add_child(_label(T.s("Su personalidad se está formando: lo que viven juntos la moldea.") if forming else T.s("Su personalidad ya está formada."), 22, SOFT))
 	for t in PomponTastes.TRAITS:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
@@ -265,9 +269,9 @@ func _tastes(col: VBoxContainer, p: Pompon) -> void:
 	# color favorito
 	var fam := PomponTastes.favorite_color(p)
 	if fam != "":
-		_row(col, _swatch(PomponTastes.color_swatch(fam)), "Color favorito", PomponTastes.color_name(fam).capitalize(), PomponTastes.color_hearts(p, fam))
+		_row(col, _swatch(PomponTastes.color_swatch(fam)), T.s("Color favorito"), PomponTastes.color_name(fam).capitalize(), PomponTastes.color_hearts(p, fam))
 	else:
-		_row(col, _swatch(Color("e8dfe5")), "Color favorito", "Lo está descubriendo…")
+		_row(col, _swatch(Color("e8dfe5")), T.s("Color favorito"), T.s("Lo está descubriendo…"))
 	var ranked := PomponTastes.colors_ranked(p)
 	for i in mini(3, ranked.size()):
 		var f: String = ranked[i]
@@ -277,16 +281,16 @@ func _tastes(col: VBoxContainer, p: Pompon) -> void:
 		r.add_theme_constant_override("separation", 10)
 		col.add_child(r)
 		r.add_child(_swatch(PomponTastes.color_swatch(f), 28.0))
-		var l := _label("Le gusta el %s" % PomponTastes.color_name(f), 22)
+		var l := _label(T.s("Le gusta el %s") % PomponTastes.color_name(f), 22)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		r.add_child(l)
 		r.add_child(HeartsRow.new().setup(PomponTastes.color_hearts(p, f), 20.0))
 	# comida favorita
 	var food := PomponTastes.favorite_food(p)
 	if food != "":
-		_row(col, _badge("apple", Color("ffa94d")), "Comida favorita", String(PomponTastes.get_food(food)["name"]), PomponTastes.food_hearts(p, food))
+		_row(col, _badge("apple", Color("ffa94d")), T.s("Comida favorita"), PomponTastes.food_name(food), PomponTastes.food_hearts(p, food))
 	else:
-		_row(col, _badge("apple", Color("e0c9b5")), "Comida favorita", "Todavía no tiene una favorita")
+		_row(col, _badge("apple", Color("e0c9b5")), T.s("Comida favorita"), T.s("Todavía no tiene una favorita"))
 	var tried: Array = PomponTastes.FOODS.filter(func(f): return PomponTastes.times_eaten(p, f["id"]) > 0)
 	tried.sort_custom(func(a, b): return PomponTastes.food_score(p, a["id"]) > PomponTastes.food_score(p, b["id"]))
 	for i in mini(6, tried.size()):
@@ -295,26 +299,26 @@ func _tastes(col: VBoxContainer, p: Pompon) -> void:
 		var r2 := HBoxContainer.new()
 		r2.add_theme_constant_override("separation", 10)
 		col.add_child(r2)
-		var nl := _label(tf["name"], 22)
+		var nl := _label(PomponTastes.food_name(tf["id"]), 22)
 		nl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		r2.add_child(nl)
 		if hearts == 0:
-			var doubt := _label("todavía duda", 20, SOFT)
+			var doubt := _label(T.s("todavía duda"), 20, SOFT)
 			doubt.autowrap_mode = TextServer.AUTOWRAP_OFF   # sin esto el texto se parte letra por letra
 			r2.add_child(doubt)
 		else:
 			r2.add_child(HeartsRow.new().setup(hearts, 20.0))
 	if tried.is_empty():
-		col.add_child(_label("Todavía no probó ninguna comida.", 22, SOFT))
+		col.add_child(_label(T.s("Todavía no probó ninguna comida."), 22, SOFT))
 	else:
 		var new_n: int = PomponTastes.FOODS.size() - tried.size()
 		if new_n > 0:
-			col.add_child(_label("Le faltan probar %d comidas. Al principio duda, pero de a poco se anima." % new_n, 22, SOFT))
+			col.add_child(_label(T.s("Le faltan probar %d comidas. Al principio duda, pero de a poco se anima.") % new_n, 22, SOFT))
 	# juego y habitacion
 	var game := PomponTastes.favorite_game(p)
-	_row(col, _badge("game", Color("a98bea")), "Juego favorito", PomponTastes.GAMES[game] if game != "" else "Todavía no eligió")
+	_row(col, _badge("game", Color("a98bea")), T.s("Juego favorito"), PomponTastes.game_name(game) if game != "" else T.s("Todavía no eligió"))
 	var room := PomponTastes.favorite_room(p)
-	_row(col, _badge("house", Color("ff7aa8")), "Habitación favorita", Rooms.room_name(room) if room >= 0 else "Todavía no eligió")
+	_row(col, _badge("house", Color("ff7aa8")), T.s("Habitación favorita"), Rooms.room_name(room) if room >= 0 else T.s("Todavía no eligió"))
 
 
 func _looks(col: VBoxContainer, p: Pompon) -> void:
@@ -323,13 +327,13 @@ func _looks(col: VBoxContainer, p: Pompon) -> void:
 	col.add_child(row)
 	row.add_child(_swatch(p.color_primary, 46.0))
 	row.add_child(_swatch(p.color_secondary, 46.0))
-	var l := _label("Ojos %s · boca de %s · cara %s" % [p.eyes, p.mouth, p.face], 24)
+	var l := _label(T.s("Ojos %s · boca de %s · cara %s") % [T.s(p.eyes), T.s(p.mouth), T.s(p.face)], 24)
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(l)
 
 
 func _skills(col: VBoxContainer, p: Pompon) -> void:
-	col.add_child(_label("Las va desarrollando con los minijuegos y con los objetos de su cuarto.", 22, SOFT))
+	col.add_child(_label(T.s("Las va desarrollando con los minijuegos y con los objetos de su cuarto."), 22, SOFT))
 	for skill in PomponSkills.ORDER:
 		var info: Dictionary = PomponSkills.SKILLS[skill]
 		var color: Color = info["color"]
@@ -347,10 +351,10 @@ func _skills(col: VBoxContainer, p: Pompon) -> void:
 		row.add_child(texts)
 		var top := HBoxContainer.new()
 		texts.add_child(top)
-		var name_label := _label(info["name"], 28)
+		var name_label := _label(T.s(info["name"]), 28)
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		top.add_child(name_label)
-		var level_label := _label("¡Máximo!" if level >= PomponSkills.MAX_LEVEL else "Nivel %d" % level, 26, color.darkened(0.25))
+		var level_label := _label(T.s("¡Máximo!") if level >= PomponSkills.MAX_LEVEL else T.s("Nivel %d") % level, 26, color.darkened(0.25))
 		level_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 		top.add_child(level_label)
 		var bar := TraitBar.new()
@@ -360,6 +364,6 @@ func _skills(col: VBoxContainer, p: Pompon) -> void:
 		bar.custom_minimum_size = Vector2(0, 16)
 		bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		texts.add_child(bar)
-		var hint := _label("Se entrena con: " + String(info["hint"]).to_lower(), 18, SOFT)
+		var hint := _label(T.s("Se entrena con: ") + T.s(String(info["hint"])).to_lower(), 18, SOFT)
 		hint.custom_minimum_size = Vector2(300, 0)
 		texts.add_child(hint)

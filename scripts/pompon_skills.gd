@@ -50,6 +50,15 @@ const PRACTICE_TEXT := {
 }
 
 
+## Nombre y pista de una habilidad en el idioma actual.
+static func skill_name(skill: String) -> String:
+	return T.s(SKILLS[skill]["name"])
+
+
+static func skill_hint(skill: String) -> String:
+	return T.s(SKILLS[skill]["hint"])
+
+
 static func _skills(p: Pompon) -> Dictionary:
 	if not p.tastes.has("skills"):
 		p.tastes["skills"] = {}
@@ -106,9 +115,9 @@ static func add_xp(p: Pompon, skill: String, amount: float) -> Dictionary:
 	if after > before:
 		var info: Dictionary = SKILLS[skill]
 		var vowel := "a" if p.sex == "Hembra" else "o"
-		var text := "¡Mejoré mi %s! Ahora estoy en nivel %d" % [String(info["name"]).to_lower(), after]
+		var text := T.s("¡Mejoré mi %s! Ahora estoy en nivel %d") % [skill_name(skill).to_lower(), after]
 		if after >= MAX_LEVEL:
-			text = "¡Llegué al nivel máximo de %s!" % String(info["name"]).to_lower()
+			text = T.s("¡Llegué al nivel máximo de %s!") % skill_name(skill).to_lower()
 		return {"kind": "sentimiento", "text": text.replace("{a}", vowel), "stat": info["stat"], "key": "skill:%s:%d" % [skill, after]}
 	return {}
 
@@ -139,6 +148,8 @@ static func trainers(room_items: Array) -> Array:
 
 ## "hace ejercicio con su rueda de ejercicio" (para el cuadro de actividad).
 static func practice_text(item_id: String) -> String:
+	if T.lang() == "en":   # ("{his}" lo completa quien lo muestra, con el sexo del Pompon)
+		return T.s(PRACTICE_TEXT[ITEM_SKILL[item_id]]) % ("{his} " + Catalog.item_name(item_id).to_lower())
 	var name: String = Catalog.get_item(item_id).get("name", item_id).to_lower()
 	var poss := "sus " if name.split(" ")[0] in ["cubos"] else "su "
 	return PRACTICE_TEXT[ITEM_SKILL[item_id]] % (poss + name)

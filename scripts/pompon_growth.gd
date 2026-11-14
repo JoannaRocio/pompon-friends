@@ -248,7 +248,7 @@ static func check_words(p: Pompon, now: int) -> Array:
 	var done := int(announced.get(str(stage), 0))
 	var words := live_words(p, now)
 	for i in range(done, words.size()):
-		out.append({"kind": "frase", "text": "¡Ahora sé decir «%s»!" % words[i], "stat": "inteligencia", "key": "word:%s" % words[i]})
+		out.append({"kind": "frase", "text": T.s("¡Ahora sé decir «%s»!") % T.s(words[i]), "stat": "inteligencia", "key": "word:%s" % words[i]})
 	if words.size() > done:
 		announced[str(stage)] = words.size()
 		p.growth["announced"] = announced
@@ -302,8 +302,8 @@ static func finish_stage(p: Pompon, stage: int, now: int) -> Array:
 	history[str(stage)] = {"quality": q, "tier": t, "trait": pick, "words": learned}
 	p.growth["history"] = history
 	if learned.is_empty():
-		out.append({"kind": "sentimiento", "text": "Todavía no sé decir palabras nuevas…", "stat": "inteligencia", "key": "growth:words"})
+		out.append({"kind": "sentimiento", "text": T.s("Todavía no sé decir palabras nuevas…"), "stat": "inteligencia", "key": "growth:words"})
 	else:
-		out.append({"kind": "frase", "text": "¡Aprendí %d palabras nuevas: %s!" % [learned.size(), ", ".join(learned.map(func(w): return "«%s»" % w))], "stat": "inteligencia", "key": "growth:words"})
-	out.append({"kind": "sentimiento", "text": "Crecí y ahora soy %s" % pick.to_lower(), "stat": TRAIT_STAT.get(pick, "felicidad"), "key": "growth:trait"})
+		out.append({"kind": "frase", "text": T.s("¡Aprendí %d palabras nuevas: %s!") % [learned.size(), ", ".join(learned.map(func(w): return T.s("«%s»") % T.s(w)))], "stat": "inteligencia", "key": "growth:words"})
+	out.append({"kind": "sentimiento", "text": T.s("Crecí y ahora soy %s") % T.s(pick).to_lower(), "stat": TRAIT_STAT.get(pick, "felicidad"), "key": "growth:trait"})
 	return out

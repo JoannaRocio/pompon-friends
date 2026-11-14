@@ -78,12 +78,18 @@ static func _vowel(p: Pompon) -> String:
 	return "a" if p.sex == "Hembra" else "o"
 
 
+## La frase en el idioma actual (las fijas se traducen aca; las armadas con %s ya vienen traducidas).
 static func _entry(p: Pompon, kind: String, text: String, stat: String, key: String, weight := 1.0) -> Dictionary:
-	return {"kind": kind, "text": text.replace("{a}", _vowel(p)), "stat": stat, "key": key, "w": weight}
+	var out := T.s(text).replace("{a}", _vowel(p))
+	if out.contains("{"):
+		out = out.format(T.pron(p.sex))
+	return {"kind": kind, "text": out, "stat": stat, "key": key, "w": weight}
 
 
-## "mi sofá" / "mis lentes redondos".
+## "mi sofá" / "mis lentes redondos" ("my sofa" en inglés).
 static func _poss(item_id: String) -> String:
+	if T.lang() == "en":
+		return "my " + Catalog.item_name(item_id).to_lower()
 	var name: String = Catalog.get_item(item_id).get("name", item_id)
 	var first := name.split(" ")[0]
 	return ("mis " if first in PLURAL_START else "mi ") + name.to_lower()
@@ -134,7 +140,7 @@ static func _needs(p: Pompon, rng: RandomNumberGenerator, baby: bool, out: Array
 			lines = NEED_TEXT[stat]["mid"] if not NEED_TEXT[stat]["mid"].is_empty() else NEED_TEXT[stat]["high"]
 		if baby:
 			var sound := _pick(rng, ["Buaaa…", "Pi… pi…", "T_T"])
-			out.append(_entry(p, KIND_FEEL, "%s (%s)" % [sound, NEED_BABY[stat]], stat, "need:" + stat, 12.0 if lvl >= 2 else 4.0))
+			out.append(_entry(p, KIND_FEEL, "%s (%s)" % [sound, T.s(NEED_BABY[stat])], stat, "need:" + stat, 12.0 if lvl >= 2 else 4.0))
 		else:
 			for line in lines:
 				out.append(_entry(p, KIND_FEEL, line, stat, "need:" + stat, (12.0 if lvl >= 2 else 4.0) / lines.size()))
@@ -174,25 +180,25 @@ static func _context(p: Pompon, ctx: Dictionary, rng: RandomNumberGenerator, out
 			continue
 		out.append(_entry(p, KIND_THINK, _item_line(p, rng, id), "comodidad", "item:" + id, 0.7))
 	for pair in ctx.get("on_pairs", []):
-		out.append(_entry(p, KIND_THINK, "Quedó lindo %s sobre %s" % [_poss(pair[0]), _poss(pair[1])], "felicidad", "on:%s:%s" % [pair[0], pair[1]], 1.4))
+		out.append(_entry(p, KIND_THINK, T.s("Quedó lindo %s sobre %s") % [_poss(pair[0]), _poss(pair[1])], "felicidad", "on:%s:%s" % [pair[0], pair[1]], 1.4))
 	var eq: Dictionary = ctx.get("equipped", {})
 	for cat in ["hat", "shirt", "glasses"]:
 		if eq.has(cat):
-			out.append(_entry(p, KIND_SAY, "Me siento especial con %s" % _poss(eq[cat]), "felicidad", "wear:" + str(eq[cat]), 1.1))
+			out.append(_entry(p, KIND_SAY, T.s("Me siento especial con %s") % _poss(eq[cat]), "felicidad", "wear:" + str(eq[cat]), 1.1))
 	for line in PomponSpeech.PERSONALITY_LINES.get(p.personality, []):
 		out.append(_entry(p, KIND_SAY, line, "felicidad", "pers:" + line, 0.9))
 	# gustos que fue aprendiendo (ver PomponTastes)
 	var fav_color := PomponTastes.favorite_color(p)
 	if fav_color != "":
-		out.append(_entry(p, KIND_THINK, "Me encantan las cosas de color %s" % PomponTastes.color_name(fav_color), "felicidad", "taste:color", 1.3))
+		out.append(_entry(p, KIND_THINK, T.s("Me encantan las cosas de color %s") % PomponTastes.color_name(fav_color), "felicidad", "taste:color", 1.3))
 	var fav_food := PomponTastes.favorite_food(p)
 	if fav_food != "":
-		var food_name := String(PomponTastes.get_food(fav_food)["name"]).to_lower()
+		var food_name := PomponTastes.food_name(fav_food).to_lower()
 		var hungry := float(p.stats.get("alimentacion", 100.0)) < 60.0
-		out.append(_entry(p, KIND_FEEL, ("Me comería %s ahora mismo" if hungry else "Qué ganas de comer %s") % food_name, "alimentacion", "taste:food", 2.5 if hungry else 1.2))
+		out.append(_entry(p, KIND_FEEL, (T.s("Me comería %s ahora mismo") if hungry else T.s("Qué ganas de comer %s")) % food_name, "alimentacion", "taste:food", 2.5 if hungry else 1.2))
 	var fav_game := PomponTastes.favorite_game(p)
 	if fav_game != "":
-		out.append(_entry(p, KIND_THINK, "Me gustaría jugar a %s" % PomponTastes.GAMES[fav_game], "diversion", "taste:game", 1.1))
+		out.append(_entry(p, KIND_THINK, T.s("Me gustaría jugar a %s") % PomponTastes.game_name(fav_game), "diversion", "taste:game", 1.1))
 	if not PomponTastes.FOODS.filter(func(f): return PomponTastes.is_new_food(p, f["id"])).is_empty():
 		out.append(_entry(p, KIND_THINK, "Me da curiosidad probar comidas nuevas", "alimentacion", "taste:new", 0.7))
 	if p.stage_index(int(ctx["now"])) <= 2:
@@ -213,14 +219,14 @@ static func _context(p: Pompon, ctx: Dictionary, rng: RandomNumberGenerator, out
 	if _recent(ctx, "petted", 7200.0):
 		out.append(_entry(p, KIND_FEEL, "Las caricias me hacen muy feliz", "amor", "ev:petted", 1.5))
 	var level: int = int(ctx.get("level", 1))
-	out.append(_entry(p, KIND_THINK, "Hoy es mi día %d de vida" % level, "felicidad", "day:%d" % level, 1.2))
+	out.append(_entry(p, KIND_THINK, T.s("Hoy es mi día %d de vida") % level, "felicidad", "day:%d" % level, 1.2))
 	if int(ctx.get("jobs_done", 0)) >= 3:
-		out.append(_entry(p, KIND_THINK, "Ya trabajaste %d veces para cuidarme, ¡gracias!" % int(ctx["jobs_done"]), "felicidad", "jobs:%d" % int(ctx["jobs_done"]), 1.0))
+		out.append(_entry(p, KIND_THINK, T.s("Ya trabajaste %d veces para cuidarme, ¡gracias!") % int(ctx["jobs_done"]), "felicidad", "jobs:%d" % int(ctx["jobs_done"]), 1.0))
 
 
 static func _item_line(p: Pompon, rng: RandomNumberGenerator, id: String) -> String:
 	var mine := _poss(id)
-	return _cap(_pick(rng, ["%s es lo mejor de la casa", "Hoy me quedé mirando %s"]) % mine)
+	return _cap(_pick(rng, [T.s("%s es lo mejor de la casa"), T.s("Hoy me quedé mirando %s")]) % mine)
 
 
 static func _cap(text: String) -> String:
@@ -236,7 +242,7 @@ static func spontaneous(p: Pompon, ctx: Dictionary, recent_texts: Array, rng: Ra
 	if ctx.get("sleeping", false):  # dormido: en lugar de pensar, sueña
 		if stage == 1:
 			return _clean(_entry(p, KIND_FEEL, "Zzz… (sueña algo lindo)", "sueno", "dream:baby"))
-		var dreams := DREAMS.filter(func(d): return not recent_texts.has(d))
+		var dreams := DREAMS.map(func(d): return T.s(d)).filter(func(d): return not recent_texts.has(d))
 		return {} if dreams.is_empty() else _clean(_entry(p, KIND_FEEL, _pick(rng, dreams), "sueno", "dream"))
 	var baby := stage == 1
 	var cands: Array = []
@@ -282,7 +288,7 @@ static func reaction(event: String, p: Pompon, ctx: Dictionary, rng: RandomNumbe
 		return _clean(_entry(p, KIND_SAY, sound, stat, "re:" + event))
 	var text: String = _pick(rng, REACTIONS[event])
 	if event == "room_changed":
-		text = "Me gusta estar %s" % Rooms.place_name(int(ctx.get("room", 0)))
+		text = T.s("Me gusta estar %s") % Rooms.place_name(int(ctx.get("room", 0)))
 	return _clean(_entry(p, REACTION_KIND[event], text, stat, "re:" + event))
 
 
@@ -295,7 +301,7 @@ static func urgent(p: Pompon, stat: String, now: int, rng: RandomNumberGenerator
 	if lines.is_empty():
 		lines = NEED_TEXT[stat]["mid"]
 	if stage == 1:
-		return _clean(_entry(p, KIND_FEEL, "%s (%s)" % [_pick(rng, ["Buaaa…", "Pi… pi…"]), NEED_BABY[stat]], stat, "urgent:" + stat))
+		return _clean(_entry(p, KIND_FEEL, "%s (%s)" % [_pick(rng, ["Buaaa…", "Pi… pi…"]), T.s(NEED_BABY[stat])], stat, "urgent:" + stat))
 	return _clean(_entry(p, KIND_FEEL, _pick(rng, lines), stat, "urgent:" + stat))
 
 
@@ -319,7 +325,7 @@ static func welcome_back(p: Pompon, now: int, away_seconds: int, rng: RandomNumb
 	if stage == 1:
 		return _clean(_entry(p, KIND_FEEL, "Pi pi! <3", "amor", "back"))
 	var hours := away_seconds / 3600
-	var text := "¡Volviste! Te extrañé" if hours < 24 else "¡Volviste! Pasó mucho tiempo, te extrañé muchísimo"
+	var text := T.s("¡Volviste! Te extrañé") if hours < 24 else T.s("¡Volviste! Pasó mucho tiempo, te extrañé muchísimo")
 	if float(p.stats.get("alimentacion", 100.0)) < 40.0:
-		text += " (y tengo hambre)"
+		text += T.s(" (y tengo hambre)")
 	return _clean(_entry(p, KIND_FEEL, text, "amor", "back"))

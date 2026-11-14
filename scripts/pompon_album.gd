@@ -25,7 +25,7 @@ static func stickers() -> Array:
 		_s("game:music", 0, "Hizo su primera canción", "Juega a Hacer música", "note", Color("a98bea")),
 	]
 	for f in PomponTastes.FOODS:
-		out.append(_s("food:" + f["id"], 1, String(f["name"]), "Dale de comer %s" % String(f["name"]).to_lower(), "apple", FOOD_TINT[int(f["tier"])]))
+		out.append(_s("food:" + f["id"], 1, PomponTastes.food_name(f["id"]), T.s("Dale de comer %s") % PomponTastes.food_name(f["id"]).to_lower(), "apple", FOOD_TINT[int(f["tier"])]))
 	for i in range(1, Rooms.count()):
 		out.append(_s("room:%d" % i, 2, Rooms.room_name(i), "Ábrela al subir de nivel", Rooms.LIST[i]["icon"], Color("a98bea")))
 	out.append_array([
@@ -43,7 +43,7 @@ static func stickers() -> Array:
 
 
 static func _s(id: String, page: int, title: String, hint: String, icon: String, color: Color) -> Dictionary:
-	return {"id": id, "page": page, "title": title, "hint": hint, "icon": icon, "color": color}
+	return {"id": id, "page": page, "title": T.s(title), "hint": T.s(hint), "icon": icon, "color": color}
 
 
 ## Veces que hizo algo segun PomponFirsts (las primeras veces que se cuentan desde que existe el album).

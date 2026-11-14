@@ -116,7 +116,12 @@ static func color_family(c: Color) -> String:
 
 
 static func color_name(fam: String) -> String:
-	return COLORS[fam][0] if COLORS.has(fam) else ""
+	return T.s(COLORS[fam][0]) if COLORS.has(fam) else ""
+
+
+## Nombre de un minijuego en el idioma actual.
+static func game_name(id: String) -> String:
+	return T.s(GAMES.get(id, id))
 
 
 static func color_swatch(fam: String) -> Color:
@@ -221,32 +226,32 @@ static func eat(p: Pompon, id: String, now: int) -> Dictionary:
 	t["foods"][id] = food_score(p, id) + rate
 	t["eaten"][id] = count + 1
 	var after_hearts := food_hearts(p, id)
-	var name := String(get_food(id).get("name", id)).to_lower()
+	var name := food_name(id).to_lower()
 	var baby := p.stage_index(now) <= 1
 	var out := {"mult": 1.0, "happy": 0.0, "text": "", "kind": "frase", "stat": "alimentacion", "force": false, "hearts": after_hearts}
 	if count == 0:
 		out["mult"] = 0.7
 		out["force"] = true
-		out["text"] = "¿Mmm…? (lo prueba con cuidado)" if baby else "¿Qué es esto? Lo pruebo despacito…"
+		out["text"] = T.s("¿Mmm…? (lo prueba con cuidado)") if baby else T.s("¿Qué es esto? Lo pruebo despacito…")
 	elif before_hearts == 0 and after_hearts == 0:
 		out["mult"] = 0.9
-		out["text"] = "Mmm… (todavía no sabe si le gusta)" if baby else "Mmm… todavía no sé si me gusta"
+		out["text"] = T.s("Mmm… (todavía no sabe si le gusta)") if baby else T.s("Mmm… todavía no sé si me gusta")
 	elif innate < 0 and after_hearts < 2:
 		out["mult"] = 0.85
-		out["text"] = "Mmm… (no le convence)" if baby else "No me convence mucho… pero lo intento"
+		out["text"] = T.s("Mmm… (no le convence)") if baby else T.s("No me convence mucho… pero lo intento")
 	elif after_hearts >= 5:
 		out["mult"] = 1.1
 		out["happy"] = 4.0
-		out["text"] = "¡Ñam ñam ñam! <3" if baby else "¡Mi comida favorita! %s es lo mejor" % name.capitalize()
+		out["text"] = "¡Ñam ñam ñam! <3" if baby else T.s("¡Mi comida favorita! %s es lo mejor") % name.capitalize()
 	elif after_hearts >= 3:
 		out["happy"] = 2.0
-		out["text"] = "¡Ñam ñam!" if baby else "¡Me gusta mucho!"
+		out["text"] = "¡Ñam ñam!" if baby else T.s("¡Me gusta mucho!")
 	else:
-		out["text"] = "¡Ñam!" if baby else "Está rico"
+		out["text"] = "¡Ñam!" if baby else T.s("Está rico")
 	if after_hearts > before_hearts and after_hearts >= 3 and before_hearts < 3:
 		out["force"] = true
 		if not baby:
-			out["text"] = "¡Cada vez me gusta más: %s!" % name
+			out["text"] = T.s("¡Cada vez me gusta más: %s!") % name
 	# comer variado y comer mucho moldean el caracter
 	bump(p, "Gloton", 0.8, now)
 	if count == 0:
@@ -338,7 +343,7 @@ static func check_personality(p: Pompon, now: int) -> Dictionary:
 	if top == p.personality or trait_value(p, top) < trait_value(p, p.personality) + 6.0:
 		return {}
 	p.personality = top
-	return _news(p, "Siento que me estoy volviendo más %s" % TRAIT_WORD[top], TRAIT_STAT[top], "pers:" + top)
+	return _news(p, T.s("Siento que me estoy volviendo más %s") % T.s(TRAIT_WORD[top]), TRAIT_STAT[top], "pers:" + top)
 
 
 # ------------------------------------------------------------------ anuncios de favoritos
@@ -353,15 +358,15 @@ static func new_favorites(p: Pompon, now: int) -> Array:
 	if color != "" and fav.get("color", "") != color:
 		var had: bool = fav.get("color", "") != ""
 		fav["color"] = color
-		out.append(_news(p, ("Ahora creo que mi color favorito es el %s" if had else "¡Me encantan las cosas de color %s! Creo que es mi color favorito") % color_name(color), "felicidad", "fav:color"))
+		out.append(_news(p, (T.s("Ahora creo que mi color favorito es el %s") if had else T.s("¡Me encantan las cosas de color %s! Creo que es mi color favorito")) % color_name(color), "felicidad", "fav:color"))
 	var food := favorite_food(p)
 	if food != "" and fav.get("food", "") != food:
 		var had2: bool = fav.get("food", "") != ""
 		fav["food"] = food
-		var fname := String(get_food(food)["name"]).to_lower()
-		out.append(_news(p, ("Ahora mi comida favorita es: %s" if had2 else "¡Mi comida favorita es: %s!") % fname, "alimentacion", "fav:food"))
+		var fname := food_name(food).to_lower()
+		out.append(_news(p, (T.s("Ahora mi comida favorita es: %s") if had2 else T.s("¡Mi comida favorita es: %s!")) % fname, "alimentacion", "fav:food"))
 	var game := favorite_game(p)
 	if game != "" and fav.get("game", "") != game:
 		fav["game"] = game
-		out.append(_news(p, "Mi juego favorito es %s" % GAMES[game], "diversion", "fav:game"))
+		out.append(_news(p, T.s("Mi juego favorito es %s") % game_name(game), "diversion", "fav:game"))
 	return out

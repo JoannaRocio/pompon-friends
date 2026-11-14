@@ -157,6 +157,38 @@ func _initialize() -> void:
 		await _shot("19-examen-espanol.png" if track == "es_words" else "20-examen-espanol-significado.png")
 		await _clear()
 	Jobs.current = "math"
+
+	# diario, ficha y album (con frases generadas en inglés)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 5
+	gs.tutorial = {"chapter": 0, "step": 0, "off": true, "done_at": 0, "done_day": -1}
+	gs.pompon.born_at = now - 5 * 86400
+	gs.journal = []
+	var ctx := {"now": now, "hour": 15.0, "room": 0, "items": ["furn_sofa", "furn_piano"], "equipped": {"hat": "hat_bow"},
+		"events": {"fed": now - 30, "played": now - 30}, "jobs_done": 4, "level": 5}
+	for i in 7:
+		var e: Dictionary = PomponThoughts.spontaneous(gs.pompon, ctx, gs.recent_journal_texts(14), rng)
+		if not e.is_empty():
+			e["t"] = now - (7 - i) * 900
+			gs.journal.append(e)
+	var fe: Dictionary = PomponFirsts.experience(gs.pompon, "bath", "", "", now, rng)
+	fe["t"] = now - 60
+	gs.journal.append(fe)
+	var hd: Control = load("res://scenes/home.tscn").instantiate()
+	_add(hd)
+	await create_timer(1.0).timeout
+	await _shot("21-casa.png")
+	hd._show_journal()
+	await _shot("22-diario.png")
+	hd._journal_panel.queue_free()
+	hd._journal_panel = null
+	hd._show_profile()
+	await _shot("23-ficha.png")
+	hd._profile_panel.queue_free()
+	hd._profile_panel = null
+	hd._show_album()
+	await _shot("24-album.png")
+	await _clear()
 	gs.reset_game()
 	gs.set_language("")
 	quit()

@@ -348,7 +348,7 @@ en el nivel %d","%s opens
 at level %d"
 s:¿Qué le damos a %s?,¿Qué le damos a %s?,What should we give %s?
 s:tu Pompon,tu Pompon,your Pompon
-s:Lo nuevo le da desconfianza… ¡pero de a poco se anima!,Lo nuevo le da desconfianza… ¡pero de a poco se anima!,New food makes it unsure… but little by little it gets braver!
+s:Lo nuevo le da desconfianza… ¡pero de a poco se anima!,Lo nuevo le da desconfianza… ¡pero de a poco se anima!,New food makes {him} unsure… but little by little {he} gets braver!
 s:gratis,gratis,free
 s:%d monedas,%d monedas,%d coins
 s:¡Nuevo!,¡Nuevo!,New!
@@ -771,3 +771,645 @@ s:%s · se dice: %s,%s · se dice: %s,%s · say it: %s
 s:¡Casi! Es %s,¡Casi! Es %s,Almost! It's %s
 s:la de %s,la de %s,the one for %s
 s:Casa,Casa,Home
+s:pensó,pensó,thought
+s:sintió,sintió,felt
+s:dijo,dijo,said
+s:Tengo un poco de hambre,Tengo un poco de hambre,I'm a little hungry
+s:Mi pancita empieza a hacer ruido,Mi pancita empieza a hacer ruido,My tummy is starting to rumble
+s:¡Tengo muchísima hambre!,¡Tengo muchísima hambre!,I'm sooo hungry!
+"s:Necesito comer ya, por favor","Necesito comer ya, por favor","I need to eat now, please"
+s:Tengo un poco de sed,Tengo un poco de sed,I'm a little thirsty
+s:Un traguito de agua me vendría bien,Un traguito de agua me vendría bien,A sip of water would be nice
+s:¡Tengo mucha sed!,¡Tengo mucha sed!,I'm very thirsty!
+"s:Necesito agua, por favor","Necesito agua, por favor","I need water, please"
+s:Me gustaría estar más limpi{a},Me gustaría estar más limpi{a},I'd like to be cleaner
+s:Siento que me falta un baño,Siento que me falta un baño,I think I need a bath
+s:Necesito un baño urgente,Necesito un baño urgente,I really need a bath
+s:Estoy muy suci{a},Estoy muy suci{a},I'm very dirty
+s:Me estoy aburriendo un poquito,Me estoy aburriendo un poquito,I'm getting a little bored
+s:¿Jugamos a algo?,¿Jugamos a algo?,Shall we play something?
+s:¡Estoy muy aburrid{a}!,¡Estoy muy aburrid{a}!,I'm so bored!
+s:Necesito jugar ya,Necesito jugar ya,I need to play now
+s:No estoy muy cómod{a} acá,No estoy muy cómod{a} acá,I'm not very comfy here
+s:Creo que me falta algo en casa,Creo que me falta algo en casa,I think something is missing at home
+s:Tengo un poquito de sueño,Tengo un poquito de sueño,I'm a little sleepy
+s:*bosteza* ¿Ya es hora de dormir?,*bosteza* ¿Ya es hora de dormir?,*yawns* Is it bedtime yet?
+s:¡Tengo muchísimo sueño!,¡Tengo muchísimo sueño!,I'm sooo sleepy!
+s:Se me cierran los ojitos…,Se me cierran los ojitos…,My eyes keep closing…
+s:Quiero un poco de cariño,Quiero un poco de cariño,I want a little love
+s:¿Me das un mimo?,¿Me das un mimo?,Can I have a cuddle?
+s:Me siento solit{a},Me siento solit{a},I feel lonely
+s:¿Todavía me quieres?,¿Todavía me quieres?,Do you still love me?
+s:Extraño a mis amigos,Extraño a mis amigos,I miss my friends
+s:Me gustaría visitar a mis vecinos,Me gustaría visitar a mis vecinos,I'd like to visit my neighbors
+s:Quiero aprender cosas nuevas,Quiero aprender cosas nuevas,I want to learn new things
+s:Me gustaría aprender algo hoy,Me gustaría aprender algo hoy,I'd like to learn something today
+s:hambre,hambre,hungry
+s:sed,sed,thirsty
+s:baño,baño,bath
+s:jugar,jugar,play
+s:incomodidad,incomodidad,uncomfy
+s:sueño,sueño,sleepy
+s:mimos,mimos,cuddles
+s:amigos,amigos,friends
+s:aprender,aprender,learn
+s:Qué rica estuvo la comida,Qué rica estuvo la comida,The food was so yummy
+s:Me siento limpit{a} y perfumad{a},Me siento limpit{a} y perfumad{a},I feel clean and fresh
+s:¡Me divertí un montón!,¡Me divertí un montón!,I had so much fun!
+s:Qué cómod{a} estoy en casa,Qué cómod{a} estoy en casa,I'm so comfy at home
+s:Dormí riquísimo y tengo mucha energía,Dormí riquísimo y tengo mucha energía,I slept great and I'm full of energy
+s:Me siento muy querid{a},Me siento muy querid{a},I feel so loved
+"s:Tengo muchos amigos, ¡qué suerte!","Tengo muchos amigos, ¡qué suerte!","I have lots of friends, how lucky!"
+s:Cada día entiendo más cosas,Cada día entiendo más cosas,Every day I understand more things
+"s:Me gusta la sala, es tranquila","Me gusta la sala, es tranquila","I like the living room, it's calm"
+s:Desde la sala se ve toda la casa,Desde la sala se ve toda la casa,You can see the whole house from the living room
+s:Acá se duerme riquísimo,Acá se duerme riquísimo,It's so cozy to sleep here
+s:El dormitorio es mi rincón favorito,El dormitorio es mi rincón favorito,The bedroom is my favorite spot
+s:La cocina huele a galletitas,La cocina huele a galletitas,The kitchen smells like cookies
+s:En la cocina siempre pasa algo rico,En la cocina siempre pasa algo rico,Something yummy always happens in the kitchen
+s:Shh… en la biblioteca se piensa mejor,Shh… en la biblioteca se piensa mejor,Shh… it's easier to think in the library
+s:Quiero leer algo en la biblioteca,Quiero leer algo en la biblioteca,I want to read something in the library
+s:¡Me encanta el pasto del jardín!,¡Me encanta el pasto del jardín!,I love the grass in the garden!
+s:En el jardín me dan ganas de correr,En el jardín me dan ganas de correr,The garden makes me want to run
+s:Desde la terraza se ven las estrellas,Desde la terraza se ven las estrellas,You can see the stars from the terrace
+s:La terraza estelar es mágica,La terraza estelar es mágica,The star terrace is magical
+s:¡Ñam! Estaba riquísimo,¡Ñam! Estaba riquísimo,Yum! That was delicious
+s:Mi pancita está contenta,Mi pancita está contenta,My tummy is happy
+s:Gracias por la comida,Gracias por la comida,Thanks for the food
+s:Glup glup… ¡qué fresquita!,Glup glup… ¡qué fresquita!,Gulp gulp… so fresh!
+s:Qué rica el agua,Qué rica el agua,The water is so nice
+s:Estoy limpit{a} y perfumad{a},Estoy limpit{a} y perfumad{a},I'm clean and fresh
+s:El baño me dejó como nuev{a},El baño me dejó como nuev{a},The bath made me feel brand new
+s:Me encantan tus mimos,Me encantan tus mimos,I love your cuddles
+s:Quédate un ratito más,Quédate un ratito más,Stay a little longer
+s:¡Creo que aprendí algo nuevo!,¡Creo que aprendí algo nuevo!,I think I learned something new!
+s:Jugar me hace sentir más list{a},Jugar me hace sentir más list{a},Playing makes me feel smarter
+s:¡Qué bueno que volviste! Te esperé,¡Qué bueno que volviste! Te esperé,I'm so glad you're back! I waited for you
+s:Me alegra que trabajes para cuidarme,Me alegra que trabajes para cuidarme,I'm happy you work to take care of me
+"s:¡Qué lindo, algo nuevo para la casa!","¡Qué lindo, algo nuevo para la casa!","How nice, something new for the house!"
+s:¿Es para mí? ¡Gracias!,¿Es para mí? ¡Gracias!,Is it for me? Thank you!
+s:Me gusta cambiar de lugar,Me gusta cambiar de lugar,I like going to new places
+s:¡Qué lindo se ve todo por acá!,¡Qué lindo se ve todo por acá!,Everything looks so nice here!
+s:Visitar a mis vecinos fue lindo,Visitar a mis vecinos fue lindo,Visiting my neighbors was nice
+s:Hice nuevos amigos hoy,Hice nuevos amigos hoy,I made new friends today
+s:¡Crecí un poquito!,¡Crecí un poquito!,I grew a little!
+s:Cada día soy un poco más grande,Cada día soy un poco más grande,Every day I'm a little bigger
+s:Soñé que volaba entre nubes de algodón,Soñé que volaba entre nubes de algodón,I dreamed I was flying through cotton clouds
+s:Soñé con una montaña de galletitas,Soñé con una montaña de galletitas,I dreamed about a mountain of cookies
+s:Soñé que jugaba a la pelota con mis amigos,Soñé que jugaba a la pelota con mis amigos,I dreamed I was playing ball with my friends
+s:Soñé que nadaba con pececitos de colores,Soñé que nadaba con pececitos de colores,I dreamed I was swimming with colorful little fish
+s:Soñé que la luna me contaba un cuento,Soñé que la luna me contaba un cuento,I dreamed the moon told me a story
+s:Soñé que mi casa era un castillo de almohadas,Soñé que mi casa era un castillo de almohadas,I dreamed my house was a pillow castle
+s:Soñé que encontraba un tesoro en el jardín,Soñé que encontraba un tesoro en el jardín,I dreamed I found a treasure in the garden
+s:Soñé que bailábamos bajo las estrellas,Soñé que bailábamos bajo las estrellas,I dreamed we were dancing under the stars
+s:Ya es de noche… ¿mañana jugamos otra vez?,Ya es de noche… ¿mañana jugamos otra vez?,It's nighttime… shall we play again tomorrow?
+s:Qué sueño tengo,Qué sueño tengo,I'm so sleepy
+s:Las estrellas se ven hermosas esta noche,Las estrellas se ven hermosas esta noche,The stars look beautiful tonight
+s:¡Buen día! Hoy quiero hacer algo lindo,¡Buen día! Hoy quiero hacer algo lindo,Good morning! I want to do something fun today
+s:Qué linda tarde para jugar,Qué linda tarde para jugar,What a nice afternoon to play
+s:Quedó lindo %s sobre %s,Quedó lindo %s sobre %s,%s looks nice on %s
+s:Me siento especial con %s,Me siento especial con %s,I feel special with %s
+s:Me encantan las cosas de color %s,Me encantan las cosas de color %s,I love %s things
+s:Me comería %s ahora mismo,Me comería %s ahora mismo,I could eat some %s right now
+s:Qué ganas de comer %s,Qué ganas de comer %s,I really want some %s
+s:Me gustaría jugar a %s,Me gustaría jugar a %s,I'd like to play %s
+s:Me da curiosidad probar comidas nuevas,Me da curiosidad probar comidas nuevas,I'm curious to try new foods
+s:Cada día descubro cosas que me gustan,Cada día descubro cosas que me gustan,Every day I find things I like
+"s:Me alegra que trabajes para cuidarme, ¡gracias!","Me alegra que trabajes para cuidarme, ¡gracias!","I'm happy you work to take care of me, thank you!"
+s:Me divertí mucho con los juegos de antes,Me divertí mucho con los juegos de antes,I had lots of fun with the games earlier
+s:Creo que aprendí algo nuevo jugando,Creo que aprendí algo nuevo jugando,I think I learned something new by playing
+s:Visitar a mis vecinos fue muy lindo,Visitar a mis vecinos fue muy lindo,Visiting my neighbors was really nice
+s:¿Viste lo que compramos? ¡Me encanta!,¿Viste lo que compramos? ¡Me encanta!,Did you see what we bought? I love it!
+s:Las caricias me hacen muy feliz,Las caricias me hacen muy feliz,Cuddles make me so happy
+s:Hoy es mi día %d de vida,Hoy es mi día %d de vida,Today is my day %d of life
+"s:Ya trabajaste %d veces para cuidarme, ¡gracias!","Ya trabajaste %d veces para cuidarme, ¡gracias!","You've worked %d times to take care of me, thank you!"
+s:%s es lo mejor de la casa,%s es lo mejor de la casa,%s is the best thing in the house
+s:Hoy me quedé mirando %s,Hoy me quedé mirando %s,Today I kept looking at %s
+s:Zzz… (sueña algo lindo),Zzz… (sueña algo lindo),Zzz… (dreaming something nice)
+s:Me gusta estar %s,Me gusta estar %s,I like being %s
+s:¡Acabo de nacer! Todo es nuevo y me siento muy curios{a},¡Acabo de nacer! Todo es nuevo y me siento muy curios{a},I just hatched! Everything is new and I'm so curious
+s:¿Quién será esa persona que me cuida? Quiero conocerla…,¿Quién será esa persona que me cuida? Quiero conocerla…,Who is this person taking care of me? I want to get to know them…
+s:¡Volviste! Te extrañé,¡Volviste! Te extrañé,You're back! I missed you
+"s:¡Volviste! Pasó mucho tiempo, te extrañé muchísimo","¡Volviste! Pasó mucho tiempo, te extrañé muchísimo","You're back! It's been so long, I missed you so much"
+s: (y tengo hambre), (y tengo hambre), (and I'm hungry)
+s:balbucea «ba-ba»,balbucea «ba-ba»,babbles “ba-ba”
+s:mira a su alrededor con ojos enormes,mira a su alrededor con ojos enormes,looks around with {his} big eyes
+s:juega con sus patitas,juega con sus patitas,plays with {his} little paws
+s:hace burbujas con la boca,hace burbujas con la boca,blows bubbles with {his} mouth
+s:se ríe solito,se ríe solito,giggles all alone
+s:se chupa el dedito,se chupa el dedito,sucks {his} little thumb
+s:escucha los sonidos de la casa,escucha los sonidos de la casa,listens to the sounds of the house
+s:intenta decir «ma-ma»,intenta decir «ma-ma»,tries to say “ma-ma”
+s:descubre su propia sombra,descubre su propia sombra,discovers {his} own shadow
+s:hace «pi pi» para ver qué pasa,hace «pi pi» para ver qué pasa,says “pi pi” to see what happens
+s:mira la luz con curiosidad,mira la luz con curiosidad,looks at the light with curiosity
+s:explora %s,explora %s,explores %s
+s:descubre %s,descubre %s,discovers %s
+s:curiosea por %s,curiosea por %s,peeks around %s
+s:recorre %s con curiosidad,recorre %s con curiosidad,wanders around %s with curiosity
+s:aprende cosas de lo que lo rodea,aprende cosas de lo que lo rodea,learns about everything around {him}
+s:canturrea una canción,canturrea una canción,hums a song
+s:salta de un lado a otro,salta de un lado a otro,hops from side to side
+s:se estira con ganas,se estira con ganas,has a big stretch
+s:huele el aire,huele el aire,sniffs the air
+s:piensa en sus cosas,piensa en sus cosas,thinks about {his} own things
+s:mira por todos lados,mira por todos lados,looks all around
+s:juega solito,juega solito,plays on {his} own
+s:hace sonidos con la boca,hace sonidos con la boca,makes funny sounds
+s:pasea por %s,pasea por %s,strolls around %s
+s:recorre %s,recorre %s,walks around %s
+s:da una vuelta por %s,da una vuelta por %s,takes a walk around %s
+s:hace ejercicio de calentamiento,hace ejercicio de calentamiento,does warm-up exercises
+s:corre en el lugar,corre en el lugar,runs in place
+s:se asoma con timidez,se asoma con timidez,peeks out shyly
+s:se esconde un poquito y vuelve a mirar,se esconde un poquito y vuelve a mirar,hides a little and peeks again
+s:investiga cada rincón,investiga cada rincón,checks every corner
+s:se pregunta cómo funcionan las cosas,se pregunta cómo funcionan las cosas,wonders how things work
+s:se relame pensando en comida,se relame pensando en comida,licks {his} lips thinking about food
+s:se imagina una torta enorme,se imagina una torta enorme,imagines a giant cake
+s:dibuja en el aire con el dedito,dibuja en el aire con el dedito,draws in the air with {his} finger
+s:tararea una melodía inventada,tararea una melodía inventada,hums a made-up tune
+s:repasa cuentas en su cabeza,repasa cuentas en su cabeza,does math in {his} head
+s:ordena sus pensamientos,ordena sus pensamientos,sorts out {his} thoughts
+s:recuerda lo que aprendió hoy,recuerda lo que aprendió hoy,remembers what {he} learned today
+s:mastica contento,mastica contento,chews happily
+s:se relame después de beber,se relame después de beber,licks {his} lips after drinking
+s:se sacude las gotitas,se sacude las gotitas,shakes off the little drops
+s:disfruta de los mimos,disfruta de los mimos,enjoys the cuddles
+s:practica lo que aprendió,practica lo que aprendió,practices what {he} learned
+s:bosteza grande,bosteza grande,gives a big yawn
+s:cabecea de sueño,cabecea de sueño,nods off sleepily
+s:se acurruca,se acurruca,curls up
+s:mira por la ventana soñoliento,mira por la ventana soñoliento,looks out the window sleepily
+s:bosteza,bosteza,yawns
+s:mira hacia donde suele estar la comida,mira hacia donde suele estar la comida,looks over where the food usually is
+s:busca algo para jugar,busca algo para jugar,looks for something to play with
+s:mira %s con curiosidad,mira %s con curiosidad,looks at %s with curiosity
+s:mira %s sin parpadear,mira %s sin parpadear,stares at %s without blinking
+s:mira %s,mira %s,looks at %s
+s:mira %s con atención,mira %s con atención,looks closely at %s
+s:en la sala,en la sala,in the living room
+s:en el dormitorio,en el dormitorio,in the bedroom
+s:en la cocina,en la cocina,in the kitchen
+s:en la biblioteca,en la biblioteca,in the library
+s:en el jardín,en el jardín,in the garden
+s:en la terraza estelar,en la terraza estelar,on the star terrace
+s:rosa,rosa,pink
+s:rojo,rojo,red
+s:naranja,naranja,orange
+s:amarillo,amarillo,yellow
+s:verde,verde,green
+s:menta,menta,mint
+s:celeste,celeste,sky-blue
+s:azul,azul,blue
+s:lila,lila,lilac
+s:Memoria,Memoria,Memory
+s:Patrones,Patrones,Patterns
+s:Salto al cielo,Salto al cielo,Sky Jump
+s:Pintar,Pintar,Painting
+s:Hacer música,Hacer música,Making music
+s:enérgic{a},enérgic{a},energetic
+s:tímid{a},tímid{a},shy
+s:curios{a},curios{a},curious
+s:glot{on},glot{on},food-loving
+s:artístic{a},artístic{a},artsy
+s:¿Mmm…? (lo prueba con cuidado),¿Mmm…? (lo prueba con cuidado),Mmm…? (tastes it carefully)
+s:¿Qué es esto? Lo pruebo despacito…,¿Qué es esto? Lo pruebo despacito…,What's this? I'll try it slowly…
+s:Mmm… (todavía no sabe si le gusta),Mmm… (todavía no sabe si le gusta),Mmm… (not sure yet)
+s:Mmm… todavía no sé si me gusta,Mmm… todavía no sé si me gusta,Mmm… I'm not sure if I like it yet
+s:Mmm… (no le convence),Mmm… (no le convence),Mmm… (not convinced)
+s:No me convence mucho… pero lo intento,No me convence mucho… pero lo intento,I'm not so sure… but I'll try
+s:¡Mi comida favorita! %s es lo mejor,¡Mi comida favorita! %s es lo mejor,My favorite food! %s is the best
+s:¡Me gusta mucho!,¡Me gusta mucho!,I really like it!
+s:Está rico,Está rico,It's yummy
+s:¡Cada vez me gusta más: %s!,¡Cada vez me gusta más: %s!,I like it more and more: %s!
+s:Siento que me estoy volviendo más %s,Siento que me estoy volviendo más %s,I feel like I'm getting more %s
+s:Ahora creo que mi color favorito es el %s,Ahora creo que mi color favorito es el %s,Now I think my favorite color is %s
+s:¡Me encantan las cosas de color %s! Creo que es mi color favorito,¡Me encantan las cosas de color %s! Creo que es mi color favorito,I love %s things! I think it's my favorite color
+s:Ahora mi comida favorita es: %s,Ahora mi comida favorita es: %s,Now my favorite food is: %s
+s:¡Mi comida favorita es: %s!,¡Mi comida favorita es: %s!,My favorite food is: %s!
+s:Mi juego favorito es %s,Mi juego favorito es %s,My favorite game is %s
+s:Tengo hambre,Tengo hambre,I'm hungry
+s:Mi pancita hace ruido,Mi pancita hace ruido,My tummy is rumbling
+s:Quiero comer algo rico,Quiero comer algo rico,I want something yummy
+s:Tengo sed,Tengo sed,I'm thirsty
+s:Quiero agua,Quiero agua,I want water
+"s:Agua, por favor","Agua, por favor","Water, please"
+s:Estoy sucio,Estoy sucio,I'm dirty
+s:Quiero bañarme,Quiero bañarme,I want a bath
+s:Necesito un baño,Necesito un baño,I need a bath
+s:Juguemos,Juguemos,Let's play
+s:Me aburro,Me aburro,I'm bored
+s:Quiero jugar,Quiero jugar,I want to play
+s:¿Me quieres?,¿Me quieres?,Do you love me?
+"s:Mimos, por favor","Mimos, por favor","Cuddles, please"
+s:¿Estás ahí?,¿Estás ahí?,Are you there?
+s:Buaaa,Buaaa,Waaah
+s:¡Vamos a correr!,¡Vamos a correr!,Let's run!
+s:¡No puedo quedarme quieto!,¡No puedo quedarme quieto!,I can't sit still!
+s:Hola... bajito,Hola... bajito,Hi… (very quietly)
+s:Me da vergüenza,Me da vergüenza,I feel shy
+s:¿Qué es eso?,¿Qué es eso?,What's that?
+s:Quiero explorar,Quiero explorar,I want to explore
+s:Pensaba en comida,Pensaba en comida,I was thinking about food
+s:¿Hay algo para picar?,¿Hay algo para picar?,Is there a snack?
+"s:Mira, dibujé algo","Mira, dibujé algo","Look, I drew something"
+s:Me inspiré hoy,Me inspiré hoy,I feel inspired today
+"s:Dos más dos son cuatro, lo aprendí hoy","Dos más dos son cuatro, lo aprendí hoy","Two plus two is four, I learned it today"
+s:Me gusta resolver patrones contigo,Me gusta resolver patrones contigo,I like solving patterns with you
+s:Hola!,Hola!,Hi!
+s:Buaaa…,Buaaa…,Waaah…
+s:%s tiene mucha hambre,%s tiene mucha hambre,%s is very hungry
+s:%s tiene un poco de hambre,%s tiene un poco de hambre,%s is a little hungry
+s:%s está bien alimentad%s,%s está bien alimentad%s,%s is well fed%s
+s:%s tiene mucha sed,%s tiene mucha sed,%s is very thirsty
+s:%s tiene un poco de sed,%s tiene un poco de sed,%s is a little thirsty
+s:%s está bien hidratad%s,%s está bien hidratad%s,%s has had enough water%s
+s:%s necesita un baño,%s necesita un baño,%s needs a bath
+s:%s quiere estar más limpi%s,%s quiere estar más limpi%s,%s wants to be cleaner%s
+s:%s está limpit%s,%s está limpit%s,%s is nice and clean%s
+s:%s está muy aburrid%s,%s está muy aburrid%s,%s is very bored%s
+s:%s se siente un poco aburrid%s,%s se siente un poco aburrid%s,%s feels a little bored%s
+s:%s se siente muy divertid%s,%s se siente muy divertid%s,%s is having lots of fun%s
+s:%s no se siente cómod%s,%s no se siente cómod%s,%s doesn't feel comfy%s
+s:%s está muy cómod%s,%s está muy cómod%s,%s is very comfy%s
+s:%s se cae de sueño,%s se cae de sueño,%s is falling asleep
+s:%s tiene sueño,%s tiene sueño,%s is sleepy
+s:%s está muy descansad%s,%s está muy descansad%s,%s is well rested%s
+s:%s se siente solit%s,%s se siente solit%s,%s feels lonely%s
+s:%s quiere más cariño,%s quiere más cariño,%s wants more love
+s:%s se siente amad%s,%s se siente amad%s,%s feels loved%s
+s:%s extraña a sus amigos,%s extraña a sus amigos,%s misses {his} friends
+s:%s tiene muchos amigos,%s tiene muchos amigos,%s has lots of friends
+s:%s quiere aprender cosas nuevas,%s quiere aprender cosas nuevas,%s wants to learn new things
+s:%s se siente muy list%s,%s se siente muy list%s,%s feels very smart%s
+s:%s está tranquil%s,%s está tranquil%s,%s is calm%s
+s:Físico,Físico,Fitness
+s:Creatividad,Creatividad,Creativity
+s:Música,Música,Music
+s:Lógica,Lógica,Logic
+"s:Explorar la casa (hasta el nivel 3), y después la rueda, el columpio, el túnel y el rascador","Explorar la casa (hasta el nivel 3), y después la rueda, el columpio, el túnel y el rascador","Exploring the house (up to level 3), then the wheel, swing, tunnel and scratching post"
+"s:Cuadros, bloques, arcoíris y adornos","Cuadros, bloques, arcoíris y adornos","Pictures, blocks, rainbows and decorations"
+"s:El juego de Memoria, el piano y la caja musical","El juego de Memoria, el piano y la caja musical","The Memory game, the piano and the music box"
+"s:El juego de Matemáticas, el reloj y el escritorio","El juego de Matemáticas, el reloj y el escritorio","The Math game, the clock and the desk"
+"s:El juego de Patrones, los libros, la biblioteca y el robot","El juego de Patrones, los libros, la biblioteca y el robot","The Patterns game, the books, the bookshelf and the robot"
+s:hace ejercicio con %s,hace ejercicio con %s,exercises with %s
+s:crea algo con %s,crea algo con %s,makes something with %s
+s:hace música con %s,hace música con %s,makes music with %s
+s:practica cuentas con %s,practica cuentas con %s,practices math with %s
+s:resuelve acertijos con %s,resuelve acertijos con %s,solves puzzles with %s
+s:¡Mejoré mi %s! Ahora estoy en nivel %d,¡Mejoré mi %s! Ahora estoy en nivel %d,My %s got better! Now I'm at level %d
+s:¡Llegué al nivel máximo de %s!,¡Llegué al nivel máximo de %s!,I reached the top level in %s!
+s:Hoy tuve mi primer baño y {r},Hoy tuve mi primer baño y {r},Today I had my first bath and {r}
+s:el agua estaba calentita,el agua estaba calentita,the water was nice and warm
+s:me dio un poquito de frío,me dio un poquito de frío,I got a little cold
+s:me asusté con las burbujas,me asusté con las burbujas,the bubbles scared me
+s:¡me encantaron las burbujas!,¡me encantaron las burbujas!,I loved the bubbles!
+s:quedé oliendo a flores,quedé oliendo a flores,now I smell like flowers
+s:Otro baño: {r},Otro baño: {r},Another bath: {r}
+s:ya no me asusta el agua,ya no me asusta el agua,water doesn't scare me anymore
+s:¡qué rica el agua tibia!,¡qué rica el agua tibia!,the warm water felt so nice!
+s:jugué con la espuma,jugué con la espuma,I played with the foam
+s:quedé suavecit{a},quedé suavecit{a},I'm super soft now
+s:Hoy tomé agua de mi tazón por primera vez: {r},Hoy tomé agua de mi tazón por primera vez: {r},Today I drank water from my bowl for the first time: {r}
+s:¡qué fresquita!,¡qué fresquita!,so fresh!
+s:me mojé un poco la nariz,me mojé un poco la nariz,I got my nose a little wet
+"s:glup glup, ¡rica!","glup glup, ¡rica!","gulp gulp, yummy!"
+s:Agüita otra vez: {r},Agüita otra vez: {r},Water again: {r}
+s:¡fresquita!,¡fresquita!,nice and fresh!
+s:me encanta mi tazón,me encanta mi tazón,I love my bowl
+s:glup glup,glup glup,gulp gulp
+s:Hoy me hiciste mi primer mimo y {r},Hoy me hiciste mi primer mimo y {r},Today you gave me my first cuddle and {r}
+s:me sentí muy querid{a},me sentí muy querid{a},I felt so loved
+s:me dio cosquillas,me dio cosquillas,it tickled
+s:me puse colorad{a},me puse colorad{a},I blushed
+s:Otro mimo: {r},Otro mimo: {r},Another cuddle: {r}
+s:me encantan tus mimos,me encantan tus mimos,I love your cuddles
+s:me quedé dormid{a} un ratito,me quedé dormid{a} un ratito,I fell asleep for a little while
+s:¡cosquillitas!,¡cosquillitas!,tickles!
+s:Hoy jugué a {x} por primera vez y {r},Hoy jugué a {x} por primera vez y {r},Today I played {x} for the first time and {r}
+s:¡estuvo súper!,¡estuvo súper!,it was awesome!
+s:me costó un poquito,me costó un poquito,it was a little hard
+s:¡quiero jugar otra vez!,¡quiero jugar otra vez!,I want to play again!
+s:aprendí algo nuevo,aprendí algo nuevo,I learned something new
+s:Jugamos a {x} otra vez: {r},Jugamos a {x} otra vez: {r},We played {x} again: {r}
+s:¡cada vez me sale mejor!,¡cada vez me sale mejor!,I keep getting better!
+s:¡qué divertido!,¡qué divertido!,so much fun!
+"s:me costó, pero lo logré","me costó, pero lo logré","it was hard, but I did it"
+s:Hoy probé {x} por primera vez y {r},Hoy probé {x} por primera vez y {r},Today I tried {x} for the first time and {r}
+s:hice un poco de lío,hice un poco de lío,I made a little mess
+s:¡me encantó!,¡me encantó!,I loved it!
+"s:no sabía cómo se usaba, pero aprendí","no sabía cómo se usaba, pero aprendí","I didn't know how to use it, but I learned"
+s:Volví a usar {x}: {r},Volví a usar {x}: {r},I used {x} again: {r}
+s:cada vez me sale mejor,cada vez me sale mejor,I keep getting better
+s:me quedé un rato largo,me quedé un rato largo,I stayed a long time
+s:Hoy estrené {x}: {r},Hoy estrené {x}: {r},Today I wore {x} for the first time: {r}
+s:¡me siento muy lind{a}!,¡me siento muy lind{a}!,I feel so cute!
+s:me queda un poquito grande,me queda un poquito grande,it's a little big on me
+s:¡me encanta!,¡me encanta!,I love it!
+s:me miré en el espejo un rato,me miré en el espejo un rato,I looked in the mirror for a while
+s:Me puse {x} otra vez: {r},Me puse {x} otra vez: {r},I wore {x} again: {r}
+s:me sigue encantando,me sigue encantando,I still love it
+s:me queda genial,me queda genial,it looks great on me
+s:Hoy conocí {x}: {r},Hoy conocí {x}: {r},Today I saw {x} for the first time: {r}
+s:¡es enorme!,¡es enorme!,it's huge!
+s:huele a nuevo,huele a nuevo,it smells new
+s:me dio un poquito de miedo,me dio un poquito de miedo,it was a little scary
+s:Hoy dormí por primera vez en mi camita: {r},Hoy dormí por primera vez en mi camita: {r},Today I slept in my little bed for the first time: {r}
+s:soñé cosas lindas,soñé cosas lindas,I had sweet dreams
+s:me dio un poquito de miedo la oscuridad,me dio un poquito de miedo la oscuridad,the dark was a little scary
+s:estaba muy calentit{a},estaba muy calentit{a},I was nice and warm
+s:¡qué rico se duerme!,¡qué rico se duerme!,sleeping is so cozy!
+s:Hoy conocí a {x}: {r},Hoy conocí a {x}: {r},Today I met {x}: {r}
+s:al principio me dio vergüenza,al principio me dio vergüenza,I was shy at first
+s:nos olimos y ya somos amigos,nos olimos y ya somos amigos,we sniffed each other and now we're friends
+s:¡me cayó muy bien!,¡me cayó muy bien!,I really liked them!
+s:Volví a ver a {x}: {r},Volví a ver a {x}: {r},I saw {x} again: {r}
+s:¡nos divertimos mucho!,¡nos divertimos mucho!,we had so much fun!
+s:cada vez somos más amigos,cada vez somos más amigos,we're better friends every time
+s:me contó un secreto,me contó un secreto,they told me a secret
+s:¡quiero más!,¡quiero más!,I want more!
+s:¡fue una sorpresa riquísima!,¡fue una sorpresa riquísima!,it was a yummy surprise!
+s:me dio un poquito de desconfianza,me dio un poquito de desconfianza,I wasn't so sure about it
+s:sabía raro… pero lo voy a volver a probar,sabía raro… pero lo voy a volver a probar,it tasted funny… but I'll try it again
+s:no sé si me gustó,no sé si me gustó,I'm not sure I liked it
+s:no me convenció mucho,no me convenció mucho,I wasn't a fan
+s:hice una carita rara,hice una carita rara,I made a funny face
+s:Comí {x} otra vez: {r},Comí {x} otra vez: {r},I ate {x} again: {r}
+s:cada vez me gusta más,cada vez me gusta más,I like it more and more
+s:¡ñam ñam!,¡ñam ñam!,yum yum!
+s:ya es de mis favoritas,ya es de mis favoritas,it's one of my favorites now
+s:todavía no sé si me gusta,todavía no sé si me gusta,I'm still not sure if I like it
+s:me estoy acostumbrando,me estoy acostumbrando,I'm getting used to it
+s:todavía no me acostumbro,todavía no me acostumbro,I'm still not used to it
+s:prefiero otra cosa…,prefiero otra cosa…,I'd rather have something else…
+s:la sala,la sala,the living room
+s:el dormitorio,el dormitorio,the bedroom
+s:la cocina,la cocina,the kitchen
+s:la biblioteca,la biblioteca,the library
+s:el jardín,el jardín,the garden
+s:la terraza estelar,la terraza estelar,the star terrace
+s:toca el piano,toca el piano,plays the piano
+s:¡Un piano! ¿Me escuchas tocar?,¡Un piano! ¿Me escuchas tocar?,A piano! Will you listen to me play?
+s:¡Voy a componer una canción para ti!,¡Voy a componer una canción para ti!,I'm going to write a song for you!
+"s:¡Do, re, mi! ¡Qué lindo suena!","¡Do, re, mi! ¡Qué lindo suena!","Do, re, mi! It sounds so pretty!"
+s:descansa en el sofá,descansa en el sofá,rests on the sofa
+s:¡Un sofá! Qué suavecito…,¡Un sofá! Qué suavecito…,A sofa! So soft…
+s:¡Me voy a sentar aquí todo el día!,¡Me voy a sentar aquí todo el día!,I'm going to sit here all day!
+s:Ahh… qué cómodo.,Ahh… qué cómodo.,Ahh… so comfy.
+s:se hunde en el puff,se hunde en el puff,sinks into the beanbag
+s:¡Un puff! ¡Me hundo!,¡Un puff! ¡Me hundo!,A beanbag! I'm sinking!
+s:¡Es como sentarse en una nube!,¡Es como sentarse en una nube!,It's like sitting on a cloud!
+s:se sienta en el banquito,se sienta en el banquito,sits on the little stool
+s:¡Un banquito justo de mi tamaño!,¡Un banquito justo de mi tamaño!,A stool just my size!
+s:se acurruca en el cojín,se acurruca en el cojín,curls up on the cushion
+s:¡Un cojín calentito!,¡Un cojín calentito!,A warm cushion!
+s:Mmm… qué tibio.,Mmm… qué tibio.,Mmm… so warm.
+s:descansa en la cama,descansa en la cama,rests on the bed
+s:¡Una cama grande para mí!,¡Una cama grande para mí!,A big bed for me!
+s:¡Voy a probarla ahora mismo!,¡Voy a probarla ahora mismo!,I'm going to try it right now!
+s:se hamaca en el columpio,se hamaca en el columpio,swings on the swing
+"s:¡Un columpio! ¡Más alto, más alto!","¡Un columpio! ¡Más alto, más alto!","A swing! Higher, higher!"
+s:corre en la rueda,corre en la rueda,runs on the wheel
+s:¡Una rueda! ¡A correr!,¡Una rueda! ¡A correr!,A wheel! Let's run!
+s:¡Voy a ponerme fuerte!,¡Voy a ponerme fuerte!,I'm going to get strong!
+s:juega en el túnel,juega en el túnel,plays in the tunnel
+s:¡Un túnel! ¿Jugamos a las escondidas?,¡Un túnel! ¿Jugamos a las escondidas?,A tunnel! Want to play hide and seek?
+s:se rasca en el rascador,se rasca en el rascador,scratches on the scratching post
+s:¡Un rascador! ¡Justo lo que quería!,¡Un rascador! ¡Justo lo que quería!,A scratching post! Just what I wanted!
+s:se calienta bajo la lámpara,se calienta bajo la lámpara,warms up under the lamp
+s:¡Qué calorcito!,¡Qué calorcito!,So warm and cozy!
+s:se calienta junto a la chimenea,se calienta junto a la chimenea,warms up by the fireplace
+s:¡Una chimenea! Qué calentito.,¡Una chimenea! Qué calentito.,A fireplace! So warm.
+s:Me encanta mirar el fuego.,Me encanta mirar el fuego.,I love watching the fire.
+s:mira los peces,mira los peces,watches the fish
+"s:¡Peces! ¡Hola, pececitos!","¡Peces! ¡Hola, pececitos!","Fish! Hello, little fish!"
+s:¡Mira cómo nadan!,¡Mira cómo nadan!,Look how they swim!
+s:lee un libro de la biblioteca,lee un libro de la biblioteca,reads a book from the bookshelf
+s:¡Cuántos libros! ¿Cuál leo primero?,¡Cuántos libros! ¿Cuál leo primero?,So many books! Which one first?
+s:¡Me encantan los cuentos!,¡Me encantan los cuentos!,I love stories!
+s:dibuja en el escritorio,dibuja en el escritorio,draws at the desk
+s:¡Un escritorio! Voy a dibujar algo lindo.,¡Un escritorio! Voy a dibujar algo lindo.,A desk! I'll draw something pretty.
+s:hace girar el globo terráqueo,hace girar el globo terráqueo,spins the globe
+s:¡El mundo entero! ¿Dónde vivimos?,¡El mundo entero! ¿Dónde vivimos?,The whole world! Where do we live?
+s:juega con sus juguetes,juega con sus juguetes,plays with {his} toys
+s:¡Un baúl lleno de juguetes!,¡Un baúl lleno de juguetes!,A chest full of toys!
+s:¡A jugar!,¡A jugar!,Let's play!
+s:abraza al osito,abraza al osito,hugs the teddy bear
+s:¡Un osito! Le voy a dar un abrazo.,¡Un osito! Le voy a dar un abrazo.,A teddy bear! I'll give it a hug.
+s:¡Tú serás mi mejor amigo!,¡Tú serás mi mejor amigo!,You'll be my best friend!
+s:huele la planta,huele la planta,sniffs the plant
+s:¡Una planta! Huele a bosque.,¡Una planta! Huele a bosque.,A plant! It smells like a forest.
+s:toma un tecito en la mesita,toma un tecito en la mesita,has some tea at the little table
+s:¡Una mesita! ¿Tomamos un té?,¡Una mesita! ¿Tomamos un té?,A little table! Shall we have tea?
+s:ordena su cómoda,ordena su cómoda,tidies {his} dresser
+s:¡Una cómoda para guardar mis cosas!,¡Una cómoda para guardar mis cosas!,A dresser for my things!
+s:elige ropa del armario,elige ropa del armario,picks clothes from the wardrobe
+s:¡Un armario! ¿Qué me pongo hoy?,¡Un armario! ¿Qué me pongo hoy?,A wardrobe! What should I wear today?
+s:mira la luz de la lámpara,mira la luz de la lámpara,looks at the lamp's light
+s:¡Qué linda luz!,¡Qué linda luz!,What a pretty light!
+s:mira las estrellitas de la lámpara,mira las estrellitas de la lámpara,looks at the lamp's little stars
+s:¡Estrellitas! ¡Como el cielo de noche!,¡Estrellitas! ¡Como el cielo de noche!,Little stars! Like the night sky!
+s:admira el cuadro,admira el cuadro,admires the picture
+s:¡Qué cuadro tan lindo!,¡Qué cuadro tan lindo!,What a pretty picture!
+s:¡Es una obra de arte!,¡Es una obra de arte!,It's a work of art!
+s:Mmm… ¿qué habrá querido pintar?,Mmm… ¿qué habrá querido pintar?,Hmm… what did they want to paint?
+s:mira por la ventana,mira por la ventana,looks out the window
+s:¡Una ventana! ¡Se ve todo el barrio!,¡Una ventana! ¡Se ve todo el barrio!,A window! I can see the whole neighborhood!
+s:mira el reloj,mira el reloj,looks at the clock
+"s:Tic, tac… ¿ya es hora de comer?","Tic, tac… ¿ya es hora de comer?","Tick, tock… is it time to eat?"
+s:mira el arcoíris,mira el arcoíris,looks at the rainbow
+s:¡Un arcoíris! ¡Mi color favorito es… todos!,¡Un arcoíris! ¡Mi color favorito es… todos!,A rainbow! My favorite color is… all of them!
+s:mira los globos,mira los globos,looks at the balloons
+s:¡Globos! ¿Es una fiesta?,¡Globos! ¿Es una fiesta?,Balloons! Is it a party?
+s:mira la guirnalda,mira la guirnalda,looks at the garland
+s:¡Qué alegre se ve todo!,¡Qué alegre se ve todo!,Everything looks so cheerful!
+s:mira la luna y las estrellas,mira la luna y las estrellas,looks at the moon and stars
+s:¡La luna! Me da sueñito…,¡La luna! Me da sueñito…,The moon! It makes me sleepy…
+s:arma una torre con los cubos,arma una torre con los cubos,builds a tower with the blocks
+s:¡Cubos! Voy a hacer la torre más alta.,¡Cubos! Voy a hacer la torre más alta.,Blocks! I'll build the tallest tower.
+s:hojea sus libros,hojea sus libros,flips through {his} books
+s:¡Libros nuevos para leer!,¡Libros nuevos para leer!,New books to read!
+s:huele las flores,huele las flores,smells the flowers
+s:¡Flores! Huelen riquísimo.,¡Flores! Huelen riquísimo.,Flowers! They smell lovely.
+s:mira el cactus con cuidado,mira el cactus con cuidado,looks at the cactus carefully
+s:Un cactus… ¡mejor no lo toco!,Un cactus… ¡mejor no lo toco!,A cactus… better not touch it!
+s:mira la tarta con ganas,mira la tarta con ganas,looks at the cake hungrily
+s:¡Una tarta! ¿Es mi cumpleaños?,¡Una tarta! ¿Es mi cumpleaños?,A cake! Is it my birthday?
+s:mira el portarretrato,mira el portarretrato,looks at the photo frame
+s:¡Una foto! ¡Qué lindo recuerdo!,¡Una foto! ¡Qué lindo recuerdo!,A photo! What a sweet memory!
+s:escucha la caja musical,escucha la caja musical,listens to the music box
+s:¡Una caja musical! ¡Qué melodía tan dulce!,¡Una caja musical! ¡Qué melodía tan dulce!,A music box! What a sweet tune!
+s:juega con su robot,juega con su robot,plays with {his} robot
+"s:¡Un robot! Bip, bup… ¡hola, amigo!","¡Un robot! Bip, bup… ¡hola, amigo!","A robot! Beep, boop… hello, friend!"
+s:admira la copa,admira la copa,admires the trophy
+s:¡Una copa! ¡Soy un campeón!,¡Una copa! ¡Soy un campeón!,A trophy! I'm a champion!
+s:admira su dibujo,admira su dibujo,admires {his} drawing
+s:¡Qué dibujo tan lindo!,¡Qué dibujo tan lindo!,What a pretty drawing!
+s:¡Lo voy a mirar todos los días!,¡Lo voy a mirar todos los días!,I'm going to look at it every day!
+s:¡Qué lindo! ¿Es para mí?,¡Qué lindo! ¿Es para mí?,How pretty! Is it for me?
+s:¡Algo nuevo en mi cuarto!,¡Algo nuevo en mi cuarto!,Something new in my room!
+s:¡Me encanta cómo queda!,¡Me encanta cómo queda!,I love how it looks!
+s:¡Wow!,¡Wow!,Wow!
+s:Entrar a verlo,Entrar a verlo,Come and see {him}
+s:Mantener sus necesidades bien,Mantener sus necesidades bien,Keep {his} needs in good shape
+s:Darle de comer (2 veces),Darle de comer (2 veces),Feed {him} (2 times)
+s:Darle agua,Darle agua,Give {him} water
+s:Bañarlo,Bañarlo,Give {him} a bath
+s:Darle cariño (2 veces),Darle cariño (2 veces),Give {him} love (2 times)
+s:Jugar 2 minijuegos,Jugar 2 minijuegos,Play 2 minigames
+s:Pasar un rato juntos,Pasar un rato juntos,Spend time together
+s:Visitar a otro Pompon,Visitar a otro Pompon,Visit another Pompon
+s:agua,agua,water
+s:mamá,mamá,mommy
+s:comida,comida,food
+s:hola,hola,hello
+s:gracias,gracias,thank you
+s:amigo,amigo,friend
+s:abrazo,abrazo,hug
+s:quiero,quiero,I want
+s:casa,casa,home
+s:familia,familia,family
+s:juntos,juntos,together
+s:siempre,siempre,always
+s:confío,confío,I trust
+s:Muy amable,Muy amable,Very kind
+s:Súper confiado,Súper confiado,Super trusting
+s:Muy generoso,Muy generoso,Very generous
+s:Curioso,Curioso,Curious
+s:Alegre,Alegre,Cheerful
+s:Amable,Amable,Kind
+s:Miedoso,Miedoso,Fearful
+s:Solitario,Solitario,Loner
+s:Tímido,Tímido,Shy
+s:Se lleva bien con todos,Se lleva bien con todos,Gets along with everyone
+s:Confía mucho en ti,Confía mucho en ti,Trusts you a lot
+s:Siempre quiere compartir,Siempre quiere compartir,Always wants to share
+s:Quiere saber cómo funciona todo,Quiere saber cómo funciona todo,Wants to know how everything works
+s:Contagia buen humor,Contagia buen humor,Spreads good cheer
+s:Trata bien a los demás,Trata bien a los demás,Treats others nicely
+s:Le cuesta confiar,Le cuesta confiar,Finds it hard to trust
+s:Prefiere estar solito,Prefiere estar solito,Likes being alone
+s:Le da vergüenza todo lo nuevo,Le da vergüenza todo lo nuevo,Feels shy about anything new
+s:¡Ahora sé decir «%s»!,¡Ahora sé decir «%s»!,Now I can say “%s”!
+s:Todavía no sé decir palabras nuevas…,Todavía no sé decir palabras nuevas…,I can't say any new words yet…
+s:¡Aprendí %d palabras nuevas: %s!,¡Aprendí %d palabras nuevas: %s!,I learned %d new words: %s!
+s:Crecí y ahora soy %s,Crecí y ahora soy %s,I grew up and now I'm %s
+s:«%s»,«%s»,“%s”
+s:Primeras veces,Primeras veces,First times
+s:Comidas,Comidas,Foods
+s:Lugares y amigos,Lugares y amigos,Places and friends
+s:Creciendo,Creciendo,Growing up
+s:Primer baño,Primer baño,First bath
+s:Báñalo,Báñalo,Give {him} a bath
+s:Primer trago de agua,Primer trago de agua,First sip of water
+s:Dale de beber,Dale de beber,Give {him} a drink
+s:Primer mimo,Primer mimo,First cuddle
+s:Hazle una caricia,Hazle una caricia,Give {him} a cuddle
+s:Primera noche en su camita,Primera noche en su camita,First night in {his} little bed
+s:Que duerma de noche,Que duerma de noche,Let {him} sleep at night
+s:Estrenó ropa,Estrenó ropa,New clothes
+s:Ponle ropa en el vestidor,Ponle ropa en el vestidor,Dress {him} up in the Closet
+s:Jugó a Matemáticas,Jugó a Matemáticas,Played Math
+s:Juega a Matemáticas,Juega a Matemáticas,Play Math
+s:Jugó a Memoria,Jugó a Memoria,Played Memory
+s:Juega a Memoria,Juega a Memoria,Play Memory
+s:Jugó a Patrones,Jugó a Patrones,Played Patterns
+s:Juega a Patrones,Juega a Patrones,Play Patterns
+s:Saltó al cielo,Saltó al cielo,Jumped to the sky
+s:Juega a Salto al cielo,Juega a Salto al cielo,Play Sky Jump
+s:Pintó su primer dibujo,Pintó su primer dibujo,Painted {his} first picture
+s:Juega a Pintar,Juega a Pintar,Play Painting
+s:Hizo su primera canción,Hizo su primera canción,Made {his} first song
+s:Juega a Hacer música,Juega a Hacer música,Play Making music
+s:Dale de comer %s,Dale de comer %s,Feed {him} %s
+s:Ábrela al subir de nivel,Ábrela al subir de nivel,Unlock it by leveling up
+s:Primer vecino,Primer vecino,First neighbor
+s:Visita a un vecino,Visita a un vecino,Visit a neighbor
+s:Primer amigo de verdad,Primer amigo de verdad,First real friend
+s:Agrega a un amigo con su código,Agrega a un amigo con su código,Add a friend with their code
+s:Mejores amigos,Mejores amigos,Best friends
+s:Llega a 75 de amistad con alguien,Llega a 75 de amistad con alguien,Reach 75 friendship with someone
+s:¡Nació!,¡Nació!,It hatched!
+s:Ya es niño,Ya es niño,Now a kid
+s:Crece hasta el día 8,Crece hasta el día 8,Grow until day 8
+s:Ya es adolescente,Ya es adolescente,Now a teen
+s:Crece hasta el día 22,Crece hasta el día 22,Grow until day 22
+s:Ya es grande,Ya es grande,All grown up
+s:Crece hasta el día 52,Crece hasta el día 52,Grow until day 52
+s:Su primera palabra,Su primera palabra,First word
+s:Cuídalo bien de bebé,Cuídalo bien de bebé,Take good care of {him} as a baby
+s:Aprendió una habilidad,Aprendió una habilidad,Learned a skill
+s:Juega y usa sus juguetes,Juega y usa sus juguetes,Play and use {his} toys
+s:Álbum de %s,Álbum de %s,%s's album
+s:%d de %d figuritas,%d de %d figuritas,%d of %d stickers
+s:Cerrar,Cerrar,Close
+s:Día %d,Día %d,Day %d
+s:Siempre quiere moverse y jugar,Siempre quiere moverse y jugar,Always wants to move and play
+"s:Tranquilo y sensible, le encantan los mimos","Tranquilo y sensible, le encantan los mimos","Calm and sensitive, loves cuddles"
+s:Le encanta explorar y aprender,Le encanta explorar y aprender,Loves to explore and learn
+s:Siempre piensa en la próxima comida,Siempre piensa en la próxima comida,Always thinking about the next meal
+s:Le gustan los colores y las cosas lindas,Le gustan los colores y las cosas lindas,Likes colors and pretty things
+s:Crecimiento,Crecimiento,Growth
+s:Personalidad,Personalidad,Personality
+s:Gustos,Gustos,Likes
+s:Aspecto,Aspecto,Looks
+s:Habilidades,Habilidades,Skills
+s:Nivel %d · día %d de vida,Nivel %d · día %d de vida,Level %d · day %d of life
+"s:
+Será %s en %d días","
+Será %s en %d días","
+%s in %d days"
+s:Crecimiento  %d%%,Crecimiento  %d%%,Growth  %d%%
+"s:Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas.","Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas.",Keep it up and {he}'ll grow with a great trait and 5 new words.
+"s:Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario.","Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario.","If you don't take better care of {him}, {he} could grow up shy, fearful or lonely."
+s:Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!,Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!,{He}'ll grow with normal traits. With more care {he} can go further!
+"s:Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti.","Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti.","Day %d of %d. Becomes a %s in %d days. Good care helps {him} learn, talk sooner and trust you."
+s:Hoy puedes sumar:,Hoy puedes sumar:,Today you can add:
+s:Ya terminó de crecer.,Ya terminó de crecer.,{He}'s all grown up.
+s:Todavía no empezó a crecer.,Todavía no empezó a crecer.,{He} hasn't started growing yet.
+s:Palabras que sabe,Palabras que sabe,Words {he} knows
+s:Todavía no dice palabras: solo sonidos.,Todavía no dice palabras: solo sonidos.,No words yet: only sounds.
+s:Rasgos que ganó al crecer,Rasgos que ganó al crecer,Traits {he} got while growing up
+s:De %s,De %s,As a %s
+s:Es,Es,Is
+s:Su personalidad se está formando: lo que viven juntos la moldea.,Su personalidad se está formando: lo que viven juntos la moldea.,{His} personality is still forming: what you do together shapes it.
+s:Su personalidad ya está formada.,Su personalidad ya está formada.,{His} personality is formed.
+s:Color favorito,Color favorito,Favorite color
+s:Lo está descubriendo…,Lo está descubriendo…,Still finding out…
+s:Le gusta el %s,Le gusta el %s,Likes %s
+s:Comida favorita,Comida favorita,Favorite food
+s:Todavía no tiene una favorita,Todavía no tiene una favorita,No favorite yet
+s:Todavía no probó ninguna comida.,Todavía no probó ninguna comida.,{He} hasn't tried any food yet.
+"s:Le faltan probar %d comidas. Al principio duda, pero de a poco se anima.","Le faltan probar %d comidas. Al principio duda, pero de a poco se anima.","%d foods left to try. {He}'s unsure at first, but little by little {he} gets braver."
+s:Juego favorito,Juego favorito,Favorite game
+s:Todavía no eligió,Todavía no eligió,Hasn't picked yet
+s:Habitación favorita,Habitación favorita,Favorite room
+s:Ojos %s · boca de %s · cara %s,Ojos %s · boca de %s · cara %s,%s eyes · %s mouth · %s face
+s:Las va desarrollando con los minijuegos y con los objetos de su cuarto.,Las va desarrollando con los minijuegos y con los objetos de su cuarto.,{He} builds them with minigames and the things in {his} room.
+s:¡Máximo!,¡Máximo!,Top!
+s:Se entrena con: ,Se entrena con: ,Trains with: 
+s:redondos,redondos,round
+s:ovalados,ovalados,oval
+s:brillantes,brillantes,sparkly
+s:tiernos,tiernos,sweet
+s:sonrisa,sonrisa,smile
+s:pico,pico,beak
+s:colmillitos,colmillitos,little fangs
+s:bigotes,bigotes,whiskers
+s:redonda,redonda,round
+s:ovalada,ovalada,oval
+s:ancha,ancha,wide
+s:Diario de %s,Diario de %s,%s's diary
+"s:Lo que piensa, siente y dice","Lo que piensa, siente y dice","What {he} thinks, feels and says"
+s:Álbum de recuerdos (%d/%d),Álbum de recuerdos (%d/%d),Memory album (%d/%d)
+"s:Todavía no hay recuerdos.
+%s irá anotando lo que piensa y siente.","Todavía no hay recuerdos.
+%s irá anotando lo que piensa y siente.","No memories yet.
+%s will write down what {he} thinks and feels."
+s:Hoy,Hoy,Today
+s:Ayer,Ayer,Yesterday
+s:ahora,ahora,now
+s:hace %d min,hace %d min,%d min ago
+s:¡Figurita nueva!,¡Figurita nueva!,New sticker!
+s:Pi pi… ¡ba!,Pi pi… ¡ba!,Pi pi… ba!

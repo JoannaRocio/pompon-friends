@@ -8,7 +8,11 @@ signal closed
 const INK := Color("5b3a4a")
 
 
+var _sex := ""   # (para {he}/{his} en inglés)
+
+
 func setup(p: Pompon) -> AlbumPanel:
+	_sex = p.sex
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	offset_left = 22
 	offset_right = -22
@@ -21,7 +25,7 @@ func setup(p: Pompon) -> AlbumPanel:
 	add_child(box)
 
 	var title := Label.new()
-	title.text = "Álbum de %s" % p.display_name()
+	title.text = T.s("Álbum de %s") % p.display_name()
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", Color("d6336c"))
@@ -33,7 +37,7 @@ func setup(p: Pompon) -> AlbumPanel:
 	bar.warn_low = false
 	bar.max_value = float(prog["total"])
 	bar.value = float(prog["won"])
-	bar.text = "%d de %d figuritas" % [prog["won"], prog["total"]]
+	bar.text = T.s("%d de %d figuritas") % [prog["won"], prog["total"]]
 	box.add_child(bar)
 
 	var scroll := ScrollContainer.new()
@@ -47,7 +51,7 @@ func setup(p: Pompon) -> AlbumPanel:
 	var all := PomponAlbum.stickers()
 	for page in PomponAlbum.PAGES.size():
 		var page_label := Label.new()
-		page_label.text = PomponAlbum.PAGES[page]
+		page_label.text = T.s(PomponAlbum.PAGES[page])
 		page_label.add_theme_font_size_override("font_size", 30)
 		page_label.add_theme_color_override("font_color", Color("a0527a"))
 		list.add_child(page_label)
@@ -62,7 +66,7 @@ func setup(p: Pompon) -> AlbumPanel:
 				grid.add_child(_sticker(s, PomponAlbum.unlocked(p, s["id"], now), PomponAlbum.day_won(p, s["id"])))
 
 	var close := Button.new()
-	close.text = "Cerrar"
+	close.text = T.s("Cerrar")
 	close.custom_minimum_size = Vector2(0, 80)
 	close.focus_mode = Control.FOCUS_NONE
 	Hud.style_primary(close, 34)
@@ -105,7 +109,7 @@ func _sticker(s: Dictionary, won: bool, day: int) -> Control:
 			art.draw_string(font, c + Vector2(-40, 14), "?", HORIZONTAL_ALIGNMENT_CENTER, 80, 40, Color("cbb8c4")))
 	col.add_child(art)
 	var name_label := Label.new()
-	name_label.text = s["title"] if won else s["hint"]
+	name_label.text = T.with_pron(s["title"] if won else s["hint"], _sex)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(120, 0)
@@ -115,6 +119,6 @@ func _sticker(s: Dictionary, won: bool, day: int) -> Control:
 	if won and day > 0:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_child(Hud.chip("Día %d" % day, Color("fff3d1"), Color("8a6d00"), 15))
+		row.add_child(Hud.chip(T.s("Día %d") % day, Color("fff3d1"), Color("8a6d00"), 15))
 		col.add_child(row)
 	return card

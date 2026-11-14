@@ -48,7 +48,7 @@ static func default_style(i: int) -> Dictionary:
 
 ## "en la sala", "en el jardín"... para armar frases.
 static func place_name(i: int) -> String:
-	return ["en la sala", "en el dormitorio", "en la cocina", "en la biblioteca", "en el jardín", "en la terraza estelar"][clampi(i, 0, 5)]
+	return T.s(["en la sala", "en el dormitorio", "en la cocina", "en la biblioteca", "en el jardín", "en la terraza estelar"][clampi(i, 0, 5)])
 
 
 ## Nombre corto para los botones de la barra de abajo.

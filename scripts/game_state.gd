@@ -654,7 +654,7 @@ func reward_minigame(earned_coins: int, game := "", ratio := 1.0) -> void:
 		for e in PomponSkills.on_game(pompon, game, ratio):
 			pending_thoughts.append(e)
 		if PomponTastes.GAMES.has(game):  # primera vez que juega a esto (o, cada tanto, otra vez)
-			_first("game", game, PomponTastes.GAMES[game])
+			_first("game", game, PomponTastes.game_name(game))
 	_taste_check()
 	if pompon != null:
 		pompon.add_stat("inteligencia", 1.0)

@@ -14,11 +14,13 @@ extends RefCounted
 ## El idioma se elige en el menu (GameState.language); vacio = el del celular.
 
 const LANGS := ["es", "en"]
+static var _applied := false   # (si algo pide un texto antes de que GameState cargue la partida, se usa el del celular)
 const LANG_NAMES := {"es": "Español", "en": "English"}
 
 
 ## Texto de una clave, con {marcadores} reemplazados.
 static func t(key: String, params := {}) -> String:
+	_ensure()
 	var s := String(TranslationServer.translate(key))
 	if not params.is_empty():
 		s = s.format(params)
@@ -27,6 +29,7 @@ static func t(key: String, params := {}) -> String:
 
 ## Igual que t(), con variante por genero ("f", "m" o "n").
 static func g(key: String, gender: String, params := {}) -> String:
+	_ensure()
 	var gk := key + "." + gender
 	if gender != "" and String(TranslationServer.translate(gk)) != gk:
 		return t(gk, params)
@@ -43,6 +46,7 @@ static func n(key: String, count: int, params := {}) -> String:
 ## Texto con el español como clave ("s:" + texto): T.s("Tienda") -> "Shop". Si no esta en el CSV, queda en
 ## español. Con `params`, reemplaza {marcadores}. Es la forma mas simple para textos nuevos.
 static func s(spanish: String, params := {}) -> String:
+	_ensure()
 	var k := "s:" + spanish
 	var out := String(TranslationServer.translate(k))
 	if out == k:
@@ -52,6 +56,7 @@ static func s(spanish: String, params := {}) -> String:
 
 ## Nombre de un dato por su id ("item.hat_bow", "food.pizza"...); si no esta, `fallback`.
 static func data(prefix: String, id: String, fallback: String) -> String:
+	_ensure()
 	var k := prefix + "." + id
 	var out := String(TranslationServer.translate(k))
 	return fallback if out == k else out
@@ -59,13 +64,28 @@ static func data(prefix: String, id: String, fallback: String) -> String:
 
 ## Etiqueta de un boton cuyo texto en español es tambien su identificador. Si no esta en el CSV, queda igual.
 static func label(spanish: String) -> String:
+	_ensure()
 	var k := "ui." + spanish
 	var out := String(TranslationServer.translate(k))
 	return spanish if out == k else out
 
 
+## Pronombres en inglés del Pompon para las frases ({he}, {He}, {his}, {His}, {him}, {himself}):
+## "Hembra" -> she/her, "Macho" -> he/his. (En español no se usan: el genero va con {a}.)
+static func pron(sex: String) -> Dictionary:
+	if sex == "Hembra":
+		return {"he": "she", "He": "She", "his": "her", "His": "Her", "him": "her", "himself": "herself"}
+	return {"he": "he", "He": "He", "his": "his", "His": "His", "him": "him", "himself": "himself"}
+
+
+## Completa {he}, {his}... de un texto en inglés con el sexo del Pompon (si no hay marcadores, igual).
+static func with_pron(text: String, sex: String) -> String:
+	return text.format(pron(sex)) if text.contains("{") else text
+
+
 ## Idioma en uso ("es" o "en").
 static func lang() -> String:
+	_ensure()
 	return TranslationServer.get_locale().left(2)
 
 
@@ -79,4 +99,10 @@ static func device_lang() -> String:
 
 ## Aplica un idioma ("" = el del celular).
 static func apply(language: String) -> void:
+	_applied = true
 	TranslationServer.set_locale(language if language in LANGS else device_lang())
+
+
+static func _ensure() -> void:
+	if not _applied:
+		apply("")

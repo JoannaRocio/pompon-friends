@@ -484,7 +484,7 @@ func _placed_entry(id: String) -> Dictionary:
 func _play_info(id: String) -> Dictionary:
 	var info := PomponPlay.play_of(id)
 	if info.is_empty():
-		info = {"pose": "look", "secs": [4.0, 6.0], "fx": "sparkle", "text": "mira " + PomponThoughts._poss(id).replace("mi ", "su ").replace("mis ", "sus "), "stats": {}}
+		info = {"pose": "look", "secs": [4.0, 6.0], "fx": "sparkle", "text": PomponPlay.action_text(id), "stats": {}}
 	return info
 
 
@@ -574,7 +574,7 @@ func _start_play() -> void:
 	pet.face_mood = "happy" if _play_spot["pose"] in ["look", "lie", "sit"] else ""
 	if _play_spot["pose"] == "lie":
 		pet.sleep_props = "bed"
-	_practice_text = "%s %s" % [p.display_name(), info["text"]]
+	_practice_text = ("%s %s" % [p.display_name(), T.s(str(info["text"]))]).format(T.pron(p.sex))
 	_practice_left = _play_t
 	_activity_timer = 0.0
 	if _play_new:
@@ -1610,20 +1610,20 @@ func _show_journal() -> void:
 	box.add_theme_constant_override("separation", 10)
 	_journal_panel.add_child(box)
 	var head := Label.new()
-	head.text = "Diario de %s" % GameState.pompon.display_name()
+	head.text = T.s("Diario de %s") % GameState.pompon.display_name()
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.add_theme_font_size_override("font_size", 40)
 	head.add_theme_color_override("font_color", Color("d6336c"))
 	box.add_child(head)
 	var sub := Label.new()
-	sub.text = "Lo que piensa, siente y dice"
+	sub.text = T.with_pron(T.s("Lo que piensa, siente y dice"), GameState.pompon.sex)
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.add_theme_font_size_override("font_size", 22)
 	sub.add_theme_color_override("font_color", Color("a0527a"))
 	box.add_child(sub)
 	var prog := PomponAlbum.progress(GameState.pompon, int(Time.get_unix_time_from_system()))
 	var album := Button.new()
-	album.text = "Álbum de recuerdos (%d/%d)" % [prog["won"], prog["total"]]
+	album.text = T.s("Álbum de recuerdos (%d/%d)") % [prog["won"], prog["total"]]
 	album.custom_minimum_size = Vector2(0, 68)
 	album.focus_mode = Control.FOCUS_NONE
 	Hud.style_primary(album, 26, Color("ffb938"))
@@ -1643,7 +1643,7 @@ func _show_journal() -> void:
 	var journal: Array = GameState.journal
 	if journal.is_empty():
 		var empty := Label.new()
-		empty.text = "Todavía no hay recuerdos.\n%s irá anotando lo que piensa y siente." % GameState.pompon.display_name()
+		empty.text = T.with_pron(T.s("Todavía no hay recuerdos.\n%s irá anotando lo que piensa y siente.") % GameState.pompon.display_name(), GameState.pompon.sex)
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty.add_theme_font_size_override("font_size", 28)
@@ -1660,7 +1660,7 @@ func _show_journal() -> void:
 			list.add_child(_journal_day_label(day, (now + bias) / 86400, int(e["t"]) + bias))
 		list.add_child(_journal_card(e, now, bias))
 	var close := Button.new()
-	close.text = "Cerrar"
+	close.text = T.s("Cerrar")
 	close.custom_minimum_size = Vector2(0, 80)
 	Hud.style_primary(close, 34)
 	close.pressed.connect(func():
@@ -1672,9 +1672,9 @@ func _show_journal() -> void:
 func _journal_day_label(day: int, today: int, local_t: int) -> Label:
 	var l := Label.new()
 	if day == today:
-		l.text = "Hoy"
+		l.text = T.s("Hoy")
 	elif day == today - 1:
-		l.text = "Ayer"
+		l.text = T.s("Ayer")
 	else:
 		var d := Time.get_date_dict_from_unix_time(local_t)
 		l.text = "%d/%d" % [d["day"], d["month"]]
@@ -1704,9 +1704,9 @@ func _journal_card(e: Dictionary, now: int, bias: int) -> PanelContainer:
 	col.add_theme_constant_override("separation", 2)
 	row.add_child(col)
 	var age := now - int(e["t"])
-	var when := "ahora" if age < 60 else ("hace %d min" % (age / 60) if age < 3600 else "%02d:%02d" % [Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["hour"], Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["minute"]])
+	var when := T.s("ahora") if age < 60 else (T.s("hace %d min") % (age / 60) if age < 3600 else "%02d:%02d" % [Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["hour"], Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["minute"]])
 	var meta := Label.new()
-	meta.text = "%s · %s" % [String(PomponThoughts.KIND_VERBS[e["kind"]]).capitalize(), when]
+	meta.text = "%s · %s" % [T.s(String(PomponThoughts.KIND_VERBS[e["kind"]])).capitalize(), when]
 	meta.add_theme_font_size_override("font_size", 20)
 	meta.add_theme_color_override("font_color", color.darkened(0.25))
 	col.add_child(meta)
@@ -1957,7 +1957,7 @@ func _show_food_menu() -> void:
 	head.add_theme_color_override("font_color", Color("d6336c"))
 	box.add_child(head)
 	var sub := Label.new()
-	sub.text = T.s("Lo nuevo le da desconfianza… ¡pero de a poco se anima!")
+	sub.text = T.with_pron(T.s("Lo nuevo le da desconfianza… ¡pero de a poco se anima!"), p.sex if p != null else "")
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sub.add_theme_font_size_override("font_size", 22)
@@ -2082,7 +2082,7 @@ func _on_food(food: Dictionary) -> void:
 	GameState.note_event("fed")
 	var first := {}
 	if food.has("id"):  # primera vez que la prueba (o, cada tanto, otra vez): queda en el diario
-		first = PomponFirsts.experience(p, "food", food["id"], String(food["name"]).to_lower(), now, _mood_rng, _food_liking(p, food["id"]))
+		first = PomponFirsts.experience(p, "food", food["id"], PomponTastes.food_name(food["id"]).to_lower(), now, _mood_rng, _food_liking(p, food["id"]))
 	if not first.is_empty():
 		_log_first(first)
 	elif not taste.is_empty() and str(taste["text"]) != "" and PomponTastes.times_eaten(p, food["id"]) > 1:
@@ -2651,12 +2651,12 @@ func _sticker_toast(s: Dictionary) -> void:
 	texts.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(texts)
 	var t1 := Label.new()
-	t1.text = "¡Figurita nueva!"
+	t1.text = T.s("¡Figurita nueva!")
 	t1.add_theme_font_size_override("font_size", 20)
 	t1.add_theme_color_override("font_color", Color("b87400"))
 	texts.add_child(t1)
 	var t2 := Label.new()
-	t2.text = s["title"]
+	t2.text = T.with_pron(s["title"], GameState.pompon.sex if GameState.pompon != null else "")
 	t2.add_theme_font_size_override("font_size", 26)
 	t2.add_theme_color_override("font_color", Hud.INK)
 	texts.add_child(t2)

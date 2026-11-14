@@ -30,21 +30,21 @@ const SMART_LINES := [
 static func line(p: Pompon, now: int, pick := -1) -> String:
 	var stage := p.stage_index(now)
 	if stage == 0:
-		return "¡Necesito una cuna para nacer!"
+		return T.t("home.need_crib")
 	var need := _most_urgent_need(p)
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	if stage == 1:  # Bebe: solo sonidos y emoticonos.
 		var pool: Array = BABY_NEED if need != "" else BABY_HAPPY
-		return pool[(pick if pick >= 0 else rng.randi()) % pool.size()]
+		return T.s(pool[(pick if pick >= 0 else rng.randi()) % pool.size()])
 	if need != "":
 		var lines: Array = NEED_LINES[need]
-		return lines[(pick if pick >= 0 else rng.randi()) % lines.size()]
+		return T.s(lines[(pick if pick >= 0 else rng.randi()) % lines.size()])
 	# Sin urgencias: la inteligencia define la calidad de las respuestas.
 	var pool: Array = PERSONALITY_LINES.get(p.personality, ["Hola!"])
 	if p.stats["inteligencia"] >= 5.0 and stage >= 2:
 		pool = pool + SMART_LINES
-	return pool[(pick if pick >= 0 else rng.randi()) % pool.size()]
+	return T.s(pool[(pick if pick >= 0 else rng.randi()) % pool.size()])
 
 
 static func _most_urgent_need(p: Pompon) -> String:
