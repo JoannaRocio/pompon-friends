@@ -7,7 +7,7 @@ signal closed
 
 
 func setup(camino: String, level: int) -> void:
-	var problems := Jobs.problems(Jobs.subject_of(camino))
+	var problems := Jobs.problems_of_track(camino)
 	var data: Dictionary = problems.lesson(camino, level)
 	add_theme_stylebox_override("panel", Hud.card(Color("fffafc"), 40, Color("ffb3d1"), 6, 16))
 	var box := VBoxContainer.new()

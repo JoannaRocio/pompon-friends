@@ -210,6 +210,72 @@ func _area_jobs(t: GDScript) -> void:
 		await process_frame
 
 
+## Area 3: en inglés, la clase de Inglés pasa a ser clase de Español (caminos es_*, aparte de en_*).
+func _area_spanish_class(t: GDScript) -> void:
+	var Jobs: GDScript = load("res://scripts/jobs.gd")
+	var Es: GDScript = load("res://scripts/spanish_problems.gd")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	gs.reset_game()
+	gs.set_language("es")
+	print("en español: materia='", Jobs.subject_name("english"), "' | puesto='", Jobs.title("english", "f"), "' | caminos=", Jobs.problems("english").TRACKS)
+	gs.set_language("en")
+	print("en ingles: materia='", Jobs.subject_name("english"), "' | puesto='", Jobs.title("english", "f"), "' | aviso='", Jobs.blurb(Jobs.get_job("english")), "' | caminos=", Jobs.problems("english").TRACKS)
+	for track in Es.TRACKS:
+		var ok := true
+		for level in range(1, 11):
+			for it in Es.items(track, level):
+				var p: Dictionary = Es.build_problem(track, level, it, rng)
+				ok = ok and p["options"].size() == 3 and p["options"].has(p["answer"]) and p["say"] == "" and p["speak_lang"] == "es"
+		var sample: Dictionary = Es.build_problem(track, 3, Es.items(track, 3)[0], rng)
+		print("  ", track, " (", Es.track_label(track), "): todas bien=", ok, " | ej: '", sample["prompt"], "' -> ", sample["options"], " respuesta '", sample["answer"], "' | ", sample["ask"], " | voz: '", sample["speak"], "'")
+	print("  explicacion: ", Es.explanation(Es.build_problem("es_words", 1, Es.items("es_words", 1)[0], rng)), " | ", Es.explanation(Es.build_problem("es_phrases", 2, Es.items("es_phrases", 2)[0], rng)))
+	print("  leccion: ", Es.lesson("es_meaning", 1)["title"], " | ", Es.lesson("es_meaning", 1)["lines"][0].replace("
+", " / "))
+	# progreso aparte: es_* no toca en_*
+	var p1: Dictionary = Es.build_problem("es_words", 1, Es.items("es_words", 1)[0], rng)
+	gs.record_answer("es_words", p1, false, 3.0)
+	gs.finish_job("es_words", 0, 1, false)
+	gs.save_game()
+	var saved: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("user://save.json"))
+	gs.apply_save(saved)
+	print("progreso: es_words respondidas=", gs.math_state("es_words")["answered"], " | en_words=", gs.math_progress.has("en_words"), " | repaso es_words=", gs.weak_facts("es_words").size(), " | dio la clase (en)=", gs.taught("english"))
+	gs.set_language("es")
+	print("  en español (clase de Inglés): dio la clase=", gs.taught("english"), " | camino=", Jobs.current_track("english"))
+	gs.set_language("en")
+	print("  en ingles: camino=", Jobs.current_track("english"))
+	# pantallas
+	gs.set_profile("Ana", "f")
+	gs.age_group = "adult"
+	gs.tips_seen.append_array(["job_intro", "job_hired", "job_first_shift", "job_english"])
+	var board: Control = load("res://scenes/job_board.tscn").instantiate()
+	root.add_child(board)
+	await create_timer(0.3).timeout
+	print("periodico (en): ", _texts(board).filter(func(s): return "Spanish" in s))
+	board.queue_free()
+	Jobs.current = "english"
+	var office: Control = load("res://scenes/job_menu.tscn").instantiate()
+	root.add_child(office)
+	await create_timer(0.3).timeout
+	var ot := _texts(office)
+	print("aula (en): ", ot.filter(func(s): return s in ["Spanish classroom", "Words", "What does it mean?", "Sentences", "Colors", "Greetings", "I am, you are"]), " | sigue en español: ", _spanish_left(ot, ["Ana", "¿?", "¡Hola!"]))
+	office.queue_free()
+	for track in Es.TRACKS:
+		Jobs.set_track(track)
+		var game: Control = load("res://scenes/job_game.tscn").instantiate()
+		root.add_child(game)
+		await create_timer(0.3).timeout
+		game._close_layer()
+		game.state = game.State.PLAY
+		game._open_question()
+		await process_frame
+		var qt := _texts(game)
+		print("  examen ", track, ": ", qt.filter(func(s): return s.ends_with("?") or s.ends_with("test")), " | sigue en español (sin contar las opciones): ", _spanish_left(qt, game._problem["options"] + [game._problem["prompt"], "Ana"]))
+		game.queue_free()
+		await process_frame
+	Jobs.current = "math"
+
+
 func _initialize() -> void:
 	_load_spanish_only()
 	await process_frame
@@ -356,6 +422,7 @@ func _initialize() -> void:
 	await _code_check(t)
 	await _area_shop(t)
 	await _area_jobs(t)
+	await _area_spanish_class(t)
 
 	gs.language = ""
 	gs.reset_game()

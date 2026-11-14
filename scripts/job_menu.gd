@@ -5,8 +5,9 @@ extends Control
 
 const COLORS := {"addsub": Color("ff9b54"), "mul": Color("e0609e"), "div": Color("4cb782"),
 	"en_words": Color("5aa9e6"), "en_meaning": Color("8a7be0"), "en_phrases": Color("3cb8a0"),
+	"es_words": Color("5aa9e6"), "es_meaning": Color("8a7be0"), "es_phrases": Color("3cb8a0"),
 	"geo_capitals": Color("4cb782"), "geo_flags": Color("ff8a5b"), "geo_mix": Color("5aa9e6")}
-const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "¿?", "en_phrases": "Hi!", "geo_capitals": "", "geo_flags": "", "geo_mix": ""}
+const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "¿?", "en_phrases": "Hi!", "es_words": "ABC", "es_meaning": "¿?", "es_phrases": "¡Hola!", "geo_capitals": "", "geo_flags": "", "geo_mix": ""}
 
 var _layer: Control
 var _arrow: GuideArrow

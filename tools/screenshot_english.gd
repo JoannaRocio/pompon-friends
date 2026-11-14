@@ -139,6 +139,24 @@ func _initialize() -> void:
 				await process_frame
 			await _shot("17-nota.png")
 		await _clear()
+
+	# clase de Español (la materia de idiomas cuando se juega en inglés)
+	Jobs.current = "english"
+	var es_office: Control = load("res://scenes/job_menu.tscn").instantiate()
+	_add(es_office)
+	await _shot("18-aula-espanol.png", 1.0)
+	await _clear()
+	for track in ["es_words", "es_meaning"]:
+		Jobs.set_track(track)
+		var es_game: Control = load("res://scenes/job_game.tscn").instantiate()
+		_add(es_game)
+		await create_timer(0.6).timeout
+		es_game._close_layer()
+		es_game.state = es_game.State.PLAY
+		es_game._open_question()
+		await _shot("19-examen-espanol.png" if track == "es_words" else "20-examen-espanol-significado.png")
+		await _clear()
+	Jobs.current = "math"
 	gs.reset_game()
 	gs.set_language("")
 	quit()

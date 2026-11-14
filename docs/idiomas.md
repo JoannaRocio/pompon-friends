@@ -96,8 +96,13 @@ Cantidad aproximada de textos en español que quedan en cada archivo:
 (Cuenta hecha a ojo con un script: textos entre comillas con espacios o acentos.) También falta la ficha de
 la tienda en inglés (`docs/store/store-listing.md`) y las capturas para la tienda en inglés.
 
-## Nota de diseño (para más adelante, no está hecho)
-En inglés, la **clase de Inglés pasa a ser clase de Español**: las mismas palabras y frases al revés
-(se muestra la palabra en inglés y se elige cómo se dice en español), con la voz en español del celular
-(`Speech`, texto a voz) y la pronunciación escrita a la inglesa. El nombre de la materia, la ficha de
-profesor/a y el periódico dirían "Spanish".
+## Clase de Español (hecho el 14/11/2026)
+Cuando se juega en inglés, la materia de idiomas (id `english`) es **clase de Español**
+(`SpanishProblems`, "Spanish Teacher"): usa las mismas palabras y frases de `EnglishProblems` al revés.
+"Words" muestra la palabra en inglés (con su dibujo) y se elige en español; "What does it mean?" muestra la
+palabra en español y se elige en inglés; "Sentences" muestra la frase en inglés y se elige en español. La
+voz del teléfono dice el español (`Speech.say(texto, "es")`, si el teléfono tiene una voz en español); la
+pronunciación escrita no se muestra. El progreso va en caminos propios `es_words`, `es_meaning`,
+`es_phrases` (no se mezcla con `en_*`). `Jobs.problems("english")` elige según el idioma y
+`Jobs.problems_of_track(camino)` siempre devuelve el de ese camino. Los textos de esa clase están escritos
+directamente en inglés en `spanish_problems.gd` (solo se ven en inglés).

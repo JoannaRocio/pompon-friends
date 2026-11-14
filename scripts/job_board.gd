@@ -243,7 +243,7 @@ func _make_ad(job: Dictionary) -> Control:
 		name_label.add_theme_color_override("font_color", Color(INK, 0.55))
 	info.add_child(name_label)
 	var blurb := Label.new()
-	blurb.text = T.s(job["blurb"])
+	blurb.text = Jobs.blurb(job)
 	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	blurb.add_theme_font_size_override("font_size", 22)
 	blurb.add_theme_color_override("font_color", Color("a0527a") if available else Color(INK, 0.45))

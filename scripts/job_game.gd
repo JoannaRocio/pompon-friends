@@ -9,7 +9,7 @@ extends Control
 enum State { INTRO, PLAY, QUESTION, END }
 
 const INK := Color("5b3a4a")
-const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "Hi!", "en_phrases": "I am",
+const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC", "en_meaning": "Hi!", "en_phrases": "I am", "es_words": "ABC", "es_meaning": "¡Hola!", "es_phrases": "Yo soy",
 	"geo_capitals": "Mundo", "geo_flags": "Mundo", "geo_mix": "Mundo"}
 const SIGNAL_FIRST := 6.0
 const SIGNAL_GAP := Vector2(11.0, 15.0)
@@ -504,28 +504,31 @@ func _english_prompt(box: VBoxContainer) -> void:
 		art.custom_minimum_size = Vector2(0, 190)
 		art.show_pic(pic)
 		box.add_child(art)
-	var phrase: bool = camino == "en_phrases"
+	var phrase: bool = camino.ends_with("_phrases")
 	var prompt := _label(_problem["prompt"], 50 if phrase else 66)
 	prompt.name = "Prompt"
 	box.add_child(prompt)
-	if camino == "en_meaning":  # como se lee en ingles (y si el telefono tiene voz, se puede escuchar)
+	if camino.ends_with("_meaning"):  # como se lee (y si el telefono tiene voz, se puede escuchar)
+		var lang: String = _problem.get("speak_lang", "en")
 		var say_row := HBoxContainer.new()
 		say_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		say_row.add_theme_constant_override("separation", 10)
-		say_row.add_child(Hud.chip(T.s("Se dice: %s") % _problem["say"], Color("e6efff"), Color("3f66b0"), 24))
-		if Speech.available():
-			say_row.add_child(_speak_button(_problem["en"]))
-		box.add_child(say_row)
+		if str(_problem["say"]) != "":   # (en la clase de Español no se escribe la pronunciacion)
+			say_row.add_child(Hud.chip(T.s("Se dice: %s") % _problem["say"], Color("e6efff"), Color("3f66b0"), 24))
+		if Speech.available(lang):
+			say_row.add_child(_speak_button(_problem.get("speak", _problem["en"]), lang))
+		if say_row.get_child_count() > 0:
+			box.add_child(say_row)
 	box.add_child(_label(_problem["ask"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 
 
-## Boton con un parlante: dice la palabra en ingles con la voz del telefono.
-func _speak_button(text: String) -> Button:
+## Boton con un parlante: dice la palabra con la voz del telefono (en ingles, o en español en esa clase).
+func _speak_button(text: String, lang := "en") -> Button:
 	var b := Button.new()
 	b.custom_minimum_size = Vector2(64, 52)
 	b.focus_mode = Control.FOCUS_NONE
 	Hud.style_soft(b, 20)
-	b.pressed.connect(func(): Speech.say(text))
+	b.pressed.connect(func(): Speech.say(text, lang))
 	var icon := Control.new()
 	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -599,6 +602,9 @@ func _on_option(button: Button) -> void:
 ## Ingles, ya respondido: la frase queda completa, se ve como se pronuncia y se escucha (si hay voz).
 func _english_answered(box: VBoxContainer) -> void:
 	var prompt: Label = box.get_node_or_null("Prompt")
+	if _problem.get("speak_lang", "en") == "es":   # clase de Español: se escucha el español
+		Speech.say(_problem["speak"], "es")
+		return
 	if camino == "en_phrases":
 		if prompt != null:
 			prompt.text = _problem["text"]

@@ -42,34 +42,52 @@ static func get_job(id: String) -> Dictionary:
 	return {}
 
 
-## La materia de un camino: los de ingles empiezan con "en_".
+## La materia de un camino: los de ingles empiezan con "en_" (y los de español, "es_": la misma materia
+## de idiomas cuando se juega en inglés).
 static func subject_of(track: String) -> String:
-	if track.begins_with("en_"):
+	if track.begins_with("en_") or track.begins_with("es_"):
 		return "english"
 	return "geography" if track.begins_with("geo_") else "math"
 
 
-## El script con las preguntas de la materia (MathProblems, EnglishProblems o GeographyProblems).
+## ¿La materia de idiomas es Español? (cuando se juega en inglés, la clase de Inglés pasa a ser de Español)
+static func teaches_spanish() -> bool:
+	return T.lang() == "en"
+
+
+## El script con las preguntas de la materia (MathProblems, EnglishProblems/SpanishProblems o GeographyProblems).
 static func problems(subject: String) -> GDScript:
 	match subject:
 		"english":
-			return EnglishProblems
+			return SpanishProblems if teaches_spanish() else EnglishProblems
 		"geography":
 			return GeographyProblems
 	return MathProblems
+
+
+## El script de un camino, sin importar el idioma ("es_..." es siempre Español).
+static func problems_of_track(track: String) -> GDScript:
+	if track.begins_with("es_"):
+		return SpanishProblems
+	if track.begins_with("en_"):
+		return EnglishProblems
+	return problems(subject_of(track))
 
 
 ## El camino elegido en el aula de esa materia.
 static func current_track(subject: String) -> String:
 	match subject:
 		"english":
-			return EnglishProblems.current_track
+			return SpanishProblems.current_track if teaches_spanish() else EnglishProblems.current_track
 		"geography":
 			return GeographyProblems.current_track
 	return MathProblems.current_track
 
 
 static func set_track(track: String) -> void:
+	if track.begins_with("es_"):
+		SpanishProblems.current_track = track
+		return
 	match subject_of(track):
 		"english":
 			EnglishProblems.current_track = track
@@ -86,12 +104,23 @@ static func normalize(gender: String) -> String:
 
 static func title(job_id: String, gender: String) -> String:
 	var job := get_job(job_id)
+	if job_id == "english" and teaches_spanish():
+		return "Spanish Teacher"   # (solo se ve en inglés)
 	return "" if job.is_empty() else T.s(job["title"][normalize(gender)])
 
 
 ## Nombre de la materia en el idioma actual.
 static func subject_name(id: String) -> String:
+	if id == "english" and teaches_spanish():
+		return "Spanish"
 	return T.s(SUBJECT_NAMES.get(id, SUBJECT_NAMES["math"]))
+
+
+## Lo que dice el aviso del periodico.
+static func blurb(job: Dictionary) -> String:
+	if job.get("id", "") == "english" and teaches_spanish():
+		return "Words and phrases in Spanish"
+	return T.s(job["blurb"])
 
 
 ## Palabra suelta: "Profesora", "Profesor" o "Profesor/a".
