@@ -2286,6 +2286,7 @@ func _kid_name_grid(box: VBoxContainer, p: Pompon) -> void:
 	ok.pressed.connect(func():
 		if picker.chosen == "":
 			return
+		GameState.rename_in_texts(GameState.pompon.nickname, picker.chosen)   # (si tenia un nombre viejo)
 		GameState.pompon.nickname = picker.chosen
 		GameState.save_game()
 		Audio.play("success")
@@ -2331,11 +2332,14 @@ func _kid_pick_player() -> void:
 	if GameState.is_kid_player_name(GameState.player_name):
 		_kid_pick_pompon()
 		return
+	var old_name := GameState.player_name
 	var dialog := ProfileDialog.new()
 	_kid_layer = dialog
 	add_child(dialog)
 	dialog.setup(false)
 	dialog.accepted.connect(func():
+		GameState.rename_in_texts(old_name, GameState.player_name)
+		GameState.save_game()
 		dialog.queue_free()
 		_kid_layer = null
 		_kid_pick_pompon())

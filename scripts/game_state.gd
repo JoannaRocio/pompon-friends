@@ -980,13 +980,76 @@ func kid_names_needed() -> bool:
 	return pompon != null and pompon.nickname != "" and not is_kid_pompon_name(pompon.nickname)
 
 
-## La partida para subir a la nube (con los nombres cuidados en modo chicos).
+## La partida para subir a la nube (con los nombres cuidados en modo chicos). Si un nombre escrito a mano
+## (que no es de las listas) quedo dentro de algun texto guardado (diario, despedida...), tambien se cambia.
 func upload_dict() -> Dictionary:
 	var d := save_dict()
+	if not kids_mode():
+		return d
+	var swaps := {}
+	if shareable_player_name() != player_name and player_name != "":
+		swaps[player_name] = KID_PLAYER_STANDIN
+	if pompon != null and shareable_pompon_name() != pompon.nickname and pompon.nickname != "":
+		swaps[pompon.nickname] = KID_POMPON_STANDIN
+	for old in swaps:
+		d = replace_name_in(d, old, swaps[old])
 	d["player_name"] = shareable_player_name()
 	if d["pompon"] is Dictionary:
 		d["pompon"]["nickname"] = shareable_pompon_name()
 	return d
+
+
+const KID_PLAYER_STANDIN := "mi cuidador"   # (en la copia de la nube, si el nombre no es de la lista)
+const KID_POMPON_STANDIN := "Pompon"
+
+
+## Cambia un nombre (palabra entera, respetando mayusculas) por otro en todos los textos de `data`
+## (diccionarios y listas; solo los valores, nunca las claves). Devuelve una copia.
+static func replace_name_in(data, old: String, new_name: String):
+	if old.strip_edges() == "":
+		return data
+	var re := RegEx.create_from_string("(?<![\\p{L}\\p{N}_])" + _regex_escape(old) + "(?![\\p{L}\\p{N}_])")
+	return _replace_walk(data, re, new_name)
+
+
+static func _replace_walk(data, re: RegEx, new_name: String):
+	match typeof(data):
+		TYPE_STRING:
+			return re.sub(data, new_name, true)
+		TYPE_ARRAY:
+			var out := []
+			for v in data:
+				out.append(_replace_walk(v, re, new_name))
+			return out
+		TYPE_DICTIONARY:
+			var out := {}
+			for k in data:
+				out[k] = _replace_walk(data[k], re, new_name)
+			return out
+	return data
+
+
+static func _regex_escape(text: String) -> String:
+	var out := ""
+	for ch in text:
+		if "\\^$.|?*+()[]{}/-".contains(ch):
+			out += "\\"
+		out += ch
+	return out
+
+
+## Un menor de 13 eligio un nombre nuevo de la lista: el viejo tampoco queda en lo guardado (diario,
+## anuncios pendientes, despedida, gustos y crecimiento del Pompon).
+func rename_in_texts(old: String, new_name: String) -> void:
+	if old == "" or old == new_name:
+		return
+	journal = replace_name_in(journal, old, new_name)
+	pending_thoughts = replace_name_in(pending_thoughts, old, new_name)
+	farewell = replace_name_in(farewell, old, new_name)
+	stage_news = replace_name_in(stage_news, old, new_name)
+	if pompon != null:
+		pompon.tastes = replace_name_in(pompon.tastes, old, new_name)
+		pompon.growth = replace_name_in(pompon.growth, old, new_name)
 
 
 ## Grupo de edad a partir de la edad que eligio (no se guarda la edad).

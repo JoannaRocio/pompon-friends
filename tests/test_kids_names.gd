@@ -169,6 +169,7 @@ func _initialize() -> void:
 	_fresh()
 	gs.set_profile("Joaquina", "f")
 	var hv: Control = _home_with("Firulais")
+	_old_texts()
 	await create_timer(0.4).timeout
 	var ask: Node = _notice(hv)
 	print("partida vieja sin edad: pregunta en la casa=", ask != null and _labels(ask).contains("¿Cuántos años tienes?"), " | bloquea tutorial y otros carteles=", hv._any_modal())
@@ -191,6 +192,10 @@ func _initialize() -> void:
 	_press(rn, "¡Listo!")
 	await create_timer(0.3).timeout
 	print("  nombres nuevos: jugador=", gs.player_name, " Pompon=", gs.pompon.nickname, " | ya no hace falta=", not gs.kid_names_needed(), " | no se repite el cartel=", _notice(hv) == null and hv._kid_layer == null)
+	var saved := JSON.stringify([gs.journal, gs.pending_thoughts, gs.farewell, gs.pompon.growth])
+	print("  diario y textos guardados sin el nombre viejo: Joaquina=", _has_word(saved, "Joaquina"), " Firulais=", _has_word(saved, "Firulais"), " (esperado false false)")
+	print("  ahora dicen: ", gs.journal.map(func(e): return e["text"]), " | pendiente: ", gs.pending_thoughts.map(func(e): return e["text"]), " | crecimiento: ", gs.pompon.growth.get("history", []))
+	print("  palabras parecidas no se tocan: ", gs.journal.any(func(e): return e["text"].contains("Firulaiss")), " | en el archivo guardado tampoco esta: ", not _has_word(FileAccess.get_file_as_string("user://save.json"), "Firulais"))
 	hv.queue_free()
 	await _frames(2)
 	# adulto en partida vieja: se pregunta la edad y nada mas
@@ -212,10 +217,14 @@ func _initialize() -> void:
 	gs.player_name = "Joaquina"
 	gs.player_title = "f"
 	gs.age_group = "child"
+	_old_texts()
 	cloud.fake_server = {}
 	var up: Dictionary = await cloud.upload()
 	var row: Dictionary = cloud.fake_server[gs.cloud_code]["data"]
 	print("nube (menor, nombres escritos a mano): ok=", up["ok"], " | jugador='", row["player_name"], "' Pompon='", row["pompon"]["nickname"], "' (vacios) | en el celular siguen: ", gs.player_name, "/", gs.pompon.nickname)
+	var up_text := JSON.stringify(row)
+	print("  textos en la nube sin nombres escritos a mano: Joaquina=", _has_word(up_text, "Joaquina"), " Firulais=", _has_word(up_text, "Firulais"), " (esperado false false) | diario subido: ", row["journal"].map(func(e): return e["text"]))
+	print("  en el celular el diario no cambia: ", gs.journal.any(func(e): return e["text"].contains("Firulais toca")))
 	gs.player_name = "Canela"
 	gs.pompon.nickname = "Churro"
 	await cloud.upload()
@@ -260,6 +269,23 @@ func _initialize() -> void:
 	gs.reset_game()
 	print("FIN test_kids_names")
 	quit()
+
+
+## Textos guardados de una partida vieja con nombres escritos a mano.
+func _old_texts() -> void:
+	var now := int(Time.get_unix_time_from_system())
+	gs.journal = [
+		{"t": now - 60, "kind": "frase", "text": "Firulais toca el piano", "stat": "diversion"},
+		{"t": now - 30, "kind": "pensamiento", "text": "Joaquina me dio de comer. ¡Gracias, Joaquina!", "stat": "amor"},
+		{"t": now - 10, "kind": "pensamiento", "text": "Firulaiss es otra palabra", "stat": "amor"}]
+	gs.pending_thoughts = [{"kind": "sentimiento", "text": "Extraño a Joaquina", "stat": "amor"}]
+	gs.farewell = ""
+	gs.pompon.growth["history"] = ["Firulais creció"]
+
+
+## ¿Aparece `name` como palabra entera?
+func _has_word(text: String, name: String) -> bool:
+	return RegEx.create_from_string("(?<![\\p{L}\\p{N}_])" + name + "(?![\\p{L}\\p{N}_])").search(text) != null
 
 
 func _unique(a: Array) -> int:
