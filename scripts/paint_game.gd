@@ -52,7 +52,7 @@ func _ready() -> void:
 	tools.alignment = BoxContainer.ALIGNMENT_CENTER
 	tools.add_theme_constant_override("separation", 12)
 	content.add_child(tools)
-	for spec in [["pen", "Lápiz"], ["fill", "Balde"]]:
+	for spec in [["pen", T.s("Lápiz")], ["fill", T.s("Balde")]]:
 		var t := Button.new()
 		t.text = spec[1]
 		t.custom_minimum_size = Vector2(150, 72)
@@ -61,7 +61,7 @@ func _ready() -> void:
 		tools.add_child(t)
 		_tool_buttons[spec[0]] = t
 	var clear := Button.new()
-	clear.text = "Borrar"
+	clear.text = T.s("Borrar")
 	clear.custom_minimum_size = Vector2(140, 72)
 	clear.focus_mode = Control.FOCUS_NONE
 	Hud.style_soft(clear, 26)
@@ -70,7 +70,7 @@ func _ready() -> void:
 		canvas.queue_redraw())
 	tools.add_child(clear)
 	var done := Button.new()
-	done.text = "¡Listo!"
+	done.text = T.s("¡Listo!")
 	done.custom_minimum_size = Vector2(170, 72)
 	done.focus_mode = Control.FOCUS_NONE
 	Hud.style_primary(done, 30, Color("5fc77f"))
@@ -153,7 +153,7 @@ func _finish() -> void:
 	if _notice != null or _layer != null:
 		return
 	if PixelArt.painted(px) < MIN_PAINTED:
-		_message("¡Pinta un poquito más!", "Llena algunos cuadritos con colores.")
+		_message(T.s("¡Pinta un poquito más!"), T.s("Llena algunos cuadritos con colores."))
 		return
 	saved_id = GameState.add_painting(px)
 	_notice = BigNotice.new(640.0)
@@ -164,17 +164,17 @@ func _finish() -> void:
 	preview.draw.connect(func():
 		PixelArt.draw_framed(preview, saved_id, Rect2(Vector2(preview.size.x * 0.5 - 95.0, 0), Vector2(190, 210))))
 	_notice.add(preview)
-	_notice.title("¡Qué lindo dibujo!")
-	_notice.button("Colgar en mi cuarto", func():
+	_notice.title(T.s("¡Qué lindo dibujo!"))
+	_notice.button(T.s("Colgar en mi cuarto"), func():
 		_notice.close()
 		GameState.hang_painting(saved_id)
-		_done("¡Quedó colgado en tu cuarto!"), true, Color("5fc77f"))
-	_notice.button("Regalar a un amigo", func():
+		_done(T.s("¡Quedó colgado en tu cuarto!")), true, Color("5fc77f"))
+	_notice.button(T.s("Regalar a un amigo"), func():
 		_notice.close()
 		_pick_friend(), true, Color("ff7aa8"))
-	_notice.button("Guardar", func():
+	_notice.button(T.s("Guardar"), func():
 		_notice.close()
-		_done("Lo puedes colgar cuando quieras en Decorar."), false)
+		_done(T.s("Lo puedes colgar cuando quieras en Decorar.")), false)
 
 
 ## Elegir a que amigo de verdad regalarselo.
@@ -182,25 +182,25 @@ func _pick_friend() -> void:
 	_notice = BigNotice.new(640.0)
 	add_child(_notice)
 	_notice.closed.connect(func(): _notice = null)
-	_notice.title("¿A quién se lo regalas?", Color("d6336c"))
+	_notice.title(T.s("¿A quién se lo regalas?"), Color("d6336c"))
 	if not Friends.is_active() or GameState.friends.is_empty():
-		_notice.text_line("Todavía no tienes amigos de verdad. Agrégalos con su código en Vecinos.", 26)
-		_notice.button("Colgar en mi cuarto", func():
+		_notice.text_line(T.s("Todavía no tienes amigos de verdad. Agrégalos con su código en Vecinos."), 26)
+		_notice.button(T.s("Colgar en mi cuarto"), func():
 			_notice.close()
 			GameState.hang_painting(saved_id)
-			_done("¡Quedó colgado en tu cuarto!"), true, Color("5fc77f"))
-		_notice.button("Guardar", func():
+			_done(T.s("¡Quedó colgado en tu cuarto!")), true, Color("5fc77f"))
+		_notice.button(T.s("Guardar"), func():
 			_notice.close()
-			_done("Lo puedes colgar cuando quieras en Decorar."), false)
+			_done(T.s("Lo puedes colgar cuando quieras en Decorar.")), false)
 		return
 	for f in GameState.friends:
 		var code: String = f["code"]
 		_notice.button(Friends.display_name(f), func():
 			_notice.close()
 			_send(code, Friends.display_name(f)), true, Color("ff9ec0"))
-	_notice.button("Mejor no", func():
+	_notice.button(T.s("Mejor no"), func():
 		_notice.close()
-		_done("Lo puedes colgar cuando quieras en Decorar."), false)
+		_done(T.s("Lo puedes colgar cuando quieras en Decorar.")), false)
 
 
 func _send(code: String, who: String) -> void:
@@ -208,17 +208,17 @@ func _send(code: String, who: String) -> void:
 	if not is_inside_tree():
 		return
 	var text: String = {
-		"ok": "¡Le mandaste tu dibujo a %s! Le va a llegar a su juego." % who,
-		"limit": "Hoy ya le regalaste muchos dibujos a %s. ¡Prueba mañana!" % who,
-		"not_friends": "Ya no son amigos.",
-		"off": "Para regalar dibujos hay que activar los amigos en Vecinos.",
-	}.get(res["result"], "No se pudo enviar. Revisa la conexión a internet.")
+		"ok": T.s("¡Le mandaste tu dibujo a %s! Le va a llegar a su juego.") % who,
+		"limit": T.s("Hoy ya le regalaste muchos dibujos a %s. ¡Prueba mañana!") % who,
+		"not_friends": T.s("Ya no son amigos."),
+		"off": T.s("Para regalar dibujos hay que activar los amigos en Vecinos."),
+	}.get(res["result"], T.s("No se pudo enviar. Revisa la conexión a internet."))
 	_done(text)
 
 
 ## Muestra un aviso y despues la tarjeta de premios.
 func _done(text: String) -> void:
-	_message("¡Listo!", text, func(): _show_result("¡Gran artista!", _stars_done, STAR_STEPS.size()))
+	_message(T.s("¡Listo!"), text, func(): _show_result(T.s("¡Gran artista!"), _stars_done, STAR_STEPS.size()))
 
 
 func _message(title: String, text: String, after := Callable()) -> void:
@@ -227,7 +227,7 @@ func _message(title: String, text: String, after := Callable()) -> void:
 	_notice.closed.connect(func(): _notice = null)
 	_notice.title(title, Color("d6336c"))
 	_notice.text_line(text, 28)
-	_notice.button("¡Bien!", func():
+	_notice.button(T.s("¡Bien!"), func():
 		_notice.close()
 		if after.is_valid():
 			after.call())

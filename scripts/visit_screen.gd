@@ -143,7 +143,7 @@ func _build_top() -> void:
 	col.add_child(head)
 	var title := Label.new()
 	var player := str(_data.get("player", ""))
-	title.text = "Casa de %s" % _data["name"] if player == "" else "%s (de %s)" % [_data["name"], player]
+	title.text = T.s("Casa de %s") % _data["name"] if player == "" else T.s("%s (de %s)") % [_data["name"], player]
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_theme_font_size_override("font_size", 30)
 	title.add_theme_color_override("font_color", Color("7a56c4"))
@@ -329,7 +329,7 @@ func _update_social_bar() -> void:
 		_social_bar.text = "¡Socializaron!"
 	else:
 		_social_bar.value = _watch
-		_social_bar.text = "Socializando..."
+		_social_bar.text = T.s("Socializando...")
 
 
 # ------------------------------------------------------------------ tiempo
@@ -359,7 +359,7 @@ func _process(delta: float) -> void:
 				_fx.drop_coins(between, target, size.y * FEET, got / 2)
 				_fx.burst("heart", _head(_mine) + Vector2(0, -90), 3)
 				_mine.celebrate(4)
-				_message.text = "¡Socializaron un montón! +%d monedas" % got
+				_message.text = T.s("¡Socializaron un montón! +%d monedas") % got
 	# juegos espontaneos cuando no haces nada
 	if not _busy:
 		_idle -= delta

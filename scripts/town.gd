@@ -85,7 +85,7 @@ func _build() -> void:
 		b["node"].queue_free()
 	buildings = []
 	var p := GameState.pompon
-	var home_name := "Mi casa" if p == null or p.nickname == "" else "Casa de %s" % p.display_name()
+	var home_name := "Mi casa" if p == null or p.nickname == "" else T.s("Casa de %s") % p.display_name()
 	_add("home", home_name, p.color_primary if p != null else Color("ffb3cc"), {})
 	_add("shop", "Tienda", Color("ff7aa8"), {})
 	_add("cinema", "Cine", Color("7b5ea7"), {})
@@ -94,7 +94,7 @@ func _build() -> void:
 	for entry in Neighbors.all():
 		var data := Neighbors.build(entry)
 		var pom: Pompon = data["pompon"]
-		var b := _add("house", "Casa de %s" % entry["name"], pom.color_primary, entry)
+		var b := _add("house", T.s("Casa de %s") % entry["name"], pom.color_primary, entry)
 		b.friend = entry.get("real", false)
 		var view := PomponView.new()   # el vecino espera en la puerta
 		view.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -196,7 +196,7 @@ func _enter(kind: String, entry: Dictionary, node: TownBuilding) -> void:
 				_visit(entry)
 		_:
 			Audio.play("fail")
-			_show_toast("¡El %s abre muy pronto!" % node.title if kind != "market" else "¡El supermercado abre muy pronto!")
+			_show_toast(T.s("¡El %s abre muy pronto!") % T.s(node.title).to_lower() if kind != "market" else T.s("¡El supermercado abre muy pronto!"))
 
 
 func _visit(entry: Dictionary) -> void:
@@ -213,7 +213,7 @@ func _friend_menu(entry: Dictionary) -> void:
 	_notice = BigNotice.new(600.0)
 	add_child(_notice)
 	_notice.closed.connect(func(): _notice = null)
-	_notice.title("Casa de %s" % entry["name"], Color("d6336c"))
+	_notice.title(T.s("Casa de %s") % entry["name"], Color("d6336c"))
 	_notice.button("Visitar", func():
 		_notice.close()
 		_visit(entry), true, Color("5fc77f"))
@@ -228,7 +228,7 @@ func _ask_remove(entry: Dictionary) -> void:
 	add_child(_notice)
 	_notice.closed.connect(func(): _notice = null)
 	_notice.title("¿Dejar de ser amigos?", Color("d6336c"))
-	_notice.text_line("%s ya no va a aparecer en tu pueblo." % entry["name"], 28)
+	_notice.text_line(T.s("%s ya no va a aparecer en tu pueblo.") % entry["name"], 28)
 	var code: String = entry["code"]
 	_notice.button("No, seguir siendo amigos", _notice.close, true, Color("5fc77f"))
 	_notice.button("Dejar de ser amigos", func():

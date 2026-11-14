@@ -530,9 +530,9 @@ func friend_done_today(neighbor_id: String, key: String) -> bool:
 ## Por que no se puede visitar ("" si se puede).
 func _visit_blocker(neighbor_id: String) -> String:
 	if pompon == null:
-		return "Necesitas un Pompon para visitar a tus vecinos."
+		return T.s("Necesitas un Pompon para visitar a tus vecinos.")
 	if not pompon.hatched:
-		return "Tu huevo todavía no nació. ¡Cómprale una cuna primero!"
+		return T.s("Tu huevo todavía no nació. ¡Cómprale una cuna primero!")
 	if Neighbors.get_entry(neighbor_id).is_empty():
 		return "?"
 	return ""
@@ -573,9 +573,9 @@ func friend_action(neighbor_id: String, key: String) -> Dictionary:
 	if blocker != "" or act.is_empty():
 		return {"ok": false, "msg": blocker if blocker != "?" else "", "pts": 0}
 	if friend_done_today(neighbor_id, key):
-		return {"ok": true, "msg": "¡Otra vez!", "pts": 0}
+		return {"ok": true, "msg": T.s("¡Otra vez!"), "pts": 0}
 	if coins < act["cost"]:
-		return {"ok": false, "msg": "No te alcanzan las monedas.", "pts": 0}
+		return {"ok": false, "msg": T.s("No te alcanzan las monedas."), "pts": 0}
 	coins -= act["cost"]
 	var now := int(Time.get_unix_time_from_system())
 	friend_actions["%s:%s" % [neighbor_id, key]] = Missions.today(now)
@@ -593,9 +593,9 @@ func friend_action(neighbor_id: String, key: String) -> Dictionary:
 		if not news.is_empty():
 			pending_thoughts.append(news)
 	var bonus := _add_friend_point(neighbor_id)
-	var msg := "¡+1 de amistad!"
+	var msg := T.s("¡+1 de amistad!")
 	if bonus > 0:
-		msg += " Tu amigo te regaló %d monedas." % bonus
+		msg += T.s(" Tu amigo te regaló %d monedas.") % bonus
 	save_game()
 	return {"ok": true, "msg": msg, "pts": 1, "bonus": bonus}
 
@@ -765,7 +765,7 @@ func _check_stage(delta: float) -> void:
 	_stage_check = 1.0
 	var idx := pompon.stage_index(int(Time.get_unix_time_from_system()))
 	if last_stage >= 0 and idx > last_stage:
-		stage_news = "¡Tu huevo eclosionó!" if idx == 1 else "¡Tu Pompon ahora es %s!" % Pompon.STAGES[idx]
+		stage_news = "¡Tu huevo eclosionó!" if idx == 1 else T.s("¡Tu Pompon ahora es %s!") % T.label(Pompon.STAGES[idx]).to_lower()
 		for done_stage in range(maxi(last_stage, 1), idx):  # termina la etapa: palabras y rasgo segun como lo cuidaste
 			for e in PomponGrowth.finish_stage(pompon, done_stage, int(Time.get_unix_time_from_system())):
 				pending_thoughts.append(e)
@@ -776,7 +776,7 @@ func _pompon_abandons() -> void:
 	var name := pompon.display_name()
 	var species := pompon.species
 	pompon = null  # Se conservan monedas, gemas, muebles y ropa.
-	farewell = "%s, tu %s, se fue de casa.\n\nDejó una nota:\n\"Gracias por cuidarme. Te quiero mucho. Nos vemos pronto...\"\n\nTe quedan tus monedas, tu ropa y tus muebles." % [name, Pompon.species_label(species).to_lower()]
+	farewell = T.s("%s, tu %s, se fue de casa.\n\nDejó una nota:\n\"Gracias por cuidarme. Te quiero mucho. Nos vemos pronto...\"\n\nTe quedan tus monedas, tu ropa y tus muebles.") % [name, Pompon.species_label(species).to_lower()]
 	save_game()
 	pompon_left.emit(farewell)
 
@@ -1304,8 +1304,9 @@ func watch_movie(id: String, companion := {}) -> Dictionary:
 	var social := 0.0
 	var m := Movies.get_movie(id)
 	var pool: Array = m.get("reactions", ["¡me encantó!"])
-	var with := "" if companion.is_empty() else " con %s" % companion.get("name", "un amigo")
-	var text := "Fui al cine%s a ver %s: %s" % [with, m.get("title", "una película"), pool[randi() % pool.size()]]
+	var with := "" if companion.is_empty() else T.s(" con %s") % companion.get("name", T.s("un amigo"))
+	var reaction := T.s(pool[randi() % pool.size()])
+	var text := T.s("Fui al cine%s a ver %s: %s") % [with, T.s(m.get("title", "una película")), reaction]
 	text = text.replace("{a}", "a" if pompon != null and pompon.sex == "Hembra" else "o")
 	if pompon != null and pompon.hatched:
 		pompon.add_stat("diversion", fun)

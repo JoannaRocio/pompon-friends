@@ -49,8 +49,8 @@ static func s(spanish: String, params := {}) -> String:
 	_ensure()
 	var k := "s:" + spanish
 	var out := String(TranslationServer.translate(k))
-	if out == k:
-		out = spanish
+	if out == k:   # (tambien las filas cuya clave es el español tal cual: ver docs/idiomas.md)
+		out = String(TranslationServer.translate(spanish))
 	return out.format(params) if not params.is_empty() else out
 
 

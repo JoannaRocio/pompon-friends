@@ -11,7 +11,7 @@ func _texts(node: Node) -> Array:
 	for c in node.find_children("*", "", true, false):
 		if c is Label or c is Button:
 			if c.text != "" and not c.is_queued_for_deletion():
-				out.append(c.text)
+				out.append(c.atr(c.text))   # (lo que se ve: Godot traduce solo los textos que son clave del CSV)
 		elif c is RichTextLabel:
 			out.append(c.get_parsed_text())
 		elif c is Control and "text" in c and typeof(c.get("text")) == TYPE_STRING and c.get("text") != "":   # barras dibujadas (StatBar)
@@ -69,7 +69,8 @@ func _code_check(t: GDScript) -> void:
 				if kind == "g" or kind == "n" or (kind == "t" and lit.contains("%")):
 					continue   # (variantes y claves armadas con % se prueban aparte)
 				count += 1
-				if String(TranslationServer.get_translation_object("en").get_message(key)) == "":
+				var en_obj := TranslationServer.get_translation_object("en")
+				if String(en_obj.get_message(key)) == "" and (kind != "s" or String(en_obj.get_message(lit)) == ""):
 					missing.append("%s: %s" % [file, key])
 	print("codigo: ", count, " textos con T.s/T.t/T.label | sin ingles: ", missing)
 
@@ -408,6 +409,92 @@ func _area_diary(t: GDScript) -> void:
 	await process_frame
 
 
+## Area 5: minijuegos, misiones, vecinos, visitas, pueblo, cine, nube, amigos, seguridad y avisos.
+func _area_rest(t: GDScript) -> void:
+	var now := int(Time.get_unix_time_from_system())
+	var names := ["Mochi", "Ana", "Luna", "Nube", "Bruno", "Pipo", "Chispa", "Tobi", "Bimba", "Fresa", "Mota", "Pipa", "Canelo", "Rulo", "Lunita", "Chicle", "Maní"]
+	gs.reset_game()
+	gs.set_language("en")
+	gs.set_profile("Ana", "f")
+	gs.age_group = "adult"
+	gs.new_pompon("Conejo", "Hembra")
+	gs.pompon.hatched = true
+	gs.pompon.nickname = "Mochi"
+	gs.pompon.born_at = now - 10 * 86400
+	gs.hatch_anim_pending = false
+	gs.coins = 200
+	gs.daily_gift_day = Missions.today(now)
+	gs.tips_seen = ["egg1", "job1", "shopcrib", "notify_ask", "night1", "town1"]
+	gs.tutorial = {"chapter": 0, "step": 0, "off": true, "done_at": 0, "done_day": -1}
+	var left_all := {}
+	for scene in ["minigames", "simon_game", "pattern_game", "math_game", "jump_game", "paint_game", "music_game", "missions", "neighbors", "town", "cinema"]:
+		var sc: Control = load("res://scenes/%s.tscn" % scene).instantiate()
+		root.add_child(sc)
+		await create_timer(1.2).timeout
+		var tx := _texts(sc)
+		var left := _spanish_left(tx, names)
+		print(scene, " (en): ", tx.filter(func(s): return s.length() > 3).slice(0, 7), " | sigue en español: ", left, " | claves sueltas: ", _raw_keys(tx))
+		if scene == "missions":
+			for tab in sc.find_children("*", "Button", true, false):
+				if tab.atr(tab.text) in ["Achievements", "This week"]:
+					tab.pressed.emit()
+					await process_frame
+					print("  ", tab.atr(tab.text), ": sigue en español: ", _spanish_left(_texts(sc), names))
+		if scene == "cinema":
+			sc._start_movie()
+			await create_timer(0.3).timeout
+			print("  pelicula: ", _texts(sc).filter(func(s): return s.length() > 20).slice(0, 2))
+			sc._end_movie()
+			await create_timer(0.3).timeout
+			var ct := _texts(sc)
+			print("  final: ", ct.filter(func(s): return s.length() > 3).slice(0, 5), " | sigue en español: ", _spanish_left(ct, names))
+		sc.queue_free()
+		await process_frame
+	# visita a un vecino
+	var Neighbors: GDScript = load("res://scripts/neighbors.gd")
+	Neighbors.current = "luna"
+	var vs: Control = load("res://scenes/visit.tscn").instantiate()
+	root.add_child(vs)
+	await create_timer(1.5).timeout
+	var vt := _texts(vs)
+	print("visita (en): ", vt.filter(func(s): return s.length() > 3).slice(0, 8), " | sigue en español: ", _spanish_left(vt, names))
+	vs.queue_free()
+	# carteles de seguridad y nube
+	var holder := Control.new()
+	holder.custom_minimum_size = Vector2(720, 1280)
+	root.add_child(holder)
+	var safety: GDScript = load("res://scripts/friend_safety.gd")
+	safety.parental_gate(holder, func(_ok): pass)
+	safety.friend_options(holder, {"code": "ABCDEFGH", "name": "Luna"})
+	safety.report(holder, "ABCDEFGH", "Luna", "")
+	gs.pending_art = [{"code": "ABCDEFGH", "who": "Luna", "px": "0".repeat(256)}]
+	safety.show_received_art(holder)
+	holder.add_child(load("res://scripts/cloud_panel.gd").new())
+	await process_frame
+	var ht := _texts(holder)
+	print("seguridad y nube (en): ", ht.filter(func(s): return s.length() > 12).slice(0, 6), " | sigue en español: ", _spanish_left(ht, names))
+	holder.queue_free()
+	# textos que arma el juego
+	var Notifier: GDScript = load("res://scripts/notifier.gd")
+	var made := []
+	for d in range(0, 21, 7):
+		var m: Dictionary = Notifier.message(now + d * 86400, "Mochi", true)
+		made.append(m["title"])
+		made.append(m["text"])
+	made.append(Notifier.message(now, "Mochi", false)["text"])
+	gs.friend_actions = {}
+	made.append(gs.friend_action("luna", "pet").get("msg", ""))
+	made.append(gs.friend_action("luna", "pet").get("msg", ""))
+	made.append(gs.watch_movie("colina", {"name": "Luna"})["reaction"])
+	var Friends: Node = root.get_node("Friends")
+	gs.pending_thoughts = []
+	for kind in ["visit", "pet", "play", "gift"]:
+		Friends._on_event({"kind": kind, "from": "ABCDEFGH"})
+	made.append_array(gs.pending_thoughts.map(func(e): return e["text"]))
+	made = made.filter(func(x): return str(x) != "")
+	print("textos armados (en): ", made.slice(0, 8), " | sigue en español: ", _spanish_left(made, names))
+
+
 func _initialize() -> void:
 	_load_spanish_only()
 	await process_frame
@@ -556,6 +643,7 @@ func _initialize() -> void:
 	await _area_jobs(t)
 	await _area_spanish_class(t)
 	await _area_diary(t)
+	await _area_rest(t)
 
 	gs.language = ""
 	gs.reset_game()

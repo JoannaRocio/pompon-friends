@@ -74,7 +74,7 @@ func _ready() -> void:
 	var inner := VBoxContainer.new()
 	inner.add_theme_constant_override("separation", 12)
 	card.add_child(inner)
-	inner.add_child(_label("¿Qué sigue?", 40, Color("3f8f68")))
+	inner.add_child(_label(T.s("¿Qué sigue?"), 40, Color("3f8f68")))
 	_series_row = HBoxContainer.new()
 	_series_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_series_row.add_theme_constant_override("separation", 6)
@@ -163,5 +163,5 @@ func _finish() -> void:
 		c.queue_free()
 	for c in _options_row.get_children():
 		c.queue_free()
-	var title := "¡Muy bien!" if _correct >= 4 else ("¡Bien!" if _correct >= 2 else "¡Sigue practicando!")
+	var title := T.s("¡Muy bien!") if _correct >= 4 else (T.s("¡Bien!") if _correct >= 2 else T.s("¡Sigue practicando!"))
 	_show_result(title, _correct, QUESTIONS)

@@ -60,5 +60,5 @@ static func next_goal(def: Dictionary, value: int) -> int:
 ## "Da 50 clases", "Que tu Pompon llegue a adolescente"...
 static func goal_text(def: Dictionary, goal: int) -> String:
 	if goal == 1 and def.has("one"):
-		return def["one"]
-	return String(def["text"]).replace("{n}", str(goal)).replace("{stage}", STAGE_WORDS.get(goal, "grande"))
+		return T.s(def["one"])
+	return T.s(String(def["text"])).replace("{n}", str(goal)).replace("{stage}", T.s(STAGE_WORDS.get(goal, "grande")))

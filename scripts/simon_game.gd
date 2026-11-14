@@ -73,18 +73,18 @@ func _next_round() -> void:
 	if _finished:
 		return
 	if _sequence.size() >= ROUNDS:
-		_end("¡Muy bien!")
+		_end(T.s("¡Muy bien!"))
 		return
 	_sequence.append(randi() % 4)
 	_input_index = 0
 	_accepting = false
-	_status.text = "¡Mira!"
+	_status.text = T.s("¡Mira!")
 	for i in _sequence:
 		await _flash(i)
 		if not is_inside_tree():
 			return
 	_accepting = true
-	_status.text = "¡Tu turno!"
+	_status.text = T.s("¡Tu turno!")
 
 
 func _on_color_pressed(i: int) -> void:
@@ -93,7 +93,7 @@ func _on_color_pressed(i: int) -> void:
 	_flash(i, 0.2)
 	if i != _sequence[_input_index]:
 		_accepting = false
-		_end("¡Casi!")
+		_end(T.s("¡Casi!"))
 		return
 	_input_index += 1
 	if _input_index == _sequence.size():

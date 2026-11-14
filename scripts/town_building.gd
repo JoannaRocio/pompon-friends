@@ -2,7 +2,7 @@ class_name TownBuilding
 extends Button
 ## Un edificio del pueblo (todo dibujado por codigo) que se toca para entrar: la casa del Pompon,
 ## la casa de un vecino, la tienda, el supermercado, el cine o el museo. Los que todavia no abren
-## llevan una cinta de "Próximamente".
+## llevan una cinta de T.s("Próximamente").
 
 const OUT := Color("5b3a4a")
 const GROUND := 0.98   # donde apoya (fraccion del alto)
@@ -82,12 +82,13 @@ func _door(r: Rect2, col: Color) -> void:
 func _sign(center: Vector2, max_w: float, col: Color) -> void:
 	var font := art.get_theme_default_font()
 	var fs := 26
-	while fs > 16 and font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > max_w - 28.0:
+	var shown := T.s(title)   # (el titulo es el nombre en español: se traduce al dibujarlo)
+	while fs > 16 and font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > max_w - 28.0:
 		fs -= 2
-	var w := minf(font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + 30.0, max_w)
+	var w := minf(font.get_string_size(shown, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x + 30.0, max_w)
 	var r := Rect2(center - Vector2(w * 0.5, 22.0), Vector2(w, 44.0))
 	_box(r, Color("fffaf0"), 14.0, 4)
-	art.draw_string(font, Vector2(r.position.x, r.position.y + 30.0), title, HORIZONTAL_ALIGNMENT_CENTER, w, fs, col)
+	art.draw_string(font, Vector2(r.position.x, r.position.y + 30.0), shown, HORIZONTAL_ALIGNMENT_CENTER, w, fs, col)
 	if friend:
 		var c := Vector2(r.end.x - 4.0, r.position.y + 4.0)
 		var pts := PackedVector2Array()
@@ -206,7 +207,7 @@ func _museum(w: float, g: float) -> void:
 	_sign(Vector2(w * 0.5, g - bh - 40), bw * 0.7, Color("8a6d3b"))
 
 
-## Cinta "Próximamente" cruzada sobre el frente.
+## Cinta T.s("Próximamente") cruzada sobre el frente.
 func _ribbon(w: float, g: float) -> void:
 	var y := g - 70.0
 	var r := Rect2(w * 0.08, y - 24.0, w * 0.84, 48.0)
@@ -218,5 +219,5 @@ func _ribbon(w: float, g: float) -> void:
 	art.draw_set_transform(r.get_center() * ART_SCALE, -0.12, Vector2(ART_SCALE, ART_SCALE))
 	art.draw_style_box(sb, Rect2(-r.size * 0.5, r.size))
 	var font := art.get_theme_default_font()
-	art.draw_string(font, Vector2(-r.size.x * 0.5, 10.0), "Próximamente", HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 26, OUT)
+	art.draw_string(font, Vector2(-r.size.x * 0.5, 10.0), T.s("Próximamente"), HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 26, OUT)
 	art.draw_set_transform(Vector2.ZERO, 0.0)

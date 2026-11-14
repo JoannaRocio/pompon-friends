@@ -35,8 +35,8 @@ func _on_plugin_ready() -> void:
 	_ready_ok = true
 	_ns.create_notification_channel(NotificationChannel.new()
 		.set_id(CHANNEL)
-		.set_name("Tu Pompon")
-		.set_description("Como mucho un aviso por semana, solo si no entraste")
+		.set_name(T.s("Tu Pompon"))
+		.set_description(T.s("Como mucho un aviso por semana, solo si no entraste"))
 		.set_importance(NotificationChannel.Importance.DEFAULT))
 	cancel()
 
@@ -84,15 +84,15 @@ static func message(now: int, pompon_name: String, has_pompon: bool) -> Dictiona
 	var fire_day := day + DAYS_AWAY
 	var movie_changes: bool = Movies.of_day(fire_day)["id"] != Movies.of_day(day)["id"]
 	if not has_pompon:
-		return {"title": "Pompon Friends", "text": "Tu huevo sigue esperando su cuna."}
+		return {"title": "Pompon Friends", "text": T.s("Tu huevo sigue esperando su cuna.")}
 	match posmod(Movies.week_of(day), 3):
 		0:
-			return {"title": "%s te extraña" % pompon_name, "text": "Pasa a saludarlo cuando quieras. Tu sello de la semana te espera."}
+			return {"title": T.s("%s te extraña") % pompon_name, "text": T.s("Pasa a saludarlo cuando quieras. Tu sello de la semana te espera.")}
 		1:
 			if movie_changes:
-				return {"title": "Película nueva en el Cine Pompon", "text": "Esta semana dan \"%s\". ¿Vas con %s?" % [Movies.of_day(fire_day)["title"], pompon_name]}
-			return {"title": "%s está creciendo" % pompon_name, "text": "Mira cómo está y qué escribió en su diario."}
-	return {"title": "%s quiere jugar" % pompon_name, "text": "Hay un sello nuevo en tu calendario de la semana."}
+				return {"title": T.s("Película nueva en el Cine Pompon"), "text": T.s("Esta semana dan \"%s\". ¿Vas con %s?") % [T.s(Movies.of_day(fire_day)["title"]), pompon_name]}
+			return {"title": T.s("%s está creciendo") % pompon_name, "text": T.s("Mira cómo está y qué escribió en su diario.")}
+	return {"title": T.s("%s quiere jugar") % pompon_name, "text": T.s("Hay un sello nuevo en tu calendario de la semana.")}
 
 
 ## Deja programado el aviso de la semana (si estan prendidos).

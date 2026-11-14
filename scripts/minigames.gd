@@ -80,7 +80,7 @@ func _ready() -> void:
 	root.add_child(top)
 	top.add_child(Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/home.tscn")))
 	var title := Label.new()
-	title.text = "Minijuegos"
+	title.text = T.s("Minijuegos")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 52)
@@ -159,7 +159,7 @@ func _pompon_card() -> Control:
 	col.add_theme_constant_override("separation", 10)
 	row.add_child(col)
 	var hint := Label.new()
-	hint.text = "¡Jugar lo hace crecer y aprender cosas nuevas!"
+	hint.text = T.s("¡Jugar lo hace crecer y aprender cosas nuevas!")
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 28)
 	hint.add_theme_color_override("font_color", Color("d6336c"))
@@ -172,7 +172,7 @@ func _pompon_card() -> Control:
 		if GameState.pompon != null:
 			bar.value = PomponGrowth.quality(GameState.pompon, int(Time.get_unix_time_from_system())) if stat == "crecimiento" else float(GameState.pompon.stats.get(stat, 0.0))
 		if stat == "crecimiento":
-			bar.text = "Crecimiento"
+			bar.text = T.s("Crecimiento")
 			bar.font_size = 18
 		col.add_child(bar)
 		if stat == "crecimiento":
@@ -200,24 +200,24 @@ func _game_card(g: Dictionary) -> Control:
 	info.add_theme_constant_override("separation", 6)
 	row.add_child(info)
 	var name_label := Label.new()
-	name_label.text = g["name"]
+	name_label.text = T.s(g["name"])
 	name_label.add_theme_font_size_override("font_size", 38)
 	info.add_child(name_label)
 	var chips := HBoxContainer.new()
 	chips.add_theme_constant_override("separation", 10)
 	info.add_child(chips)
-	chips.add_child(Hud.chip(g["tag"], color.lightened(0.7), color.darkened(0.45), 22))
+	chips.add_child(Hud.chip(T.s(g["tag"]), color.lightened(0.7), color.darkened(0.45), 22))
 	var gain := HBoxContainer.new()
 	gain.add_theme_constant_override("separation", 6)
 	gain.add_child(Hud.coin_icon(28.0))
 	var gain_label := Label.new()
-	gain_label.text = "hasta %d" % g["max"]
+	gain_label.text = T.s("hasta %d") % g["max"]
 	gain_label.add_theme_font_size_override("font_size", 22)
 	gain_label.add_theme_color_override("font_color", Color("b87400"))
 	gain.add_child(gain_label)
 	chips.add_child(gain)
 	var play := Button.new()
-	play.text = "¡Jugar!"
+	play.text = T.s("¡Jugar!")
 	play.custom_minimum_size = Vector2(176, 92)
 	play.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	Hud.style_primary(play, 32, color)

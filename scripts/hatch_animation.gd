@@ -288,7 +288,7 @@ func _draw_top_shell() -> void:
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 
 
-## Lo que va por delante del bebe: la mitad de abajo de la cascara y el cartel "¡Nació!".
+## Lo que va por delante del bebe: la mitad de abajo de la cascara y el cartel T.s("¡Nació!").
 func _draw_front(cv: Control) -> void:
 	if not _popped:
 		return
@@ -308,8 +308,8 @@ func _draw_front(cv: Control) -> void:
 		var a := clampf((t - T_POP - 0.6) / 0.4, 0.0, 1.0)
 		var font := get_theme_default_font()
 		var y := size.y * 0.2
-		cv.draw_string_outline(font, Vector2(0, y), "¡Nació!", HORIZONTAL_ALIGNMENT_CENTER, size.x, 110, 20, Color(1, 1, 1, a))
-		cv.draw_string(font, Vector2(0, y), "¡Nació!", HORIZONTAL_ALIGNMENT_CENTER, size.x, 110, Color(0.84, 0.2, 0.42, a))
+		cv.draw_string_outline(font, Vector2(0, y), T.s("¡Nació!"), HORIZONTAL_ALIGNMENT_CENTER, size.x, 110, 20, Color(1, 1, 1, a))
+		cv.draw_string(font, Vector2(0, y), T.s("¡Nació!"), HORIZONTAL_ALIGNMENT_CENTER, size.x, 110, Color(0.84, 0.2, 0.42, a))
 		if t > T_POP + 1.4:
 			var blink := 0.5 + 0.5 * sin(t * 4.0)
-			cv.draw_string(font, Vector2(0, size.y * 0.9), "Toca para seguir", HORIZONTAL_ALIGNMENT_CENTER, size.x, 30, Color(1, 1, 1, 0.5 + 0.5 * blink))
+			cv.draw_string(font, Vector2(0, size.y * 0.9), T.s("Toca para seguir"), HORIZONTAL_ALIGNMENT_CENTER, size.x, 30, Color(1, 1, 1, 0.5 + 0.5 * blink))

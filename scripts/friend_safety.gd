@@ -61,7 +61,7 @@ static func parental_gate(parent: Node, done: Callable) -> BigNotice:
 	n.add(BigNotice.icon_strip([["people", Color("5bb8f5")], ["lock", Color("a98bea")]]))
 	n.title("Pídele ayuda a un adulto", PINK)
 	n.text_line("Para jugar con amigos de verdad, un adulto tiene que dar permiso.", 26)
-	var ask := n.text_line("¿Cuánto es %d × %d?" % q, 40, Color("3f66b0"))
+	var ask := n.text_line(T.s("¿Cuánto es %d × %d?") % q, 40, Color("3f66b0"))
 	var edit := LineEdit.new()
 	edit.placeholder_text = "Respuesta"
 	edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -77,7 +77,7 @@ static func parental_gate(parent: Node, done: Callable) -> BigNotice:
 		else:   # otra cuenta (asi no se puede probar al azar)
 			q[0] = rng.randi_range(13, 19)
 			q[1] = rng.randi_range(6, 9)
-			ask.text = "Esa no es. ¿Cuánto es %d × %d?" % q
+			ask.text = T.s("Esa no es. ¿Cuánto es %d × %d?") % q
 			edit.text = ""
 	n.button("Listo", check, true, GREEN)
 	n.button("Cancelar", func():
@@ -90,16 +90,16 @@ static func parental_gate(parent: Node, done: Callable) -> BigNotice:
 static func friend_options(parent: Node, entry: Dictionary, changed := Callable()) -> BigNotice:
 	var n := _notice(parent)
 	var code: String = entry.get("code", "")
-	var who: String = entry.get("name", "tu amigo")
+	var who: String = entry.get("name", T.s("tu amigo"))
 	n.title(who, PINK)
 	n.button("Dejar de ser amigos", func():
 		n.close()
-		_confirm(parent, "¿Dejar de ser amigos?", "%s ya no va a aparecer en tu lista." % who, "Dejar de ser amigos", func():
+		_confirm(parent, "¿Dejar de ser amigos?", T.s("%s ya no va a aparecer en tu lista.") % who, "Dejar de ser amigos", func():
 			await Friends.remove(code)
 			_call(changed)), false)
 	n.button("Bloquear", func():
 		n.close()
-		_confirm(parent, "¿Bloquear a %s?" % who, "Deja de ser tu amigo y no te puede mandar solicitudes, visitas ni dibujos.", "Bloquear", func():
+		_confirm(parent, T.s("¿Bloquear a %s?") % who, "Deja de ser tu amigo y no te puede mandar solicitudes, visitas ni dibujos.", "Bloquear", func():
 			await Friends.block(code)
 			_call(changed)), false)
 	n.button("Denunciar", func():
@@ -136,7 +136,7 @@ static func report(parent: Node, code: String, who: String, art := "", changed :
 			var res: Dictionary = await Friends.report(code, reason, art)
 			var done := _notice(parent)
 			done.title("¡Gracias!" if res["ok"] else "No se pudo enviar", GREEN if res["ok"] else PINK)
-			done.text_line("Lo vamos a revisar. Si quieres, también puedes bloquear a %s." % who if res["ok"] else "Revisa la conexión a internet y prueba otra vez.", 26)
+			done.text_line(T.s("Lo vamos a revisar. Si quieres, también puedes bloquear a %s.") % who if res["ok"] else "Revisa la conexión a internet y prueba otra vez.", 26)
 			if res["ok"] and not GameState.is_blocked(code):
 				done.button("Bloquear", func():
 					done.close()
@@ -154,7 +154,7 @@ static func show_received_art(parent: Node, closed := Callable()) -> BigNotice:
 		return null
 	var art: Dictionary = GameState.pending_art[0]
 	var n := _notice(parent, 640.0)
-	n.title("¡%s te mandó un dibujo!" % art["who"], Color("7a56c4"))
+	n.title(T.s("¡%s te mandó un dibujo!") % art["who"], Color("7a56c4"))
 	var preview := Control.new()
 	preview.custom_minimum_size = Vector2(0, 220)
 	var px: String = art["px"]

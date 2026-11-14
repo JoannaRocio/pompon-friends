@@ -118,4 +118,4 @@ static func draw_framed(cv: CanvasItem, id: String, rect: Rect2) -> void:
 ## Nombre que se ve en el cuarto y en el diario.
 static func name_of(id: String) -> String:
 	var from := str(cache.get(id, {}).get("from", ""))
-	return "Dibujo de %s" % from if from != "" else "Mi dibujo"
+	return T.s("Dibujo de %s") % from if from != "" else T.s("Mi dibujo")

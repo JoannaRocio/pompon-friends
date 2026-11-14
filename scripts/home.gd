@@ -2687,14 +2687,15 @@ func _night_tap() -> void:
 ## Lo que se ve en el cuadro de actividad de noche.
 func _night_activity_text() -> String:
 	var n := GameState.pompon.display_name()
+	var sex := GameState.pompon.sex
 	match _night_state:
 		"play":
-			return "%s juega en su camita" % n
+			return T.with_pron(T.s("%s juega en su camita") % n, sex)
 		"trip", "snack":
-			return "%s se levantó a tomar algo" % n
+			return T.s("%s se levantó a tomar algo") % n
 		"to_bed", "back":
-			return "%s va a su camita" % n
-	return "%s duerme" % n if pet.sleeping else "%s está en su camita" % n
+			return T.with_pron(T.s("%s va a su camita") % n, sex)
+	return T.s("%s duerme") % n if pet.sleeping else T.with_pron(T.s("%s está en su camita") % n, sex)
 
 
 ## La ropa de dormir (de noche): pijama, sin gorro ni lentes.

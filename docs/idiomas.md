@@ -1,7 +1,7 @@
 # Idiomas (español e inglés)
 
-Desde el 14/11/2026 el juego tiene una base para varios idiomas. Por ahora solo están traducidas las
-pantallas de entrada; el resto sigue en español y se migra de a poco (lista abajo).
+Desde el 14/11/2026 el juego está completo en español e inglés (ver "Ya migrado"). Este documento explica
+cómo funciona y cómo agregar textos nuevos para que salgan en los dos idiomas.
 
 ## Cómo funciona
 - **Textos**: `locale/textos.csv`, con columnas `keys,es,en` (una fila por texto). Godot lo importa solo y
@@ -72,36 +72,20 @@ cartel de nombres nuevos, la despedida (solo los botones) y el tutorial guiado c
   Pompon: el CSV lleva `{he}`, `{He}`, `{his}`, `{His}`, `{him}` y se completan con `T.pron(sexo)` /
   `T.with_pron(texto, sexo)` (en español se sigue usando `{a}`). Lo que ya está escrito en el diario queda
   en el idioma en que se escribió; lo nuevo sale en el idioma elegido.
+- Minijuegos, misiones y Pase, logros y sello semanal, vecinos y amigos de verdad, visitas, el pueblo, el
+  cine (las tres películas completas), la nube, la seguridad (permiso de un adulto, bloquear, denunciar,
+  dibujos recibidos), los avisos semanales del celular, la noche y la despedida.
 
-## Falta migrar (de más texto a menos)
-Cantidad aproximada de textos en español que quedan en cada archivo:
+**Ya está todo el juego en inglés.** Lo único en español a propósito: la clase de Inglés (solo se juega
+en español), los nombres prefabricados y los nombres de los vecinos.
 
-| Archivo | Textos | Qué es |
-|---|---|---|
-| `english_problems.gd` | ~250 | Clase de Inglés (ver nota de diseño) |
-| `pompon_thoughts.gd` | ~115 | Diario: pensamientos y sentimientos |
-| `pompon_play.gd` | ~100 | Lo que hace con los muebles y sus comentarios |
-| `geography_problems.gd` | ~95 | Países, capitales, regiones |
-| `pompon_firsts.gd` | ~95 | Primeras veces (diario) |
-| `catalog.gd` | ~90 | Nombres de los objetos de la tienda |
-| `math_problems.gd` | ~60 | Clase de Matemáticas |
-| `pompon_activity.gd` | ~60 | Cajita "qué está haciendo" |
-| `movies.gd` | ~40 | Películas del cine |
-| `home.gd` | ~40 | Diario, comida, decorar, noche, figuritas |
-| `pompon_growth.gd` | ~35 | Rasgos y palabras al crecer |
-| `profile_panel.gd` | ~30 | Ficha del Pompon |
-| `pompon_tastes.gd` | ~30 | Gustos |
-| `pompon_speech.gd` | ~30 | Lo que dice en el globo |
-| `neighbors_screen.gd` | ~27 | Vecinos y amigos |
-| `pompon_mood.gd` | ~25 | Ánimo |
-| `progress.gd` | ~23 | Logros y sello semanal |
-| `job_game.gd`, `game_state.gd`, `paint_game.gd`, `jobs.gd`, `cloud_panel.gd` | ~20 c/u | Turno de trabajo, avisos guardados, pintar, puestos, nube |
-| `friend_safety.gd` (salvo la edad), `job_board.gd`, `visit_screen.gd`, `pompon_skills.gd`, `pompon.gd`, `notifier.gd` | 12–16 | Seguridad, periódico, visitas, habilidades, aviso semanal |
-| `cinema.gd`, `town.gd`, `shop.gd`, `friends.gd`, `rooms.gd`, `job_menu.gd`, `missions_screen.gd`, `teacher_card.gd`, `neighbors.gd`, `missions.gd` | 5–11 | |
-| minijuegos (`simon`, `music`, `math`, `pattern`, `jump`, `minigames`, `minigame_base`), `wardrobe.gd`, `pixel_art.gd`, `lesson_view.gd`, `cloud.gd`, `album_panel.gd`, `pompon_album.gd`, `town_building.gd` | 1–4 | |
-
-(Cuenta hecha a ojo con un script: textos entre comillas con espacios o acentos.) También falta la ficha de
-la tienda en inglés (`docs/store/store-listing.md`) y las capturas para la tienda en inglés.
+### Tercera forma: la traducción automática de Godot
+Para textos fijos que se muestran tal cual en un `Label` o un `Button` (o en `BigNotice`, `Hud.chip`...),
+alcanza con agregar una fila cuya **clave es el texto en español tal cual** (`Vecinos,Vecinos,Neighbors`):
+Godot traduce solo lo que se ve (el `text` del control sigue en español, así que la lógica y las pruebas
+no cambian). `T.s()` también encuentra esas filas. Ojo: si el texto se arma con `%s`, se dibuja con
+`draw_string`, va al diario o se compara, hay que usar `T.s()` en el código. En las pruebas, lo que se ve
+es `control.atr(control.text)`.
 
 ## Clase de Español (hecho el 14/11/2026)
 Cuando se juega en inglés, la materia de idiomas (id `english`) es **clase de Español**

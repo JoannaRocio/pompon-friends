@@ -189,6 +189,28 @@ func _initialize() -> void:
 	hd._show_album()
 	await _shot("24-album.png")
 	await _clear()
+
+	# minijuegos, misiones, vecinos, visita, pueblo y cine
+	gs.coins = 120
+	gs.tips_seen.append("town1")
+	var shots := [["minigames", "25-minijuegos.png"], ["missions", "26-misiones.png"], ["neighbors", "27-vecinos.png"],
+		["town", "29-pueblo.png"], ["cinema", "30-cine.png"]]
+	for pair in shots:
+		var sc: Control = load("res://scenes/%s.tscn" % pair[0]).instantiate()
+		_add(sc)
+		await _shot(pair[1], 1.6)
+		if pair[0] == "cinema":
+			sc._start_movie()
+			await create_timer(0.4).timeout
+			sc._show_scene(2)
+			await _shot("31-pelicula.png", 0.8)
+		await _clear()
+		if pair[0] == "neighbors":
+			Neighbors.current = "luna"
+			var vs: Control = load("res://scenes/visit.tscn").instantiate()
+			_add(vs)
+			await _shot("28-visita.png", 2.5)
+			await _clear()
 	gs.reset_game()
 	gs.set_language("")
 	quit()

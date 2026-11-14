@@ -127,7 +127,7 @@ func _restore() -> void:
 		_clear()
 		title("¡Tu partida volvió!", Color("2f9e6e"))
 		if GameState.pompon != null and GameState.pompon.hatched:
-			text_line("%s te estaba esperando." % GameState.pompon.display_name(), 30)
+			text_line(T.s("%s te estaba esperando.") % GameState.pompon.display_name(), 30)
 		button("¡A jugar!", func():
 			close()
 			restored.emit(), true, Color("5fc77f"))

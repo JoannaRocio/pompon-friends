@@ -245,7 +245,7 @@ func _on_event(e) -> void:
 	var kind := str(e.get("kind", ""))
 	if not EVENT_TEXT.has(kind) or GameState.is_blocked(str(e.get("from", ""))):
 		return
-	var who := "Un amigo"
+	var who := T.s("Un amigo")
 	for f in GameState.friends:
 		if f["code"] == str(e.get("from", "")):
 			who = display_name(f)
@@ -257,7 +257,7 @@ func _on_event(e) -> void:
 	if GameState.pompon == null or not GameState.pompon.hatched:
 		return
 	GameState.pompon.add_social(EVENT_SOCIAL, false)
-	GameState.pending_thoughts.append({"kind": "sentimiento", "text": String(EVENT_TEXT[kind]).replace("{n}", who), "stat": "amistad", "key": "friend:" + kind})
+	GameState.pending_thoughts.append({"kind": "sentimiento", "text": T.s(String(EVENT_TEXT[kind])).replace("{n}", who), "stat": "amistad", "key": "friend:" + kind})
 
 
 ## "Mochi (de Ana)" para mostrar a un amigo.
@@ -269,7 +269,7 @@ static func display_name(f: Dictionary) -> String:
 	if name == "":
 		name = "Pompon"
 	var player := str(snap.get("player", "")).strip_edges().left(14)
-	return name if player == "" else "%s (de %s)" % [name, player]
+	return name if player == "" else T.s("%s (de %s)") % [name, player]
 
 
 func _fail(error: String) -> Dictionary:

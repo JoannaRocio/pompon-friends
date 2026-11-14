@@ -62,7 +62,7 @@ func _ready() -> void:
 	_height_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_height_label.custom_minimum_size = Vector2(110, 0)
 	chip.add_child(_height_label)
-	_hint = _label("Mueve el dedo de un lado a otro\npara saltar de nube en nube", 34, Color("3f66b0"))
+	_hint = _label(T.s("Mueve el dedo de un lado a otro\npara saltar de nube en nube"), 34, Color("3f66b0"))
 	_hint.set_anchors_preset(Control.PRESET_CENTER)
 	_hint.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_hint.grow_vertical = Control.GROW_DIRECTION_BOTH
@@ -211,7 +211,7 @@ func _fall() -> void:
 	Audio.play("fail")
 	await get_tree().create_timer(0.5).timeout
 	if is_inside_tree():
-		_show_result("¡Llegaste a %d metros!" % int(best / 10.0), _stars_done, STAR_HEIGHTS.size())
+		_show_result(T.s("¡Llegaste a %d metros!") % int(best / 10.0), _stars_done, STAR_HEIGHTS.size())
 
 
 func _draw_field() -> void:

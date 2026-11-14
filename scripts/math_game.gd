@@ -68,7 +68,7 @@ func _next_question() -> void:
 	_answer = problem["answer"]
 	_question_label.text = "%s = ?" % problem["text"]
 	_question_label.add_theme_font_size_override("font_size", 118 if _question_label.text.length() <= 10 else 80)
-	_level_chip_label.text = "%s · Nivel %d" % [MathProblems.LABELS[track], level]
+	_level_chip_label.text = T.s("%s · Nivel %d") % [MathProblems.track_label(track), level]
 	var options: Array = problem["options"]
 	for i in 3:
 		_answer_buttons[i].text = str(options[i])
@@ -102,5 +102,5 @@ func _on_answer(button: Button) -> void:
 
 func _finish() -> void:
 	_ended = true
-	var title := "¡Muy bien!" if _correct >= 4 else ("¡Bien!" if _correct >= 2 else "¡Sigue practicando!")
+	var title := T.s("¡Muy bien!") if _correct >= 4 else (T.s("¡Bien!") if _correct >= 2 else T.s("¡Sigue practicando!"))
 	_show_result(title, _correct, QUESTIONS)

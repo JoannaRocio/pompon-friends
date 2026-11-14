@@ -166,7 +166,7 @@ func _growth_bar(before: float, gain: float) -> Control:
 	var bar := StatBar.new().setup("", "sprout", green)
 	bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	bar.offset_top = -48
-	bar.text = "Crecimiento"
+	bar.text = T.s("Crecimiento")
 	bar.font_size = 22
 	bar.value = before
 	holder.add_child(bar)
@@ -237,16 +237,16 @@ func _show_result(title: String, rounds_ok: int, rounds_total: int) -> void:
 	box.add_child(rewards2)
 	rewards2.add_child(RewardChip.new().setup("game", "+15", Hud.STAT_COLORS["diversion"]))
 	rewards2.add_child(RewardChip.new().setup("heart", "+3", Hud.STAT_COLORS["amor"]))
-	box.add_child(_label("¡Tu Pompon aprendió algo nuevo!", 26, Color("a0527a")))
+	box.add_child(_label(T.s("¡Tu Pompon aprendió algo nuevo!"), 26, Color("a0527a")))
 	box.add_child(_growth_bar(growth_before, growth_gain))
 	var again := Button.new()
-	again.text = "Jugar otra vez"
+	again.text = T.s("Jugar otra vez")
 	again.custom_minimum_size = Vector2(0, 88)
 	Hud.style_primary(again, 36)
 	again.pressed.connect(func(): get_tree().reload_current_scene())
 	box.add_child(again)
 	var leave := Button.new()
-	leave.text = "Salir"
+	leave.text = T.s("Salir")
 	leave.custom_minimum_size = Vector2(0, 76)
 	Hud.style_soft(leave, 30)
 	leave.pressed.connect(_leave)

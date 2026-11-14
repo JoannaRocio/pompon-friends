@@ -120,7 +120,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var left := 86400 - int(Time.get_unix_time_from_system()) % 86400
-	_timer_label.text = "Nuevas en %02d:%02d:%02d" % [left / 3600, (left % 3600) / 60, left % 60]
+	_timer_label.text = T.s("Nuevas en %02d:%02d:%02d") % [left / 3600, (left % 3600) / 60, left % 60]
 	if GameState.missions_day != Missions.today(int(Time.get_unix_time_from_system())):
 		_rebuild()  # cambio el dia con la pantalla abierta
 
@@ -178,7 +178,7 @@ func _build_week() -> void:
 	_week_box.add_child(head)
 	head.add_child(_section_title("Esta semana", "check"))
 	var left := Movies.days_left(Missions.today(int(Time.get_unix_time_from_system())))
-	var renew := _small("Se renueva en %d %s" % [left, "día" if left == 1 else "días"], 20, Color(Hud.INK, 0.6))
+	var renew := _small(T.s("Se renueva en %d %s") % [left, T.s("día") if left == 1 else T.s("días")], 20, Color(Hud.INK, 0.6))
 	renew.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	renew.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	head.add_child(renew)
@@ -225,7 +225,7 @@ func _build_week() -> void:
 		stamps.add_child(stamp)
 	if claimable:
 		var b := Button.new()
-		b.text = "Cobrar el sello %d  +%d" % [claimed + 1, Progress.WEEK_REWARDS[mini(claimed, 6)]]
+		b.text = T.s("Cobrar el sello %d  +%d") % [claimed + 1, Progress.WEEK_REWARDS[mini(claimed, 6)]]
 		b.custom_minimum_size = Vector2(0, 78)
 		Hud.style_primary(b, 28, GREEN)
 		b.pressed.connect(func():
@@ -235,7 +235,7 @@ func _build_week() -> void:
 			_rebuild())
 		col.add_child(b)
 	elif got < 7:
-		col.add_child(_small("Vuelve otro día para el sello %d" % (got + 1), 22, Color("a0527a")))
+		col.add_child(_small(T.s("Vuelve otro día para el sello %d") % (got + 1), 22, Color("a0527a")))
 	else:
 		col.add_child(_small("¡Semana completa! El lunes empieza otra.", 22, Color("2f9e6e")))
 
@@ -593,7 +593,7 @@ func _tier_node(i: int) -> Control:
 					_float_reward(b, "¡Nuevo!", false)
 				_rebuild())
 
-	var label := _small("+%d" % tier["coins"] if tier["item"] == "" else Catalog.get_item(tier["item"]).get("name", ""), 18, Hud.INK)
+	var label := _small("+%d" % tier["coins"] if tier["item"] == "" else Catalog.item_name(tier["item"]), 18, Hud.INK)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(100, 0)
 	col.add_child(label)

@@ -180,7 +180,7 @@ func _make_row(entry: Dictionary) -> Control:
 		head.add_child(chip)
 	elif entry.get("real", false):
 		var who := str(entry.get("player", ""))
-		var chip2 := Hud.chip("de " + who if who != "" else "Amigo", Color("ffe6ef"), Color("d6336c"), 17)
+		var chip2 := Hud.chip(T.s("de %s") % who if who != "" else T.s("Amigo"), Color("ffe6ef"), Color("d6336c"), 17)
 		chip2.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		head.add_child(chip2)
 	var pts := int(GameState.friend_points.get(id, 0))
@@ -344,7 +344,7 @@ func _friends_card() -> Control:
 	for f in GameState.friend_requests:
 		col.add_child(_request_row(f))
 	for f in GameState.friend_sent:
-		col.add_child(_small("Esperando que %s acepte…" % CloudCode.format_code(f["code"]), 20, Color(Hud.INK, 0.6)))
+		col.add_child(_small(T.s("Esperando que %s acepte…") % CloudCode.format_code(f["code"]), 20, Color(Hud.INK, 0.6)))
 	return card
 
 
@@ -355,13 +355,13 @@ func _request_row(f: Dictionary) -> Control:
 	row.add_theme_constant_override("separation", 10)
 	var p: Pompon = data["pompon"]
 	row.add_child(_portrait(p, data["equipped"], 76.0, p.color_primary.lightened(0.55)))
-	var text := _small("¡%s quiere ser tu amigo!" % Friends.display_name(f), 22)
+	var text := _small(T.s("¡%s quiere ser tu amigo!") % Friends.display_name(f), 22)
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(text)
 	var code: String = f["code"]
 	row.add_child(_pill_button("Aceptar", func():
 		if Friends.is_full():
-			_show_message("¡Lista llena!", "Ya tienes %d amigos. Para aceptar a otro, primero quita uno." % Friends.MAX_FRIENDS)
+			_show_message("¡Lista llena!", T.s("Ya tienes %d amigos. Para aceptar a otro, primero quita uno.") % Friends.MAX_FRIENDS)
 		else:
 			Friends.answer(code, true), GREEN, Vector2(140, 64)))
 	var no := Button.new()
@@ -471,7 +471,7 @@ func _send(text: String) -> void:
 		"self": "Ese es tu propio código.",
 		"not_found": "No encontramos ese código. Revisa las letras.",
 		"limit": "Ya mandaste muchas solicitudes hoy. Prueba mañana.",
-		"full": "Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno." % Friends.MAX_FRIENDS,
+		"full": T.s("Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno.") % Friends.MAX_FRIENDS,
 	}.get(res["result"], _error_text(res["result"]))
 	_show_message("¡Listo!" if res["ok"] else "¡Ups!", msg)
 
@@ -483,7 +483,7 @@ func _ask_remove(entry: Dictionary) -> void:
 	add_child(_notice)
 	_notice.closed.connect(func(): _notice = null)
 	_notice.title("¿Dejar de ser amigos?", Color("d6336c"))
-	_notice.text_line("%s ya no va a aparecer en tu lista." % entry["name"], 28)
+	_notice.text_line(T.s("%s ya no va a aparecer en tu lista.") % entry["name"], 28)
 	var code: String = entry["code"]
 	_notice.button("No, seguir siendo amigos", _notice.close, true, GREEN)
 	_notice.button("Quitar amigo", func():

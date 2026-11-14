@@ -77,8 +77,8 @@ func _show_lobby() -> void:
 	var left := Movies.days_left(_today())
 	var next_row := HBoxContainer.new()
 	next_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	var when := "desde mañana" if left == 1 else "en %d días" % left
-	next_row.add_child(Hud.chip("Próxima: %s · %s" % [next["title"], when], Color("4a3d6b"), Color("ffe9a3"), 24))
+	var when := T.s("desde mañana") if left == 1 else T.s("en %d días") % left
+	next_row.add_child(Hud.chip(T.s("Próxima: %s · %s") % [T.s(next["title"]), when], Color("4a3d6b"), Color("ffe9a3"), 24))
 	root.add_child(next_row)
 
 	# ¿con quien vas?
@@ -125,7 +125,7 @@ func _show_lobby() -> void:
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(spacer)
 	var buy := Button.new()
-	buy.text = "Ver la película · %d" % Movies.TICKET
+	buy.text = T.s("Ver la película · %d") % Movies.TICKET
 	buy.custom_minimum_size = Vector2(0, 100)
 	Hud.style_primary(buy, 38, Color("e0609e"))
 	buy.pressed.connect(_buy)
@@ -174,7 +174,7 @@ func _poster(m: Dictionary, big: bool) -> Control:
 	if seen > 0:
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_child(Hud.chip("Ya la viste %d %s" % [seen, "vez" if seen == 1 else "veces"], Color("e3f6ea"), Color("1f7a4d"), 20))
+		row.add_child(Hud.chip(T.s("Ya la viste %d %s") % [seen, T.s("vez") if seen == 1 else T.s("veces")], Color("e3f6ea"), Color("1f7a4d"), 20))
 		col.add_child(row)
 	return card
 
@@ -191,7 +191,7 @@ func _pick_companion(entry: Dictionary) -> void:
 
 func _buy() -> void:
 	if GameState.coins < Movies.TICKET:
-		_message("Te faltan monedas", "La entrada cuesta %d monedas. ¡Gánalas en Trabajo!" % Movies.TICKET)
+		_message("Te faltan monedas", T.s("La entrada cuesta %d monedas. ¡Gánalas en Trabajo!") % Movies.TICKET)
 		return
 	GameState.coins -= Movies.TICKET
 	GameState.save_game()
@@ -311,7 +311,7 @@ func _place_seats() -> void:
 
 func _show_scene(i: int) -> void:
 	screen.show_scene(i)
-	_subtitle.text = screen.scene()["text"]
+	_subtitle.text = T.s(screen.scene()["text"])
 	_scene_t = Movies.scene_seconds(_subtitle.text)
 	if screen.scene()["actors"].any(func(a): return a[3].get("mood", "") == "happy"):   # el publico se alegra
 		_pet.celebrate(2)
@@ -361,7 +361,7 @@ func _end_movie() -> void:
 	notice.add(face)
 	face.celebrate(6)
 	notice.text_line(movie["message"], 26, Color("a0527a"))
-	notice.text_line("“%s”" % res["reaction"], 28)
+	notice.text_line("“%s”" % res["reaction"], 28)   # (ya viene en el idioma del juego)
 	var chips := HBoxContainer.new()
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	chips.add_theme_constant_override("separation", 14)

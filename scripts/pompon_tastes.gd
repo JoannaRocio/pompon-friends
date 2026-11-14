@@ -242,12 +242,12 @@ static func eat(p: Pompon, id: String, now: int) -> Dictionary:
 	elif after_hearts >= 5:
 		out["mult"] = 1.1
 		out["happy"] = 4.0
-		out["text"] = "¡Ñam ñam ñam! <3" if baby else T.s("¡Mi comida favorita! %s es lo mejor") % name.capitalize()
+		out["text"] = T.s("¡Ñam ñam ñam! <3") if baby else T.s("¡Mi comida favorita! %s es lo mejor") % name.capitalize()
 	elif after_hearts >= 3:
 		out["happy"] = 2.0
-		out["text"] = "¡Ñam ñam!" if baby else T.s("¡Me gusta mucho!")
+		out["text"] = T.s("¡Ñam ñam!") if baby else T.s("¡Me gusta mucho!")
 	else:
-		out["text"] = "¡Ñam!" if baby else T.s("Está rico")
+		out["text"] = T.s("¡Ñam!") if baby else T.s("Está rico")
 	if after_hearts > before_hearts and after_hearts >= 3 and before_hearts < 3:
 		out["force"] = true
 		if not baby:
