@@ -1,0 +1,172 @@
+keys,es,en
+common.ready,¡Listo!,Done!
+common.cancel,Cancelar,Cancel
+common.thanks,¡Gracias!,Thank you!
+common.adopt,Adoptar Pompon,Adopt a Pompon
+ui.Menú,Menú,Menu
+ui.Misiones,Misiones,Missions
+ui.Vecinos,Vecinos,Neighbors
+ui.Trabajo,Trabajo,Work
+ui.Diario,Diario,Diary
+ui.Comer,Comer,Eat
+ui.Beber,Beber,Drink
+ui.Bañar,Bañar,Bath
+ui.Caricia,Caricia,Cuddle
+ui.Juegos,Juegos,Games
+ui.Tienda,Tienda,Shop
+ui.Vestidor,Vestidor,Closet
+ui.Decorar,Decorar,Decorate
+ui.Pompon,Pompon,Pompon
+ui.Casa,Casa,Home
+ui.Comida,Comida,Food
+ui.Agua,Agua,Water
+ui.Aseo,Aseo,Clean
+ui.Diversión,Diversión,Fun
+ui.Comodidad,Comodidad,Comfort
+ui.Sueño,Sueño,Sleep
+ui.Confianza,Confianza,Trust
+ui.Social,Social,Social
+ui.Inteligencia,Inteligencia,Smarts
+ui.Huevo,Huevo,Egg
+ui.Bebé,Bebé,Baby
+ui.Niño,Niño,Kid
+ui.Adolescente,Adolescente,Teen
+ui.Adulto,Adulto,Grown-up
+ui.Grande,Grande,Grown-up
+ui.Reptil,Reptil,Reptile
+ui.Canino,Canino,Puppy
+ui.Felino,Felino,Kitty
+ui.Conejo,Conejo,Bunny
+ui.Ratón,Ratón,Mouse
+ui.Ave,Ave,Bird
+ui.Dragón,Dragón,Dragon
+ui.Enérgico,Enérgico,Energetic
+ui.Tímido,Tímido,Shy
+ui.Curioso,Curioso,Curious
+ui.Glotón,Glotón,Foodie
+ui.Artístico,Artístico,Artsy
+ui.Hembra,Hembra,Girl
+ui.Macho,Macho,Boy
+ui.Soy ella,Soy ella,She / her
+ui.Soy él,Soy él,He / him
+menu.tagline,Cuida a tu Pompon y aprende jugando,Take care of your Pompon and learn as you play
+menu.play,¡Jugar!,Play!
+menu.notify_on,Te avisaremos como mucho una vez por semana,We'll remind you once a week at most
+menu.notify_off,Avisos apagados,Reminders off
+menu.footer,Sin anuncios · Hecho con cariño,No ads · Made with love
+menu.language,Idioma: Español,Language: English
+menu.reset_title,¿Empezar de nuevo?,Start over?
+menu.reset_text,"Vas a perder todo: tu Pompon, tus monedas, tu casa y tu diario.","You will lose everything: your Pompon, your coins, your home and your diary."
+menu.reset_yes,"Sí, empezar de nuevo","Yes, start over"
+menu.reset_no,"No, seguir jugando","No, keep playing"
+menu.reset_sure,¿De verdad?,Are you sure?
+menu.reset_sure.f,¿Estás segura?,Are you sure?
+menu.reset_sure.m,¿Estás seguro?,Are you sure?
+menu.reset_gone,{name} no va a volver. Esto no se puede deshacer.,{name} won't come back. This can't be undone.
+menu.your_pompon,Tu Pompon,Your Pompon
+menu.reset_stay,"No, me quedo","No, I'll stay"
+menu.reset_all,Borrar todo,Delete everything
+age.title,¿Cuántos años tienes?,How old are you?
+age.why,Para cuidar tu privacidad.,To keep your information safe.
+age.under,6 o menos,6 or under
+age.over,18 o más,18 or older
+profile.title,¿Cómo te llamas?,What's your name?
+profile.placeholder,Tu nombre,Your name
+profile.invent,Inventar un nombre,Make up a name
+profile.pronouns,Pronombres,Pronouns
+profile.missing,¡Falta tu nombre!,Type your name!
+names.more,Ver otros,More names
+welcome.hello,"¡Hola, {name}!","Hi, {name}!"
+welcome.friend,amigo,friend
+welcome.friend.f,amiga,friend
+welcome.first,Hoy es el día en que adoptas a tu primer Pompon,Today is the day you adopt your very first Pompon
+welcome.again,Hoy adoptas a un nuevo Pompon,Today you adopt a new Pompon
+welcome.species,¿Qué especie?,Pick a kind
+welcome.colors,Sus colores serán una sorpresa,Its colors will be a surprise
+welcome.surprise,Sorpresa,Surprise
+welcome.sex,¿Hembra o macho?,Girl or boy?
+welcome.egg,¡Tu huevo llegó!,Your egg is here!
+welcome.go_home,¡Ir a casa!,Go home!
+home.no_pompon,No tienes un Pompon,You don't have a Pompon
+home.no_pompon_hint,Toca el botón para elegir a tu Pompon.,Tap the button to choose your Pompon.
+home.egg_of,Tu huevo de {species},Your {species} egg
+home.crib_bar,Cuna  {have} / {price},Crib  {have} / {price}
+home.growth_bar,Crecimiento  {pct}%,Growth  {pct}%
+home.growth_hint,Día {day} de {total} · Será {stage} {when},Day {day} of {total} · {stage} {when}
+home.tomorrow,mañana,tomorrow
+home.in_days.one,en {n} día,in {n} day
+home.in_days.many,en {n} días,in {n} days
+home.need_crib,¡Necesito una cuna para nacer!,I need a crib to hatch!
+home.knock,toc toc,knock knock
+home.knock_tap,¡toc!,knock!
+home.gift,"¡Regalo del día!
++{n} monedas","Daily gift!
++{n} coins"
+home.adopt_another,Adoptar otro Pompon,Adopt another Pompon
+home.later,Más tarde,Later
+home.notify_title,¿Te avisamos?,Want a reminder?
+home.notify_text,"Si pasa una semana sin que entres, te mandamos un aviso: {name} te extraña. Nunca más de uno por semana.","If a week goes by without you, we'll send a reminder: {name} misses you. Never more than one a week."
+home.notify_yes,"Sí, avísame","Yes, remind me"
+home.notify_no,"No, gracias","No, thanks"
+home.born_title,"¡Tu Pompon nació!
+¿Cómo se va a llamar?","Your Pompon hatched!
+What will you call it?"
+home.rename_title,"Elige un nombre
+para tu Pompon","Pick a name
+for your Pompon"
+home.name_placeholder,Escribe un nombre,Type a name
+home.other_name,Otro nombre,Another name
+home.name_missing,¡Falta el nombre!,It needs a name!
+home.kid_names_title,¡Elige nombres nuevos!,Pick new names!
+home.kid_names_text,"Para cuidar tu privacidad, elige tu nombre y el de tu Pompon de la lista.","To keep your information safe, pick your name and your Pompon's name from the list."
+home.kid_names_go,Elegir,Choose
+tip.prehatch,"¡Algo se mueve!
+Tócalo para ayudarlo a salir.","Something is moving!
+Tap it to help it hatch."
+tip.egg1,"¡Tu huevo llegó!
+Necesita una cuna para nacer.","Your egg is here!
+It needs a crib to hatch."
+tip.job1,"Una cuna cuesta {price} monedas.
+¡Gánalas en Trabajo!","A crib costs {price} coins.
+Earn them at Work!"
+tip.shopcrib,"¡Ya alcanza!
+Compra la cuna en la Tienda.","You have enough!
+Buy the crib at the Shop."
+tip.growth,¡{name} está creciendo! Cuídalo estos {days} días: así aprende a hablar y confía en ti.,{name} is growing! Take good care of {name} these {days} days to help them learn to talk and trust you.
+tip.care,Cuida a tu Pompon con los botones de abajo.,Take care of your Pompon with the buttons below.
+tip.pet,¡Tócalo para darle cariño!,Tap your Pompon to give it some love!
+tip.decor,"¡Muebles nuevos!
+Toca Decorar para ponerlos.","New furniture!
+Tap Decorate to place it."
+tip.coins,"¿Faltan monedas?
+Ve a Trabajo.","Need coins?
+Go to Work."
+tip.friends,Visita a tus Vecinos para hacer amigos.,Visit your Neighbors to make friends.
+tip.town1,¡Toca la puerta para salir al pueblo!,Tap the door to go out to town!
+tut.skip,Saltar tutorial,Skip tutorial
+tut.ok,¡Entendido!,Got it!
+tut.day,día,day
+tut.days,días,days
+tut.grown,"¡{name} ya creció! Cada etapa le enseña algo nuevo: bebé, niño, adolescente y grande.","{name} has grown! Every stage teaches something new: baby, kid, teen and grown-up."
+tut.card.0,días 1 a 7,days 1 to 7
+tut.card.1,días 8 a 21,days 8 to 21
+tut.card.2,días 22 a 51,days 22 to 51
+tut.card.3,desde el día 52,day 52 on
+tut.cuidar.0,¡Hola! Te muestro en un ratito cómo cuidar a {name}. Toca los botones que brillan.,Hi! Let me quickly show you how to take care of {name}. Tap the glowing buttons.
+tut.cuidar.1,Los mimos le dan confianza. ¡Toca Caricia!,Cuddles build trust. Tap Cuddle!
+tut.cuidar.2,"Cuando tenga hambre, toca Comer y elige algo rico.","When it's hungry, tap Eat and pick something yummy."
+tut.cuidar.3,"Estas barras son lo que necesita: comida, agua, baño, diversión y sueño. Si una baja, ¡atiéndela!","These bars show what it needs: food, water, bath, fun and sleep. If one gets low, take care of it!"
+tut.cuidar.4,En el Diario se anota lo que {name} piensa y siente. ¡Léelo cada tanto!,The Diary keeps what {name} thinks and feels. Read it now and then!
+tut.crecer.0,En {days} {days_word} {name} va a ser niño. ¡Cuídalo mucho estos días: así aprende a hablar y confía en ti!,In {days} {days_word} {name} will be a kid. Take extra care these days: that's how it learns to talk and trust you!
+tut.crecer.1,La barra verde de Crecimiento muestra qué tan bien lo estás cuidando.,The green Growth bar shows how well you're taking care of it.
+tut.casa.0,Aquí está todo para tu casa. Toca Casa.,Everything for your home is here. Tap Home.
+tut.casa.1,"En la Tienda hay muebles, ropa y comida. Cada día cambian las ofertas.","The Shop has furniture, clothes and food. The deals change every day."
+tut.casa.2,"Con Decorar acomodas tus cosas. ¡{name} va a usarlas: se sienta, toca el piano, mira los cuadros!","Use Decorate to arrange your things. {name} will use them: sit down, play the piano, look at pictures!"
+tut.casa.3,Toca Pompon para volver a sus cuidados.,Tap Pompon to go back to caring for it.
+tut.amigos.0,¡Hoy toca hacer amigos! Toca Vecinos.,Today is friends day! Tap Neighbors.
+tut.amigos.1,Cada jugador tiene un código (su ID). Comparte el tuyo y agrega el de tus amigos: se visitan y se regalan dibujos.,Every player has a code (their ID). Share yours and add your friends' codes: you can visit and send drawings.
+tut.jugar.0,Los minijuegos le enseñan cosas a {name} y suben sus habilidades.,Minigames teach {name} new things and raise its skills.
+tut.jugar.1,"En Misiones hay tareas nuevas cada día, logros y un sello por cada día de la semana que entras.","Missions has new tasks every day, achievements and a stamp for each day of the week you play."
+tut.pueblo.0,"Esta puerta sale al pueblo: el cine con películas nuevas cada semana, la tienda y las casas de tus vecinos.","This door goes out to town: the movie theater with new movies every week, the shop and your neighbors' houses."
+tut.pueblo.1,"En Trabajo puedes enseñar Matemáticas, Inglés y Geografía. ¡Más clases, más monedas!","At Work you can teach Math, English and Geography. More classes, more coins!"
+tut.pueblo.2,¡Ya conoces todo lo importante! Cada semana hay algo nuevo. ¡Que lo disfrutes con {name}!,Now you know all the important stuff! There's something new every week. Have fun with {name}!

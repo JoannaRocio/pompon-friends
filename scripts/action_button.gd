@@ -45,7 +45,7 @@ func restyle(icon_kind: String, text_caption: String, color: Color) -> void:
 	tint = color
 	caption = text_caption
 	if _label != null:
-		_label.text = text_caption
+		_label.text = T.label(text_caption)
 	if _badge != null:
 		_badge.queue_redraw()
 
@@ -69,7 +69,7 @@ func _ready() -> void:
 	holder.add_child(_badge)
 	if caption != "":
 		_label = Label.new()
-		_label.text = caption
+		_label.text = T.label(caption)   # (caption queda en español: es el id del boton)
 		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		_label.add_theme_font_size_override("font_size", label_size)

@@ -27,7 +27,7 @@ func setup(names: Array, current := "") -> NamePicker:
 	_grid.add_theme_constant_override("v_separation", 10)
 	add_child(_grid)
 	var more := Button.new()
-	more.text = "Ver otros"
+	more.text = T.t("names.more")
 	more.custom_minimum_size = Vector2(0, 64)
 	more.focus_mode = Control.FOCUS_NONE
 	Hud.style_soft(more, 26)

@@ -133,7 +133,7 @@ func _ready() -> void:
 	_mystery_egg.born_at = int(Time.get_unix_time_from_system())
 	_mystery_egg.hatched = false  # huevo
 	GameState.pompon_left.connect(_on_pompon_left)
-	hatch_button.text = "Adoptar Pompon"
+	hatch_button.text = T.t("common.adopt")
 	Hud.style_primary(hatch_button, 38)
 	hatch_button.pressed.connect(_on_hatch_pressed)
 	pet.petted.connect(_on_pet_tapped)
@@ -333,7 +333,7 @@ func _update_tutorial(delta: float) -> void:
 	if step.get("card", "") == "growth":
 		extra = TutorialOverlay.growth_card(p.stage_index(now))
 		if p.stage_index(now) > 1:
-			text = "¡%s ya creció! Cada etapa le enseña algo nuevo: bebé, niño, adolescente y grande." % p.display_name()
+			text = T.t("tut.grown", {"name": p.display_name()})
 	_tut = TutorialOverlay.new().setup(text, target, step["mode"], extra)
 	add_child(_tut)
 	_tut.done.connect(func():
@@ -352,13 +352,13 @@ func _ask_notifications() -> void:
 	_night_notice = notice   # (cuenta como ventana abierta mientras esta)
 	add_child(notice)
 	notice.add(BigNotice.icon_strip([["heart", Color("ff7aa8")], ["moon", Color("7b8ce0")], ["smile", Color("ffcf3f")]]))
-	notice.title("¿Te avisamos?")
-	notice.text_line("Si pasa una semana sin que entres, te mandamos un aviso: %s te extraña. Nunca más de uno por semana." % GameState.pompon.display_name(), 28)
-	notice.button("Sí, avísame", func():
+	notice.title(T.t("home.notify_title"))
+	notice.text_line(T.t("home.notify_text", {"name": GameState.pompon.display_name()}), 28)
+	notice.button(T.t("home.notify_yes"), func():
 		Notifier.request_permission()
 		notice.close()
 		_night_notice = null, true, Color("5fc77f"))
-	notice.button("No, gracias", func():
+	notice.button(T.t("home.notify_no"), func():
 		GameState.notify_on = false
 		GameState.save_game()
 		notice.close()
@@ -713,7 +713,7 @@ func _start_prehatch() -> void:
 		_egg_anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_egg_anchor)
 	_dismiss_tip()
-	_show_tip({"id": "", "text": "¡Algo se mueve!\nTócalo para ayudarlo a salir."})
+	_show_tip({"id": "", "text": "tip.prehatch"})
 	Audio.play("ding")
 
 
@@ -736,7 +736,7 @@ func _knock(tapped: bool) -> void:
 	pet.celebrate(0)
 	Audio.play("stamp", randf_range(1.25, 1.45) if not tapped else 1.0)
 	var toc := Label.new()
-	toc.text = "¡toc!" if tapped else "toc toc"
+	toc.text = T.t("home.knock_tap") if tapped else T.t("home.knock")
 	toc.add_theme_font_size_override("font_size", 34 if tapped else 28)
 	toc.add_theme_color_override("font_color", Color("a0527a"))
 	toc.add_theme_color_override("font_outline_color", Color.WHITE)
@@ -824,24 +824,19 @@ func _check_news() -> void:
 		_speech_timer = 8.0
 
 
-# Guias para la primera vez: de una en una y solo una vez. Primero la Tienda (el baul de
+# Guias para la primera vez: de una en una y solo una vez ("text" = clave en locale/textos.csv). Primero la Tienda (el baul de
 # Decorar esta vacio hasta que compres algo), y recien despues "Decorar".
 const TIPS := [
-	{"id": "egg1", "when": "egg", "text": "¡Tu huevo llegó!
-Necesita una cuna para nacer.", "critical": true},
-	{"id": "job1", "when": "egg", "text": "Una cuna cuesta {price} monedas.
-¡Gánalas en Trabajo!", "critical": true},
-	{"id": "shopcrib", "when": "crib_affordable", "text": "¡Ya alcanza!
-Compra la cuna en la Tienda.", "critical": true},
-	{"id": "growth", "when": "born", "text": "¡{name} está creciendo! Cuídalo estos {days} días: así aprende a hablar y confía en ti.", "critical": true},
-	{"id": "care", "when": "born", "text": "Cuida a tu Pompon con los botones de abajo."},
-	{"id": "pet", "when": "born", "text": "¡Tócalo para darle cariño!"},
-	{"id": "decor", "when": "furniture", "text": "¡Muebles nuevos!
-Toca Decorar para ponerlos."},
-	{"id": "coins", "when": "born", "text": "¿Faltan monedas?
-Ve a Trabajo."},
-	{"id": "friends", "when": "born", "text": "Visita a tus Vecinos para hacer amigos."},
-	{"id": "town1", "when": "door", "text": "¡Toca la puerta para salir al pueblo!"},
+	{"id": "egg1", "when": "egg", "text": "tip.egg1", "critical": true},
+	{"id": "job1", "when": "egg", "text": "tip.job1", "critical": true},
+	{"id": "shopcrib", "when": "crib_affordable", "text": "tip.shopcrib", "critical": true},
+	{"id": "growth", "when": "born", "text": "tip.growth", "critical": true},
+	{"id": "care", "when": "born", "text": "tip.care"},
+	{"id": "pet", "when": "born", "text": "tip.pet"},
+	{"id": "decor", "when": "furniture", "text": "tip.decor"},
+	{"id": "coins", "when": "born", "text": "tip.coins"},
+	{"id": "friends", "when": "born", "text": "tip.friends"},
+	{"id": "town1", "when": "door", "text": "tip.town1"},
 ]
 var _hatch_layer: HatchAnimation
 # antes de nacer: el huevo golpea la cascara ("toc, toc") y se raja con cada toque
@@ -994,7 +989,7 @@ func _show_tip(tip: Dictionary) -> void:
 	panel.add_child(row)
 	var label := Label.new()
 	var furniture_name: String = Catalog.required_furniture(GameState.pompon.species).get("name", "mueble")
-	label.text = str(tip["text"]).replace("\r", "").replace("{coins}", str(GameState.coins)).replace("{furniture}", furniture_name).replace("{price}", str(_crib_price())).replace("{name}", GameState.pompon.display_name()).replace("{days}", str(PomponGrowth.days_left(GameState.pompon, int(Time.get_unix_time_from_system()))))
+	label.text = T.t(str(tip["text"])).replace("\r", "").replace("{coins}", str(GameState.coins)).replace("{furniture}", furniture_name).replace("{price}", str(_crib_price())).replace("{name}", GameState.pompon.display_name()).replace("{days}", str(PomponGrowth.days_left(GameState.pompon, int(Time.get_unix_time_from_system()))))
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_size_override("font_size", 30)
 	label.add_theme_constant_override("line_spacing", -2)
@@ -1073,7 +1068,7 @@ func _show_daily_gift() -> void:
 	var next_streak := GameState.gift_streak + 1 if Missions.today(int(Time.get_unix_time_from_system())) == GameState.daily_gift_day + 1 else 1
 	var amount := 10 + 5 * mini(next_streak - 1, 4)
 	var label := Label.new()
-	label.text = "¡Regalo del día!\n+%d monedas" % amount
+	label.text = T.t("home.gift", {"n": amount})
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 42)
@@ -1081,7 +1076,7 @@ func _show_daily_gift() -> void:
 	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(label)
 	var ok := Button.new()
-	ok.text = "¡Gracias!"
+	ok.text = T.t("common.thanks")
 	ok.custom_minimum_size = Vector2(0, 90)
 	Hud.style_primary(ok, 38)
 	ok.pressed.connect(func():
@@ -1110,7 +1105,7 @@ func _show_farewell() -> void:
 	note.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(note)
 	var ok := Button.new()
-	ok.text = "Adoptar otro Pompon"
+	ok.text = T.t("home.adopt_another")
 	ok.custom_minimum_size = Vector2(0, 90)
 	Hud.style_primary(ok, 32)
 	ok.pressed.connect(func():
@@ -1121,7 +1116,7 @@ func _show_farewell() -> void:
 		get_tree().change_scene_to_file("res://scenes/welcome.tscn"))
 	box.add_child(ok)
 	var later := Button.new()
-	later.text = "Más tarde"
+	later.text = T.t("home.later")
 	later.custom_minimum_size = Vector2(0, 70)
 	Hud.style_soft(later, 28)
 	later.pressed.connect(func():
@@ -1155,7 +1150,7 @@ func _make_bar(stat: String, height: float, font_size: int, with_text := false) 
 	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bar.font_size = font_size
 	if with_text:
-		bar.text = STAT_LABELS[stat]
+		bar.text = T.label(STAT_LABELS[stat])
 	return bar
 
 
@@ -2166,7 +2161,7 @@ func _on_pet_tapped() -> void:
 		return
 	if not p.hatched:  # el huevo no nace con toques: necesita su cuna
 		Audio.play("pet")
-		_speech.text = "¡Necesito una cuna para nacer!"
+		_speech.text = T.t("home.need_crib")
 		_bubble.visible = true
 		_speech_timer = 4.0
 		return
@@ -2219,7 +2214,7 @@ func _show_name_dialog(rename := false) -> void:
 	box.add_theme_constant_override("separation", 12)
 	_name_panel.add_child(box)
 	var head := Label.new()
-	head.text = "Elige un nombre\npara tu Pompon" if rename else "¡Tu Pompon nació!\n¿Cómo se va a llamar?"
+	head.text = T.t("home.rename_title") if rename else T.t("home.born_title")
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.add_theme_font_size_override("font_size", 34)
 	box.add_child(head)
@@ -2232,7 +2227,7 @@ func _show_name_dialog(rename := false) -> void:
 		_kid_name_grid(box, p)
 		return
 	var edit := LineEdit.new()
-	edit.placeholder_text = "Escribe un nombre"
+	edit.placeholder_text = T.t("home.name_placeholder")
 	edit.max_length = NAME_MAX
 	edit.text = NAME_IDEAS.pick_random()
 	edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -2246,21 +2241,21 @@ func _show_name_dialog(rename := false) -> void:
 	row.add_theme_constant_override("separation", 10)
 	box.add_child(row)
 	var random_button := Button.new()
-	random_button.text = "Otro nombre"
+	random_button.text = T.t("home.other_name")
 	random_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	random_button.custom_minimum_size = Vector2(0, 76)
 	Hud.style_soft(random_button, 28)
 	random_button.pressed.connect(func(): edit.text = NAME_IDEAS.pick_random())
 	row.add_child(random_button)
 	var ok := Button.new()
-	ok.text = "¡Listo!"
+	ok.text = T.t("common.ready")
 	ok.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	ok.custom_minimum_size = Vector2(0, 76)
 	Hud.style_primary(ok, 34)
 	var accept := func():
 		var chosen_name := edit.text.strip_edges()
 		if chosen_name == "":
-			edit.placeholder_text = "¡Falta el nombre!"
+			edit.placeholder_text = T.t("home.name_missing")
 			return
 		GameState.pompon.nickname = chosen_name
 		GameState.save_game()
@@ -2278,7 +2273,7 @@ func _kid_name_grid(box: VBoxContainer, p: Pompon) -> void:
 	var picker := NamePicker.new().setup(NAME_IDEAS, p.nickname)
 	box.add_child(picker)
 	var ok := Button.new()
-	ok.text = "¡Listo!"
+	ok.text = T.t("common.ready")
 	ok.custom_minimum_size = Vector2(0, 80)
 	Hud.style_primary(ok, 34)
 	ok.disabled = picker.chosen == ""
@@ -2319,9 +2314,9 @@ func _show_kid_names_notice() -> void:
 	_kid_layer = notice
 	add_child(notice)
 	notice.add(BigNotice.icon_strip([["lock", Color("a98bea")], ["heart", Color("ff7aa8")]]))
-	notice.title("¡Elige nombres nuevos!", Color("7a56c4"))
-	notice.text_line("Para cuidar tu privacidad, elige tu nombre y el de tu Pompon de la lista.", 28)
-	notice.button("Elegir", func():
+	notice.title(T.t("home.kid_names_title"), Color("7a56c4"))
+	notice.text_line(T.t("home.kid_names_text"), 28)
+	notice.button(T.t("home.kid_names_go"), func():
 		notice.close()
 		_kid_layer = null
 		_kid_pick_player(), true, Color("5fc77f"))
@@ -2425,7 +2420,7 @@ func _refresh() -> void:
 	_crib_bar.visible = waiting_crib
 	_crib_bar.value = float(mini(GameState.coins, _crib_price()))
 	_crib_bar.max_value = float(_crib_price())
-	_crib_bar.text = "Cuna  %d / %d" % [mini(GameState.coins, _crib_price()), _crib_price()]
+	_crib_bar.text = T.t("home.crib_bar", {"have": mini(GameState.coins, _crib_price()), "price": _crib_price()})
 	var grow_now := int(Time.get_unix_time_from_system())
 	var growing: bool = born and PomponGrowth.active(p, grow_now)
 	_growth_bar.visible = growing
@@ -2434,11 +2429,12 @@ func _refresh() -> void:
 		var gq := PomponGrowth.quality(p, grow_now)
 		_growth_bar.value = gq
 		_growth_bar.tint = PomponGrowth.tier_color(PomponGrowth.pace(p, grow_now))
-		_growth_bar.text = "Crecimiento  %d%%" % int(gq)
+		_growth_bar.text = T.t("home.growth_bar", {"pct": int(gq)})
 		_growth_bar.queue_redraw()
 		var left := PomponGrowth.days_left(p, grow_now)
 		var stage_i := p.stage_index(grow_now)
-		_growth_hint.text = "Día %d de %d · Será %s %s" % [PomponGrowth.day_index(p, grow_now) + 1, PomponGrowth.stage_days(stage_i), Pompon.STAGES[stage_i + 1], "mañana" if left <= 1 else "en %d días" % left]
+		_growth_hint.text = T.t("home.growth_hint", {"day": PomponGrowth.day_index(p, grow_now) + 1, "total": PomponGrowth.stage_days(stage_i),
+			"stage": T.label(Pompon.STAGES[stage_i + 1]), "when": T.t("home.tomorrow") if left <= 1 else T.n("home.in_days", left)})
 
 	room.set_state(GameState.equipped.get("wall", ""), GameState.equipped.get("floor", ""), GameState.placed, GameState.current_room)
 	pet.set_pompon(p if p != null else _mystery_egg, _night_outfit() if _night else GameState.equipped)
@@ -2458,16 +2454,16 @@ func _refresh() -> void:
 	_avatar_view.set_pompon(p if p != null else _mystery_egg, GameState.equipped)
 
 	if p == null:
-		title.text = "No tienes un Pompon"
-		details.text = "Toca el botón para elegir a tu Pompon."
+		title.text = T.t("home.no_pompon")
+		details.text = T.t("home.no_pompon_hint")
 		return
 	if not _is_born(p):
-		title.text = "Tu huevo de %s" % Pompon.species_label(p.species).to_lower()
+		title.text = T.t("home.egg_of", {"species": Pompon.species_label(p.species).to_lower()})
 		details.text = ""
 		details.visible = false
 		return
 	var now := int(Time.get_unix_time_from_system())
-	title.text = "%s  (%s)" % [p.display_name(), p.stage_name(now)]
+	title.text = "%s  (%s)" % [p.display_name(), T.label(p.stage_name(now))]
 	details.visible = true
 	details.text = "%s · %s" % [Pompon.species_label(p.species), Pompon.personality_label(p.personality)]
 	if p.nickname != "":

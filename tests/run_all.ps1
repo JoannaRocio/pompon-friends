@@ -18,6 +18,7 @@ if (Test-Path $userData) { Get-ChildItem $userData -Filter "save.json*" | Copy-I
 
 Push-Location $project
 $env:POMPON_HOUR = "12"   # las pruebas corren al mediodia (no dependen de la hora real; test_night fija las suyas)
+$env:POMPON_LANG = "es"   # y en español, sin importar el idioma de la PC (test_locale cambia el idioma a mano)
 & $godot --headless --path . --import --quit 2>&1 | Out-Null
 $failed = 0
 foreach ($test in Get-ChildItem "tests" -Filter "test_*.gd" | Sort-Object Name) {

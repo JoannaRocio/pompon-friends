@@ -52,7 +52,7 @@ func setup(can_cancel: bool) -> void:
 	panel.add_child(box)
 
 	var head := Label.new()
-	head.text = "¿Cómo te llamas?"
+	head.text = T.t("profile.title")
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.add_theme_font_size_override("font_size", 42)
 	head.add_theme_color_override("font_color", Color("d6336c"))
@@ -66,7 +66,7 @@ func setup(can_cancel: bool) -> void:
 		_build_edit(box)
 
 	var sex_ask := Label.new()
-	sex_ask.text = "Pronombres"
+	sex_ask.text = T.t("profile.pronouns")
 	sex_ask.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sex_ask.add_theme_font_size_override("font_size", 28)
 	box.add_child(sex_ask)
@@ -78,7 +78,7 @@ func setup(can_cancel: bool) -> void:
 		var b := Button.new()
 		b.toggle_mode = true
 		b.button_group = group
-		b.text = choice["label"]
+		b.text = T.label(choice["label"])
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 84)
 		b.add_theme_font_size_override("font_size", 32)
@@ -99,7 +99,7 @@ func setup(can_cancel: bool) -> void:
 		_buttons[_gender].button_pressed = true
 
 	_ok = Button.new()
-	_ok.text = "¡Listo!"
+	_ok.text = T.t("common.ready")
 	_ok.custom_minimum_size = Vector2(0, 88)
 	_ok.add_theme_font_size_override("font_size", 38)
 	_ok.add_theme_stylebox_override("normal", _style(Color("ff8fb8"), Color.WHITE, 44, 6, 6))
@@ -113,7 +113,7 @@ func setup(can_cancel: bool) -> void:
 	box.add_child(_ok)
 	if can_cancel:
 		var cancel := Button.new()
-		cancel.text = "Cancelar"
+		cancel.text = T.t("common.cancel")
 		cancel.custom_minimum_size = Vector2(0, 56)
 		cancel.add_theme_font_size_override("font_size", 24)
 		cancel.pressed.connect(func(): cancelled.emit())
@@ -123,7 +123,7 @@ func setup(can_cancel: bool) -> void:
 
 func _build_edit(box: VBoxContainer) -> void:
 	_edit = LineEdit.new()
-	_edit.placeholder_text = "Tu nombre"
+	_edit.placeholder_text = T.t("profile.placeholder")
 	_edit.max_length = GameState.PLAYER_NAME_MAX
 	_edit.text = GameState.player_name
 	_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -136,7 +136,7 @@ func _build_edit(box: VBoxContainer) -> void:
 	box.add_child(_edit)
 
 	_random = Button.new()
-	_random.text = "Inventar un nombre"
+	_random.text = T.t("profile.invent")
 	_random.custom_minimum_size = Vector2(0, 64)
 	_random.add_theme_font_size_override("font_size", 26)
 	_random.add_theme_stylebox_override("normal", _style(Color("fff1f6"), Color("ffc2d9"), 32, 4, 4))
@@ -187,7 +187,7 @@ func _refresh() -> void:
 func _accept() -> void:
 	if _ok.disabled:
 		if _name_value() == "" and _edit != null:
-			_edit.placeholder_text = "¡Falta tu nombre!"
+			_edit.placeholder_text = T.t("profile.missing")
 		return
 	GameState.set_profile(_name_value(), _gender)
 	Audio.play("success")

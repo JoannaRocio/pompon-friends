@@ -112,7 +112,7 @@ func _tutorial_step() -> void:
 	if _friends_card_node == null or not is_instance_valid(_friends_card_node):
 		GameState.tutorial_step_done()   # (sin servidor de amigos: no hay nada que mostrar)
 		return
-	_tut = TutorialOverlay.new().setup(step["text"], _friends_card_node, "next")
+	_tut = TutorialOverlay.new().setup(TutorialSteps.fill(step["text"], GameState.pompon.display_name() if GameState.pompon != null else "", 0), _friends_card_node, "next")
 	add_child(_tut)
 	_tut.done.connect(func():
 		GameState.tutorial_step_done()

@@ -39,6 +39,11 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://locale/textos.es.translation", "res://locale/textos.en.translation")
+locale/fallback="es"
+
 [rendering]
 
 renderer/rendering_method="mobile"

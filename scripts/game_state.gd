@@ -26,6 +26,7 @@ var tutorial := {"chapter": 0, "step": 0, "off": false, "done_at": 0, "done_day"
 # seguridad con amigos de verdad: grupo de edad ("" sin preguntar, "child" menor de 13, "teen" 13 a 17,
 # "adult"; no se guarda la edad exacta), codigos bloqueados y dibujos recibidos que esperan respuesta
 var age_group := ""
+var language := ""   # idioma elegido en el menu ("es", "en"); vacio = el del celular (ver T)
 var blocked_codes: Array = []
 var pending_art: Array = []   # [{"code", "who", "px"}]
 const PENDING_ART_MAX := 10
@@ -48,6 +49,7 @@ const ROOM_REF_WORLD := Vector2(720.0 * 2.0, 1280.0)   # habitacion completa (2 
 func _ready() -> void:
 	coins = 0  # se empieza sin monedas: hay que trabajar en el periodico
 	load_game()
+	T.apply(language)
 	mark_visit()
 
 
@@ -823,7 +825,7 @@ func save_dict() -> Dictionary:
 		"owned": owned, "equipped": equipped, "placed": placed, "paintings": paintings, "movies_seen": movies_seen,
 		"week_visits": week_visits, "days_visited": days_visited, "last_visit_day": last_visit_day, "games_played": games_played,
 		"paintings_made": paintings_made, "achievements_claimed": achievements_claimed, "notify_on": notify_on, "tutorial": tutorial,
-		"age_group": age_group, "blocked_codes": blocked_codes, "pending_art": pending_art,
+		"age_group": age_group, "language": language, "blocked_codes": blocked_codes, "pending_art": pending_art,
 		"room_layout": 2, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
@@ -841,6 +843,7 @@ func save_dict() -> Dictionary:
 ## Empezar de nuevo: borra la partida guardada (y su respaldo) y deja todo como al instalar el juego.
 ## La musica y el sonido (ajustes, no progreso) se conservan.
 func reset_game() -> void:
+	var keep_language := language   # (el idioma es un ajuste, como la musica: se conserva)
 	for path in [SAVE_PATH, BACKUP_PATH, SAVE_PATH + ".tmp"]:
 		_erase_file(path)
 	# los valores iniciales salen de una copia nueva de este script (asi no se olvida ninguna variable)
@@ -858,7 +861,15 @@ func reset_game() -> void:
 	GeographyProblems.current_track = "geo_capitals"
 	Jobs.current = "math"
 	PixelArt.cache = {}
+	language = keep_language
 	mark_visit()
+
+
+## Cambia el idioma ("es", "en" o "" = el del celular) y lo guarda.
+func set_language(lang: String) -> void:
+	language = lang if lang in T.LANGS else ""
+	T.apply(language)
+	save_game()
 
 
 ## Lista de amigos guardada: solo entradas con codigo valido y tarjeta.
@@ -920,6 +931,9 @@ func _load_progress(parsed: Dictionary) -> void:
 	age_group = str(parsed.get("age_group", ""))
 	if not age_group in ["", "child", "teen", "adult"]:
 		age_group = ""
+	var lg := str(parsed.get("language", ""))
+	if lg in T.LANGS:   # (partida vieja sin idioma: queda el del celular)
+		language = lg
 	blocked_codes = []
 	for c in parsed.get("blocked_codes", []):
 		var code := CloudCode.clean_friend(str(c))

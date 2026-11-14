@@ -67,11 +67,11 @@ const PERSONALITY_LABELS := {"Energico": "Enérgico", "Timido": "Tímido", "Glot
 
 ## Nombres para mostrar (con tildes); los internos siguen sin ellas.
 static func species_label(s: String) -> String:
-	return SPECIES_LABELS.get(s, s)
+	return T.label(SPECIES_LABELS.get(s, s))
 
 
 static func personality_label(s: String) -> String:
-	return PERSONALITY_LABELS.get(s, s)
+	return T.label(PERSONALITY_LABELS.get(s, s))
 
 
 ## Crea un Pompon nuevo. La especie la elige el jugador (si no se indica, sale una al azar);

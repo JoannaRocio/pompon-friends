@@ -67,7 +67,7 @@ func setup(text: String, target_node: Control, step_mode: String, extra: Control
 	row.add_theme_constant_override("separation", 12)
 	col.add_child(row)
 	var skip := Button.new()
-	skip.text = "Saltar tutorial"
+	skip.text = T.t("tut.skip")
 	skip.custom_minimum_size = Vector2(0, 60)
 	skip.focus_mode = Control.FOCUS_NONE
 	Hud.style_soft(skip, 20)
@@ -78,7 +78,7 @@ func setup(text: String, target_node: Control, step_mode: String, extra: Control
 	row.add_child(skip)
 	if mode == "next":
 		var ok := Button.new()
-		ok.text = "¡Entendido!"
+		ok.text = T.t("tut.ok")
 		ok.custom_minimum_size = Vector2(240, 76)
 		ok.focus_mode = Control.FOCUS_NONE
 		Hud.style_primary(ok, 30)
@@ -154,8 +154,8 @@ func _draw_ring() -> void:
 static func growth_card(stage: int) -> Control:
 	var c := Control.new()
 	c.custom_minimum_size = Vector2(560, 150)
-	var names := ["Bebé", "Niño", "Adolescente", "Grande"]
-	var days := ["días 1 a 7", "días 8 a 21", "días 22 a 51", "desde el día 52"]
+	var names := ["Bebé", "Niño", "Adolescente", "Grande"].map(func(s): return T.label(s))
+	var days := [0, 1, 2, 3].map(func(i): return T.t("tut.card.%d" % i))
 	c.draw.connect(func():
 		var step := c.size.x / 4.0
 		var font := c.get_theme_default_font()

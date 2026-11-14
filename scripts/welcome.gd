@@ -195,7 +195,7 @@ func _back_button(target: Callable) -> Button:
 
 func _welcome() -> void:
 	var s := _new_step()
-	var who := GameState.player_name if GameState.player_name != "" else "amigo"
+	var who := GameState.player_name if GameState.player_name != "" else T.g("welcome.friend", GameState.player_title)
 	var size_px := 104 if who.length() <= 6 else (86 if who.length() <= 9 else 68)
 	var title := RichTextLabel.new()
 	title.bbcode_enabled = true
@@ -209,7 +209,7 @@ func _welcome() -> void:
 	title.add_theme_color_override("default_color", Color("a0527a"))
 	title.add_theme_color_override("font_outline_color", Color.WHITE)
 	title.add_theme_constant_override("outline_size", 22)
-	title.text = "[center][wave amp=14.0 freq=2.5 connected=0]¡Hola, [color=#d6336c]%s[/color]![/wave][/center]" % who
+	title.text = "[center][wave amp=14.0 freq=2.5 connected=0]%s[/wave][/center]" % T.t("welcome.hello", {"name": "[color=#d6336c]%s[/color]" % who})
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	s.add_child(title)
 
@@ -224,7 +224,7 @@ func _welcome() -> void:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	s.add_child(panel)
 	var msg := Label.new()
-	msg.text = "Hoy es el día en que adoptas a tu primer Pompon" if _first else "Hoy adoptas a un nuevo Pompon"
+	msg.text = T.t("welcome.first") if _first else T.t("welcome.again")
 	msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	msg.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	msg.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -271,7 +271,7 @@ func _welcome() -> void:
 		bob.tween_property(q, "offset_top", -10.0, 0.6).set_trans(Tween.TRANS_SINE)
 		bob.tween_property(q, "offset_top", 6.0, 0.6).set_trans(Tween.TRANS_SINE)
 
-	var adopt := _big_button("Adoptar Pompon", PINK, 54)
+	var adopt := _big_button(T.t("common.adopt"), PINK, 54)
 	adopt.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	adopt.offset_left = 90
 	adopt.offset_right = -90
@@ -288,8 +288,8 @@ func _choose_species() -> void:
 	Audio.play("click")
 	var s := _new_step()
 	s.add_child(_back_button(_welcome))
-	_label(s, "¿Qué especie?", 84, Color("d6336c"), 120)
-	_label(s, "Sus colores serán una sorpresa", 32, Color("a0527a"), 232)
+	_label(s, T.t("welcome.species"), 84, Color("d6336c"), 120)
+	_label(s, T.t("welcome.colors"), 32, Color("a0527a"), 232)
 
 	var grid := GridContainer.new()
 	grid.columns = 4
@@ -330,7 +330,7 @@ func _species_card(parent: Control, species: String) -> Button:
 	name_label.add_theme_font_size_override("font_size", 27)
 	card.add_child(name_label)
 	if species == "":
-		name_label.text = "Sorpresa"
+		name_label.text = T.t("welcome.surprise")
 		var q := Label.new()
 		q.text = "?"
 		q.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -387,7 +387,7 @@ class SexIcon extends Control:
 func _choose_sex() -> void:
 	var s := _new_step()
 	s.add_child(_back_button(_choose_species))
-	_label(s, "¿Hembra o macho?", 78, Color("d6336c"), 120)
+	_label(s, T.t("welcome.sex"), 78, Color("d6336c"), 120)
 
 	var box := Control.new()
 	box.set_anchors_preset(Control.PRESET_CENTER)
@@ -424,7 +424,7 @@ func _choose_sex() -> void:
 		icon.custom_minimum_size = Vector2(0, 100)
 		col.add_child(icon)
 		var l := Label.new()
-		l.text = entry[0]
+		l.text = T.label(entry[0])   # (entry[0] sigue siendo el valor que se guarda)
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		l.add_theme_font_size_override("font_size", 46)
@@ -482,10 +482,10 @@ func _adopt() -> void:
 	_fx.draw.connect(_draw_fx)
 	s.add_child(_fx)
 
-	_caption = _label(s, "¡Tu huevo llegó!", 84, Color("d6336c"), 150)
+	_caption = _label(s, T.t("welcome.egg"), 84, Color("d6336c"), 150)
 	_caption.modulate.a = 0.0
 
-	_go_button = _big_button("¡Ir a casa!", PINK, 54)
+	_go_button = _big_button(T.t("welcome.go_home"), PINK, 54)
 	_go_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	_go_button.offset_left = 120
 	_go_button.offset_right = -120

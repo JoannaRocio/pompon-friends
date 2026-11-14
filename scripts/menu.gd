@@ -13,6 +13,7 @@ const FRIENDS := [
 var _music_button: IconButton
 var _sfx_button: IconButton
 var _profile: ProfileDialog
+var _lang_button: Button   # idioma (ES / EN)
 var _age: BigNotice   # pregunta de edad (partida nueva, antes del nombre)
 var _logo: RichTextLabel
 var _logo_top := 0.0
@@ -49,6 +50,11 @@ class IconButton extends Button:
 			draw_circle(c + Vector2(0, 18), 5.0, line)
 			if not on:
 				draw_line(c + Vector2(-24, -24), c + Vector2(24, 24), Color("e0609e"), 6.0, true)
+			return
+		if kind == "lang":  # idioma: "ES" o "EN" en un globito
+			var font := get_theme_default_font()
+			draw_circle(c, 24.0, Color("a98bea"))
+			draw_string(font, c + Vector2(-24, 9), T.lang().to_upper(), HORIZONTAL_ALIGNMENT_CENTER, 48, 24, Color.WHITE)
 			return
 		if kind == "reset":  # flecha en circulo: empezar de nuevo
 			draw_arc(c, 17.0, -0.4 * PI, 1.3 * PI, 24, line, 5.0, true)
@@ -126,7 +132,8 @@ func _ready() -> void:
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(tag)
 	var tag_label := Label.new()
-	tag_label.text = "Cuida a tu Pompon y aprende jugando"
+	tag_label.text = T.t("menu.tagline")
+	tag_label.set_meta("tkey", "menu.tagline")
 	tag_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tag_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	tag_label.add_theme_font_size_override("font_size", 26)
@@ -159,16 +166,17 @@ func _ready() -> void:
 
 	var box := VBoxContainer.new()
 	box.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	box.offset_left = 110
-	box.offset_right = -110
+	box.offset_left = 40   # (ancho para los 6 botones redondos; "Jugar" queda angosto, ver abajo)
+	box.offset_right = -40
 	box.offset_top = -330
 	box.offset_bottom = -92
 	box.add_theme_constant_override("separation", 22)
 	add_child(box)
 
 	_play = Button.new()
-	_play.text = "¡Jugar!"
-	_play.custom_minimum_size = Vector2(0, 124)
+	_play.text = T.t("menu.play")
+	_play.custom_minimum_size = Vector2(500, 124)
+	_play.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_play.add_theme_font_size_override("font_size", 64)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		_play.add_theme_color_override(state, Color.WHITE)
@@ -182,7 +190,7 @@ func _ready() -> void:
 
 	var opts := HBoxContainer.new()
 	opts.alignment = BoxContainer.ALIGNMENT_CENTER
-	opts.add_theme_constant_override("separation", 28)
+	opts.add_theme_constant_override("separation", 16)
 	box.add_child(opts)
 	_music_button = _icon_button(opts, "music", func():
 		Audio.set_music_on(not Audio.music_on)
@@ -194,14 +202,16 @@ func _ready() -> void:
 		GameState.notify_on = not GameState.notify_on
 		GameState.save_game()
 		_update_labels()
-		_toast("Te avisaremos como mucho una vez por semana" if GameState.notify_on else "Avisos apagados"))
+		_toast(T.t("menu.notify_on") if GameState.notify_on else T.t("menu.notify_off")))
 	_cloud_button = _icon_button(opts, "cloud", _open_cloud)
+	_lang_button = _icon_button(opts, "lang", _toggle_language)
 	_reset_button = _icon_button(opts, "reset", _ask_reset)
 	_reset_button.visible = _has_progress()   # sin partida no hay nada que borrar
 	_update_labels()
 
 	var foot := Label.new()
-	foot.text = "Sin anuncios · Hecho con cariño"
+	foot.text = T.t("menu.footer")
+	foot.set_meta("tkey", "menu.footer")
 	foot.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	foot.offset_top = -56
 	foot.offset_bottom = -16
@@ -325,28 +335,48 @@ func _has_progress() -> bool:
 	return GameState.pompon != null or GameState.has_profile() or GameState.jobs_done > 0 or GameState.coins > 0
 
 
+## Cambia de idioma (español <-> inglés) y vuelve a armar el menu con los textos nuevos.
+func _toggle_language() -> void:
+	var next := "en" if T.lang() == "es" else "es"
+	GameState.set_language(next)
+	Audio.play("click")
+	if is_inside_tree() and get_tree().current_scene == self:
+		get_tree().reload_current_scene()
+	else:   # (en las pruebas el menu no es la escena actual)
+		_relabel()
+
+
+## Textos del menu en el idioma actual (sin rearmarlo).
+func _relabel() -> void:
+	_play.text = T.t("menu.play")
+	if _lang_button != null:
+		_lang_button.queue_redraw()
+	for l in find_children("*", "Label", true, false):
+		if l.has_meta("tkey"):
+			l.text = T.t(l.get_meta("tkey"))
+
+
 ## Dos pasos para no borrar sin querer: primero que se pierde todo, despues "¿seguro?".
 func _ask_reset() -> void:
 	if _notice != null:
 		return
 	_notice = BigNotice.new(620.0)
 	add_child(_notice)
-	_notice.title("¿Empezar de nuevo?")
-	_notice.text_line("Vas a perder todo: tu Pompon, tus monedas, tu casa y tu diario.", 28)
-	_notice.button("Sí, empezar de nuevo", _confirm_reset, true, Color("e5484d"))
-	_notice.button("No, seguir jugando", _close_notice, false)
+	_notice.title(T.t("menu.reset_title"))
+	_notice.text_line(T.t("menu.reset_text"), 28)
+	_notice.button(T.t("menu.reset_yes"), _confirm_reset, true, Color("e5484d"))
+	_notice.button(T.t("menu.reset_no"), _close_notice, false)
 
 
 func _confirm_reset() -> void:
 	_close_notice()
 	_notice = BigNotice.new(620.0)
 	add_child(_notice)
-	var sure: String = {"f": "¿Estás segura?", "m": "¿Estás seguro?"}.get(GameState.player_title, "¿De verdad?")
-	_notice.title(sure, Color("e5484d"))
-	var who := GameState.pompon.display_name() if GameState.pompon != null and GameState.pompon.hatched else "Tu Pompon"
-	_notice.text_line("%s no va a volver. Esto no se puede deshacer." % who, 28)
-	_notice.button("No, me quedo", _close_notice, true, Color("5fc77f"))
-	_notice.button("Borrar todo", _do_reset, false)
+	_notice.title(T.g("menu.reset_sure", GameState.player_title), Color("e5484d"))
+	var who := GameState.pompon.display_name() if GameState.pompon != null and GameState.pompon.hatched else T.t("menu.your_pompon")
+	_notice.text_line(T.t("menu.reset_gone", {"name": who}), 28)
+	_notice.button(T.t("menu.reset_stay"), _close_notice, true, Color("5fc77f"))
+	_notice.button(T.t("menu.reset_all"), _do_reset, false)
 
 
 func _close_notice() -> void:

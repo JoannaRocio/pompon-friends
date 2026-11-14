@@ -22,17 +22,17 @@ static func _notice(parent: Node, width := 620.0) -> BigNotice:
 ## Pregunta de edad neutral. `done` recibe el grupo elegido.
 static func ask_age(parent: Node, done: Callable) -> BigNotice:
 	var n := _notice(parent, 660.0)
-	n.title("¿Cuántos años tienes?", Color("7a56c4"))
-	n.text_line("Para cuidar tu privacidad.", 24, Color("a0527a"))
+	n.title(T.t("age.title"), Color("7a56c4"))
+	n.text_line(T.t("age.why"), 24, Color("a0527a"))
 	var grid := GridContainer.new()
 	grid.columns = 4
 	grid.add_theme_constant_override("h_separation", 10)
 	grid.add_theme_constant_override("v_separation", 10)
 	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	var options: Array = [["6 o menos", 6]]
+	var options: Array = [[T.t("age.under"), 6]]
 	for age in range(7, 18):
 		options.append([str(age), age])
-	options.append(["18 o más", 18])
+	options.append([T.t("age.over"), 18])
 	for o in options:
 		var b := Button.new()
 		b.text = o[0]
