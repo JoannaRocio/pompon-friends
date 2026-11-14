@@ -47,7 +47,7 @@ func _ready() -> void:
 	root.add_child(top)
 	top.add_child(Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/home.tscn")))
 	var title := Label.new()
-	title.text = "Vestidor"
+	title.text = T.s("Vestidor")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 52)
@@ -239,7 +239,7 @@ func _make_tabs() -> Control:
 			Hud.draw_icon(icon, kind, icon.size * 0.5, 36.0, Color.WHITE if b.button_pressed else ACCENT, ACCENT if b.button_pressed else Color("fff1f6")))
 		row.add_child(icon)
 		var label := Label.new()
-		label.text = t["label"]
+		label.text = T.s(t["label"])
 		label.add_theme_font_size_override("font_size", 26)
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(label)
@@ -316,7 +316,7 @@ func _make_tile(id: String) -> Control:
 	icon.set_item(id, 128.0)
 	holder.add_child(icon)
 	var name_label := Label.new()
-	name_label.text = item["name"]
+	name_label.text = Catalog.item_name(item["id"])
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -367,13 +367,13 @@ func _make_empty() -> Control:
 		Hud.draw_icon(icon, "bag", c, 60.0, ACCENT, Color("ffd6e7")))
 	box.add_child(icon)
 	var label := Label.new()
-	label.text = "¡Aún no tienes nada aquí!"
+	label.text = T.s("¡Aún no tienes nada aquí!")
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 28)
 	label.add_theme_color_override("font_color", Hud.INK)
 	box.add_child(label)
 	var go := Button.new()
-	go.text = "Ir a la tienda"
+	go.text = T.s("Ir a la tienda")
 	go.custom_minimum_size = Vector2(320, 80)
 	go.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	go.focus_mode = Control.FOCUS_NONE

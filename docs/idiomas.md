@@ -16,6 +16,9 @@ pantallas de entrada; el resto sigue en español y se migra de a poco (lista aba
     `.m` o `.n` y, si no está, `menu.reset_sure`. En inglés casi siempre alcanza con la clave sin género
     (o con las tres iguales).
   - `T.n("home.in_days", dias)` → `home.in_days.one` (1) o `home.in_days.many` (resto), con `{n}`.
+  - `T.s("Tienda")` → **lo más simple para textos nuevos**: el español es la clave (`s:Tienda` en el CSV).
+    Con marcadores: `T.s("Te faltan %d") % n` o `T.s("{stage} en {n} {d}", {...})`.
+  - `T.data("item", id, nombre)` → nombres de datos por id (`item.hat_bow`, `food.pizza`...).
   - `T.label("Comer")` → para **botones cuyo texto en español es también su identificador**
     (`ActionButton.caption`, solapas, especies, etapas, sexo, pronombres). Busca `ui.Comer`; si no existe,
     deja el texto igual. Así el tutorial y las pruebas siguen encontrando los botones por su nombre en
@@ -26,7 +29,9 @@ pantallas de entrada; el resto sigue en español y se migra de a poco (lista aba
   Se guarda en la partida, y "Empezar de nuevo" lo conserva (como la música). Una partida vieja sin idioma
   usa el del celular.
 - **Pruebas**: `run_all.ps1` fija `POMPON_LANG=es` (así no dependen del idioma de la PC). `test_locale`
-  cambia de idioma a mano y revisa que no se vea ninguna clave sin traducir.
+  cambia de idioma a mano y revisa que no se vea ninguna clave sin traducir; además busca en todos los
+  `.gd` los `T.s("...")`, `T.t("...")` y `T.label("...")` y avisa si alguno no tiene inglés ("codigo: ... sin
+  ingles: []"), y en cada pantalla migrada lista lo que se ve en español ("sigue en español: []").
 
 ## Cómo agregar un texto
 1. Agregar una fila a `locale/textos.csv`: `clave,texto en español,texto en inglés`. Si el texto tiene
@@ -51,6 +56,9 @@ especie, personalidad, barras, crecimiento, cuna), botones de arriba y de abajo,
 primera vez (`TIPS`, huevo que se mueve), regalo del día, nombre del Pompon al nacer, "¿Te avisamos?",
 cartel de nombres nuevos, la despedida (solo los botones) y el tutorial guiado completo
 (`TutorialSteps`, `TutorialOverlay`).
+- Tienda, vestidor, decorar, menú de comida, nombres de los 119 objetos (`Catalog.item_name`, claves
+  `item.<id>`), comidas (`PomponTastes.food_name`, `food.<id>`), habitaciones (`Rooms.room_name`) y el
+  aviso de nivel nuevo.
 
 ## Falta migrar (de más texto a menos)
 Cantidad aproximada de textos en español que quedan en cada archivo:

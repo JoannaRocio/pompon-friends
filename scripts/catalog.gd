@@ -205,6 +205,21 @@ const ITEMS := [
 ]
 
 
+## Nombre del item en el idioma actual (los dibujos de pixel art: "Dibujo de ...").
+static func item_name(id: String) -> String:
+	var it := get_item(id)
+	if it.is_empty():
+		return id
+	if it.get("art", false):
+		return str(it["name"])
+	return T.data("item", id, str(it["name"]))
+
+
+## Nombre de una categoria en el idioma actual ("Gorro", "Pared"...).
+static func category_name(cat: String) -> String:
+	return T.s(CATEGORY_LABELS.get(cat, cat))
+
+
 ## Dibujo que usa el item (los especiales reutilizan el de otro item con su propio color).
 static func shape_of(id: String) -> String:
 	return str(get_item(id).get("base", id))

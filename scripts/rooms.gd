@@ -20,7 +20,7 @@ static func count() -> int:
 
 
 static func room_name(i: int) -> String:
-	return LIST[clampi(i, 0, LIST.size() - 1)]["name"]
+	return T.label(LIST[clampi(i, 0, LIST.size() - 1)]["name"])
 
 
 static func unlock_level(i: int) -> int:
@@ -53,7 +53,7 @@ static func place_name(i: int) -> String:
 
 ## Nombre corto para los botones de la barra de abajo.
 static func short_name(i: int) -> String:
-	return "Terraza" if i == 5 else room_name(i)
+	return T.label("Terraza") if i == 5 else room_name(i)
 
 
 static func rug_color(i: int) -> Color:

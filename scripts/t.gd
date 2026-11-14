@@ -7,6 +7,8 @@ extends RefCounted
 ## - T.t("tip.growth", {"name": "Mochi"})     -> reemplaza {name} en el texto
 ## - T.g("menu.reset_sure", "f")              -> variante por genero ("menu.reset_sure.f", ".m", ".n";
 ##                                               si no existe, la clave sin genero)
+## - T.s("Tienda")                          -> el español es la clave ("s:Tienda"); lo mas simple
+## - T.data("item", id, nombre)               -> nombres de datos por id (objetos, comidas, paises...)
 ## - T.label("Comer")                         -> boton cuyo texto en español es tambien su id
 ##                                               (ActionButton.caption, solapas): busca "ui.Comer"
 ## El idioma se elige en el menu (GameState.language); vacio = el del celular.
@@ -38,11 +40,28 @@ static func n(key: String, count: int, params := {}) -> String:
 	return t(key + (".one" if count == 1 else ".many"), p)
 
 
+## Texto con el español como clave ("s:" + texto): T.s("Tienda") -> "Shop". Si no esta en el CSV, queda en
+## español. Con `params`, reemplaza {marcadores}. Es la forma mas simple para textos nuevos.
+static func s(spanish: String, params := {}) -> String:
+	var k := "s:" + spanish
+	var out := String(TranslationServer.translate(k))
+	if out == k:
+		out = spanish
+	return out.format(params) if not params.is_empty() else out
+
+
+## Nombre de un dato por su id ("item.hat_bow", "food.pizza"...); si no esta, `fallback`.
+static func data(prefix: String, id: String, fallback: String) -> String:
+	var k := prefix + "." + id
+	var out := String(TranslationServer.translate(k))
+	return fallback if out == k else out
+
+
 ## Etiqueta de un boton cuyo texto en español es tambien su identificador. Si no esta en el CSV, queda igual.
 static func label(spanish: String) -> String:
 	var k := "ui." + spanish
-	var s := String(TranslationServer.translate(k))
-	return spanish if s == k else s
+	var out := String(TranslationServer.translate(k))
+	return spanish if out == k else out
 
 
 ## Idioma en uso ("es" o "en").

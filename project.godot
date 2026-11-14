@@ -39,6 +39,10 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/handheld/orientation=1
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/NotificationSchedulerPlugin/plugin.cfg")
+
 [internationalization]
 
 locale/translations=PackedStringArray("res://locale/textos.es.translation", "res://locale/textos.en.translation")
@@ -49,7 +53,3 @@ locale/fallback="es"
 renderer/rendering_method="mobile"
 textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(1, 0.91, 0.93, 1)
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/NotificationSchedulerPlugin/plugin.cfg")

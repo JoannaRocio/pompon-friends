@@ -33,7 +33,100 @@ func _raw_keys(texts: Array) -> Array:
 	return texts.filter(func(s): return re.search(str(s)) != null)
 
 
+## Textos en español del CSV que en inglés cambian: si alguno se ve tal cual en inglés, falta traducirlo.
+var _spanish_only := {}
+
+
+func _load_spanish_only() -> void:
+	var f := FileAccess.open("res://locale/textos.csv", FileAccess.READ)
+	f.get_csv_line()
+	while not f.eof_reached():
+		var row := f.get_csv_line()
+		if row.size() >= 3 and row[1] != row[2]:
+			_spanish_only[row[1]] = true
+
+
+## Lo que se ve en inglés pero sigue en español: textos exactos del CSV o con letras del español.
+func _spanish_left(texts: Array, allow: Array = []) -> Array:
+	var re := RegEx.create_from_string("[áéíóúñ¿¡]")
+	return texts.filter(func(s): return not s in allow and (_spanish_only.has(s) or re.search(s) != null))
+
+
+## Todos los T.s("..."), T.t("...") y T.label("...") del codigo tienen su texto en inglés.
+func _code_check(t: GDScript) -> void:
+	var re := RegEx.create_from_string("T\\.(s|t|g|n|label)\\(\"((?:[^\"\\\\]|\\\\.)*)\"")
+	var missing := []
+	var count := 0
+	for dir in ["res://scripts"]:
+		for file in DirAccess.get_files_at(dir):
+			if not file.ends_with(".gd"):
+				continue
+			var src := FileAccess.get_file_as_string(dir.path_join(file))
+			for m in re.search_all(src):
+				var kind := m.get_string(1)
+				var lit := m.get_string(2).c_unescape()
+				var key: String = {"s": "s:", "label": "ui."}.get(kind, "") + lit
+				if kind == "g" or kind == "n" or (kind == "t" and lit.contains("%")):
+					continue   # (variantes y claves armadas con % se prueban aparte)
+				count += 1
+				if String(TranslationServer.get_translation_object("en").get_message(key)) == "":
+					missing.append("%s: %s" % [file, key])
+	print("codigo: ", count, " textos con T.s/T.t/T.label | sin ingles: ", missing)
+
+
+## Area 1: tienda, vestidor, catalogo y comidas.
+func _area_shop(t: GDScript) -> void:
+	var Catalog: GDScript = load("res://scripts/catalog.gd")
+	var PomponTastes: GDScript = load("res://scripts/pompon_tastes.gd")
+	var Rooms: GDScript = load("res://scripts/rooms.gd")
+	var en := TranslationServer.get_translation_object("en")
+	var no_item: Array = Catalog.ITEMS.filter(func(i): return String(en.get_message("item." + i["id"])) == "").map(func(i): return i["id"])
+	var no_food: Array = PomponTastes.FOODS.filter(func(f): return String(en.get_message("food." + f["id"])) == "").map(func(f): return f["id"])
+	print("catalogo: ", Catalog.ITEMS.size(), " objetos | sin ingles: ", no_item, " | comidas sin ingles: ", no_food, " | ej: ", Catalog.item_name("hat_bow"), ", ", PomponTastes.food_name("torta"), ", ", Rooms.room_name(1))
+	var now := int(Time.get_unix_time_from_system())
+	gs.reset_game()
+	gs.set_language("en")
+	gs.age_group = "adult"
+	gs.set_profile("Ana", "f")
+	gs.new_pompon("Conejo", "Hembra")
+	gs.pompon.hatched = true
+	gs.pompon.born_at = now - 3 * 86400
+	gs.pompon.nickname = "Mochi"
+	gs.coins = 30
+	gs.daily_gift_day = Missions.today(now)
+	gs.owned = ["hat_bow", "shirt_dress", "furn_sofa", "wall_stars"]
+	for key in ["all", "special"]:
+		var shop: Control = load("res://scenes/shop.tscn").instantiate()
+		root.add_child(shop)
+		await process_frame
+		if key == "special":
+			shop._filter = "special"
+			shop._rebuild()
+			await process_frame
+		var st := _texts(shop)
+		print("tienda (en, ", key, "): ", st.filter(func(s): return s in ["Shop", "All", "Clothes", "Furniture", "Bowls", "Special", "Yours", "Unlocks as you level up"] or s.begins_with("Level") or s.begins_with("New shop in")).slice(0, 12))
+		print("  sigue en español: ", _spanish_left(st, ["Mochi"]), " | claves sueltas: ", _raw_keys(st))
+		shop.queue_free()
+		await process_frame
+	var wd: Control = load("res://scenes/wardrobe.tscn").instantiate()
+	root.add_child(wd)
+	await process_frame
+	var wt := _texts(wd)
+	print("vestidor (en): ", wt.filter(func(s): return s in ["Closet", "Clothes", "Room", "Bowls", "Pink bow", "Pink dress"]), " | sigue en español: ", _spanish_left(wt, ["Mochi"]))
+	wd.queue_free()
+	var h: Control = load("res://scenes/home.tscn").instantiate()
+	root.add_child(h)
+	await create_timer(0.6).timeout
+	h._show_food_menu()
+	await process_frame
+	var ft := _texts(h._food_panel) if h._food_panel != null else []
+	print("comida (en): ", ft.filter(func(s): return s.begins_with("What should") or s in ["Toast", "Baby mush", "free", "New!"]).slice(0, 6), " | sigue en español: ", _spanish_left(ft, ["Mochi"]))
+	h.queue_free()
+	await process_frame
+
+
 func _initialize() -> void:
+	_load_spanish_only()
 	await process_frame
 	gs = root.get_node("GameState")
 	var t: GDScript = load("res://scripts/t.gd")
@@ -173,6 +266,10 @@ func _initialize() -> void:
 	var tt3: Array = _texts(h3._tut) if h3._tut != null else []
 	print("casa con Pompon (es): ", h3t.filter(func(s): return s in ["Comer", "Caricia", "Casa", "Comida", "Sueño"] or s.begins_with("Mochi  (Bebé)") or s.begins_with("Día 1 de 7")), " | tutorial: ", tt3.filter(func(s): return s.begins_with("¡Hola!") or s == "Saltar tutorial"))
 	h3.queue_free()
+
+	gs.set_language("en")
+	await _code_check(t)
+	await _area_shop(t)
 
 	gs.language = ""
 	gs.reset_game()

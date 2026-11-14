@@ -76,6 +76,30 @@ func _initialize() -> void:
 	var h: Control = load("res://scenes/home.tscn").instantiate()
 	_add(h)
 	await _shot("7-casa-tutorial.png", 2.2)
+	await _clear()
+
+	# tienda, vestidor y comida
+	gs.tutorial = {"chapter": 0, "step": 0, "off": true, "done_at": 0, "done_day": -1}
+	gs.pompon.born_at = now - 4 * 86400
+	gs.coins = 40
+	gs.owned = ["hat_bow", "shirt_dress", "furn_sofa", "wall_stars", "glasses_round"]
+	gs.equipped = {"hat": "hat_bow", "shirt": "shirt_dress", "wall": "wall_stars"}
+	var shop: Control = load("res://scenes/shop.tscn").instantiate()
+	_add(shop)
+	await _shot("8-tienda.png", 1.0)
+	shop._filter = "special"
+	shop._rebuild()
+	await _shot("9-tienda-especial.png")
+	await _clear()
+	var wd: Control = load("res://scenes/wardrobe.tscn").instantiate()
+	_add(wd)
+	await _shot("10-vestidor.png", 1.0)
+	await _clear()
+	var h2: Control = load("res://scenes/home.tscn").instantiate()
+	_add(h2)
+	await create_timer(1.0).timeout
+	h2._show_food_menu()
+	await _shot("11-comida.png")
 	gs.reset_game()
 	gs.set_language("")
 	quit()

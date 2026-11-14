@@ -47,7 +47,7 @@ func _ready() -> void:
 	root.add_child(top)
 	top.add_child(Hud.back_button(func(): get_tree().change_scene_to_file("res://scenes/town.tscn" if Town.from_town else "res://scenes/home.tscn")))
 	var title := Label.new()
-	title.text = "Tienda"
+	title.text = T.s("Tienda")
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 52)
@@ -76,7 +76,7 @@ func _ready() -> void:
 	var group := ButtonGroup.new()
 	for f in FILTERS:
 		var b := Button.new()
-		b.text = f["label"]
+		b.text = T.s(f["label"])
 		b.toggle_mode = true
 		b.button_group = group
 		b.button_pressed = f["key"] == _filter
@@ -109,7 +109,7 @@ func _ready() -> void:
 	_grid = _new_grid()
 	_list.add_child(_grid)
 	_locked_title = Label.new()
-	_locked_title.text = "Se desbloquea al subir de nivel"
+	_locked_title.text = T.s("Se desbloquea al subir de nivel")
 	_locked_title.add_theme_font_size_override("font_size", 30)
 	_locked_title.add_theme_color_override("font_color", Color("a0527a"))
 	_locked_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -182,7 +182,7 @@ func _draw_level_badge() -> void:
 
 func _process(_delta: float) -> void:
 	var left := Catalog.seconds_until_refresh(int(Time.get_unix_time_from_system()))
-	_timer_label.text = "Nueva tienda en %02d:%02d:%02d" % [left / 3600, (left % 3600) / 60, left % 60]
+	_timer_label.text = T.s("Nueva tienda en %02d:%02d:%02d") % [left / 3600, (left % 3600) / 60, left % 60]
 
 
 func _update_level_card() -> void:
@@ -191,23 +191,23 @@ func _update_level_card() -> void:
 	var level := GameState.pompon_level()
 	_level_badge.queue_redraw()
 	if p == null or not p.hatched:
-		_level_title.text = "Huevo"
+		_level_title.text = T.label("Huevo")
 		_level_bar.max_value = 1.0
 		_level_bar.value = 0.0
-		_level_bar.text = "¡Compra la cuna!"
+		_level_bar.text = T.s("¡Compra la cuna!")
 		return
-	_level_title.text = "Nivel %d · %s" % [level, p.stage_name(now)]
+	_level_title.text = T.s("Nivel %d · %s") % [level, T.label(p.stage_name(now))]
 	var next_level := p.next_stage_level(now)
 	if next_level < 0:
 		_level_bar.max_value = 1.0
 		_level_bar.value = 1.0
-		_level_bar.text = "¡Ya creció del todo!"
+		_level_bar.text = T.s("¡Ya creció del todo!")
 		return
 	var start: int = Pompon.STAGE_START_LEVEL[p.stage_index(now)]
 	_level_bar.max_value = float(next_level - start)
 	_level_bar.value = float(level - start)
 	var days := next_level - level
-	_level_bar.text = "%s en %d %s" % [Pompon.stage_name_for_level(next_level), days, "día" if days == 1 else "días"]
+	_level_bar.text = T.s("{stage} en {n} {d}", {"stage": T.label(Pompon.stage_name_for_level(next_level)), "n": days, "d": T.t("tut.day") if days == 1 else T.t("tut.days")})
 
 
 func _rebuild() -> void:
@@ -257,7 +257,7 @@ func _filter_cats() -> Array:
 func _celebrate_crib() -> void:
 	_rebuild()
 	_arrow.set_target(null)
-	_timer_label.text = "¡Cuna lista!"
+	_timer_label.text = T.s("¡Cuna lista!")
 	set_process(false)
 	await get_tree().create_timer(1.8).timeout
 	get_tree().change_scene_to_file("res://scenes/home.tscn")
@@ -284,7 +284,7 @@ func _make_card(item: Dictionary) -> Control:
 	holder.add_child(icon)
 
 	var name_label := Label.new()
-	name_label.text = item["name"]
+	name_label.text = Catalog.item_name(item["id"])
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(0, 64)
@@ -296,13 +296,13 @@ func _make_card(item: Dictionary) -> Control:
 	tag.alignment = BoxContainer.ALIGNMENT_CENTER
 	tag.custom_minimum_size = Vector2(0, 34)
 	box.add_child(tag)
-	var kind: String = Catalog.CATEGORY_LABELS[item["category"]]
+	var kind: String = Catalog.category_name(item["category"])
 	if item["id"] == GameState.CRIB_ID and GameState.egg_waiting():
-		tag.add_child(Hud.chip("¡Para que nazca!", Color("ffe6ef"), Color("d6336c"), 20))
+		tag.add_child(Hud.chip(T.s("¡Para que nazca!"), Color("ffe6ef"), Color("d6336c"), 20))
 	elif needed:
-		tag.add_child(Hud.chip("¡Lo necesita!", Color("ffe6ef"), Color("d6336c"), 20))
+		tag.add_child(Hud.chip(T.s("¡Lo necesita!"), Color("ffe6ef"), Color("d6336c"), 20))
 	elif item.has("species"):
-		tag.add_child(Hud.chip("Para %s" % Pompon.species_label(item["species"]), Color("e6efff"), Color("3f66b0"), 20))
+		tag.add_child(Hud.chip(T.s("Para %s") % Pompon.species_label(item["species"]), Color("e6efff"), Color("3f66b0"), 20))
 	else:
 		tag.add_child(Hud.chip(kind, Color("f3eefc"), Color("7a56c4"), 20))
 
@@ -328,7 +328,7 @@ func _make_card(item: Dictionary) -> Control:
 		done.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		done.draw.connect(func(): Hud.draw_icon(done, "check", done.size * 0.5, 34.0, Color("2f9e6e")))
 		price_row.add_child(done)
-		price_label.text = "Tuyo"
+		price_label.text = T.s("Tuyo")
 		price_label.add_theme_color_override("font_color", Color("2f9e6e"))
 	else:
 		var affordable: bool = GameState.coins >= item["price"]
@@ -345,7 +345,7 @@ func _make_card(item: Dictionary) -> Control:
 			price_label.add_theme_color_override("font_color", Color("a08a96"))
 			price_row.modulate = Color(1, 1, 1, 0.75)
 			var missing := Label.new()
-			missing.text = "Te faltan %d" % (int(item["price"]) - GameState.coins)
+			missing.text = T.s("Te faltan %d") % (int(item["price"]) - GameState.coins)
 			missing.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 			missing.add_theme_font_size_override("font_size", 19)
 			missing.add_theme_color_override("font_color", Color("e0295f"))
@@ -403,7 +403,7 @@ func _make_locked_card(item: Dictionary) -> Control:
 	stack.add_child(lock)
 	var lvl: int = Catalog.unlock_level(item["id"])
 	var name_label := Label.new()
-	name_label.text = item["name"]
+	name_label.text = Catalog.item_name(item["id"])
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(0, 60)
@@ -414,9 +414,9 @@ func _make_locked_card(item: Dictionary) -> Control:
 	var tag := HBoxContainer.new()
 	tag.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_child(tag)
-	tag.add_child(Hud.chip("Nivel %d" % lvl, Color("ece6f7"), Color("6b4ba6"), 22))
+	tag.add_child(Hud.chip(T.s("Nivel %d") % lvl, Color("ece6f7"), Color("6b4ba6"), 22))
 	var stage := Label.new()
-	stage.text = Pompon.stage_name_for_level(lvl)
+	stage.text = T.label(Pompon.stage_name_for_level(lvl))
 	stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stage.add_theme_font_size_override("font_size", 18)
 	stage.add_theme_color_override("font_color", Color(Hud.INK, 0.5))

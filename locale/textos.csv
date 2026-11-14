@@ -170,3 +170,192 @@ tut.jugar.1,"En Misiones hay tareas nuevas cada día, logros y un sello por cada
 tut.pueblo.0,"Esta puerta sale al pueblo: el cine con películas nuevas cada semana, la tienda y las casas de tus vecinos.","This door goes out to town: the movie theater with new movies every week, the shop and your neighbors' houses."
 tut.pueblo.1,"En Trabajo puedes enseñar Matemáticas, Inglés y Geografía. ¡Más clases, más monedas!","At Work you can teach Math, English and Geography. More classes, more coins!"
 tut.pueblo.2,¡Ya conoces todo lo importante! Cada semana hay algo nuevo. ¡Que lo disfrutes con {name}!,Now you know all the important stuff! There's something new every week. Have fun with {name}!
+item.hat_beanie,Gorro de lana,Wool hat
+item.hat_cap,Gorra azul,Blue cap
+item.hat_bow,Moño rosa,Pink bow
+item.hat_crown,Corona,Crown
+item.hat_party,Gorro de fiesta,Party hat
+item.hat_flower,Corona de flores,Flower crown
+item.hat_straw,Sombrero de paja,Straw hat
+item.hat_chef,Gorro de chef,Chef hat
+item.glasses_round,Lentes redondos,Round glasses
+item.glasses_sun,Lentes de sol,Sunglasses
+item.glasses_star,Lentes estrella,Star glasses
+item.glasses_heart,Lentes de corazón,Heart glasses
+item.glasses_cat,Lentes de gato,Cat-eye glasses
+item.shirt_red,Remera roja,Red T-shirt
+item.shirt_hoodie,Buzo azul,Blue hoodie
+item.shirt_dress,Vestido rosa,Pink dress
+item.shirt_sweater,Sweater celeste,Sky-blue sweater
+item.shirt_green,Campera verde,Green jacket
+item.shirt_overalls,Jardinero,Overalls
+item.shirt_pajama,Piyama,Pajamas
+item.shirt_raincoat,Piloto amarillo,Yellow raincoat
+item.shirt_tutu,Tutú,Tutu
+item.shirt_scarf,Bufanda,Scarf
+item.hat_beret,Boina,Beret
+item.hat_ears,Diadema de gatito,Kitty ears headband
+item.hat_witch,Sombrero de bruja,Witch hat
+item.hat_halo,Aureola,Halo
+item.glasses_pixel,Lentes pixelados,Pixel glasses
+item.glasses_rainbow,Lentes arcoíris,Rainbow glasses
+item.shirt_star,Remera de estrellas,Star T-shirt
+item.shirt_cape,Capa de superhéroe,Superhero cape
+item.shirt_sailor,Marinero,Sailor suit
+item.shirt_tux,Smoking,Tuxedo
+item.furn_teddy,Osito de peluche,Teddy bear
+item.furn_beanbag,Puff,Beanbag
+item.furn_globe,Globo terráqueo,Globe
+item.furn_aquarium,Pecera,Fish tank
+item.furn_piano,Piano,Piano
+item.deco_rainbow,Arcoíris,Rainbow
+item.deco_balloons,Globos,Balloons
+item.wall_clouds,Pared de nubes,Cloud wall
+item.wall_hearts,Pared de corazones,Heart wall
+item.wall_space,Pared del espacio,Space wall
+item.floor_grass,Piso de pasto,Grass floor
+item.floor_carpet,Alfombrado rosa,Pink carpet
+item.bowl_food_pink,Tazón rosa de lunares,Pink polka-dot bowl
+item.bowl_food_star,Tazón de estrellas,Star bowl
+item.bowl_food_mint,Tazón menta con huellita,Mint paw-print bowl
+item.bowl_food_gold,Tazón dorado,Golden bowl
+item.bowl_water_blue,Tazón celeste con olas,Sky-blue wave bowl
+item.bowl_water_heart,Tazón de corazón,Heart bowl
+item.bowl_water_lilac,Tazón lila,Lilac bowl
+item.bowl_water_fish,Tazón de pececito,Little fish bowl
+item.wall_stars,Pared de estrellas,Star wall
+item.wall_blue,Pared celeste,Sky-blue wall
+item.wall_lilac,Pared lila,Lilac wall
+item.wall_peach,Pared durazno,Peach wall
+item.wall_mint,Pared menta,Mint wall
+item.floor_wood,Piso de madera,Wooden floor
+item.floor_pink,Piso rosa,Pink floor
+item.floor_mint,Piso menta,Mint floor
+item.floor_checker,Piso ajedrez,Checkered floor
+item.furn_bed,Cama amplia,Big bed
+item.furn_scratcher,Rascador,Scratching post
+item.furn_tunnel,Túnel,Tunnel
+item.furn_swing,Columpio,Swing
+item.furn_wheel,Rueda de ejercicio,Exercise wheel
+item.furn_cushion,Cojín térmico,Warm cushion
+item.furn_heat,Lámpara de calor,Heat lamp
+item.furn_crib,Cuna,Crib
+item.furn_sofa,Sofá,Sofa
+item.furn_plant,Planta,Plant
+item.furn_bookshelf,Biblioteca,Bookshelf
+item.furn_table,Mesita de té,Tea table
+item.furn_lamp,Lámpara de pie,Floor lamp
+item.furn_fireplace,Chimenea,Fireplace
+item.furn_toybox,Baúl de juguetes,Toy chest
+item.deco_window,Ventana,Window
+item.deco_picture,Cuadro,Picture
+item.deco_clock,Reloj,Clock
+item.deco_shelf,Estante,Shelf
+item.deco_garland,Guirnalda,Garland
+item.deco_moon,Luna y estrellas,Moon and stars
+item.deco_shelf_long,Estante largo,Long shelf
+item.deco_shelf_cloud,Estante nube,Cloud shelf
+item.furn_stool,Banquito,Little stool
+item.furn_dresser,Cómoda,Dresser
+item.furn_desk,Escritorio,Desk
+item.furn_wardrobe,Armario,Wardrobe
+item.toy_blocks,Cubos de juguete,Toy blocks
+item.toy_books,Pila de libros,Stack of books
+item.toy_vase,Jarrón con flores,Flower vase
+item.toy_cactus,Cactus,Cactus
+item.toy_cake,Tarta,Cake
+item.toy_frame,Portarretrato,Photo frame
+item.toy_musicbox,Caja musical,Music box
+item.toy_robot,Robot de juguete,Toy robot
+item.toy_trophy,Copa,Trophy
+item.hat_crown_diamond,Corona de diamantes,Diamond crown
+item.hat_halo_gold,Aureola dorada,Golden halo
+item.hat_wizard,Sombrero de mago,Wizard hat
+item.glasses_star_gold,Lentes de estrellas doradas,Golden star glasses
+item.shirt_dress_princess,Vestido de princesa,Princess dress
+item.shirt_cape_royal,Capa real,Royal cape
+item.shirt_tux_gold,Smoking dorado,Golden tuxedo
+item.furn_bed_cloud,Cama de nube,Cloud bed
+item.furn_piano_gold,Piano de cola dorado,Golden grand piano
+item.furn_sofa_royal,Sofá real,Royal sofa
+item.furn_fireplace_crystal,Chimenea de cristal,Crystal fireplace
+item.furn_lamp_stars,Lámpara de estrellas,Star lamp
+item.furn_aquarium_rainbow,Acuario de colores,Rainbow aquarium
+item.deco_window_magic,Ventana mágica,Magic window
+item.deco_garland_lights,Guirnalda de luces,String lights
+item.wall_rainbow,Pared arcoíris,Rainbow wall
+item.wall_galaxy,Pared galaxia,Galaxy wall
+item.floor_gold,Piso dorado,Golden floor
+item.floor_cloud,Piso de nubes,Cloud floor
+item.bowl_food_diamond,Tazón de diamante,Diamond bowl
+item.bowl_water_crystal,Tazón de cristal,Crystal bowl
+food.papilla,Papilla,Baby mush
+food.pan,Pan tostado,Toast
+food.arroz,Arroz con caldo,Rice soup
+food.manzana,Manzana,Apple
+food.banana,Banana,Banana
+food.zanahoria,Zanahoria,Carrot
+food.galletitas,Galletitas,Cookies
+food.pizza,Pizza,Pizza
+food.helado,Helado,Ice cream
+food.torta,Torta de frutilla,Strawberry cake
+food.fideos,Fideos con salsa,Noodles with sauce
+ui.Sala,Sala,Living room
+ui.Dormitorio,Dormitorio,Bedroom
+ui.Cocina,Cocina,Kitchen
+ui.Biblioteca,Biblioteca,Library
+ui.Jardín,Jardín,Garden
+ui.Terraza estelar,Terraza estelar,Star terrace
+ui.Terraza,Terraza,Terrace
+s:Gorro,Gorro,Hat
+s:Lentes,Lentes,Glasses
+s:Ropa,Ropa,Clothes
+s:Piso,Piso,Floor
+s:Pared,Pared,Wall
+s:Mueble,Mueble,Furniture
+s:Decoración,Decoración,Decoration
+s:Tazón de comida,Tazón de comida,Food bowl
+s:Tazón de agua,Tazón de agua,Water bowl
+s:Todo,Todo,All
+s:Muebles,Muebles,Furniture
+s:Cuarto,Cuarto,Room
+s:Tazones,Tazones,Bowls
+s:Especial,Especial,Special
+s:Tienda,Tienda,Shop
+s:Se desbloquea al subir de nivel,Se desbloquea al subir de nivel,Unlocks as you level up
+s:Nueva tienda en %02d:%02d:%02d,Nueva tienda en %02d:%02d:%02d,New shop in %02d:%02d:%02d
+s:¡Compra la cuna!,¡Compra la cuna!,Buy the crib!
+s:Nivel %d · %s,Nivel %d · %s,Level %d · %s
+s:¡Ya creció del todo!,¡Ya creció del todo!,All grown up!
+s:{stage} en {n} {d},{stage} en {n} {d},{stage} in {n} {d}
+s:¡Cuna lista!,¡Cuna lista!,Crib ready!
+s:¡Para que nazca!,¡Para que nazca!,So it can hatch!
+s:¡Lo necesita!,¡Lo necesita!,It needs this!
+s:Para %s,Para %s,For %s
+s:Tuyo,Tuyo,Yours
+s:Te faltan %d,Te faltan %d,%d more to go
+s:Nivel %d,Nivel %d,Level %d
+s:Vestidor,Vestidor,Closet
+s:¡Aún no tienes nada aquí!,¡Aún no tienes nada aquí!,Nothing here yet!
+s:Ir a la tienda,Ir a la tienda,Go to the Shop
+s:Arrastra para mover. Los adornos se apoyan en mesas y estantes.,Arrastra para mover. Los adornos se apoyan en mesas y estantes.,Drag to move. Small things can sit on tables and shelves.
+s:Guardar mueble,Guardar mueble,Put away
+s:Listo,Listo,Done
+s:No te quedan muebles por colocar. ¡Compra más en la tienda!,No te quedan muebles por colocar. ¡Compra más en la tienda!,No more furniture to place. Buy more at the Shop!
+"s:%s se abre
+en el nivel %d","%s se abre
+en el nivel %d","%s opens
+at level %d"
+s:¿Qué le damos a %s?,¿Qué le damos a %s?,What should we give %s?
+s:tu Pompon,tu Pompon,your Pompon
+s:Lo nuevo le da desconfianza… ¡pero de a poco se anima!,Lo nuevo le da desconfianza… ¡pero de a poco se anima!,New food makes it unsure… but little by little it gets braver!
+s:gratis,gratis,free
+s:%d monedas,%d monedas,%d coins
+s:¡Nuevo!,¡Nuevo!,New!
+s:todavía duda,todavía duda,still unsure
+s:¡Nivel %d!,¡Nivel %d!,Level %d!
+s:¡Nueva habitación: %s!,¡Nueva habitación: %s!,New room: %s!
+s:Nuevo en la tienda: %s,Nuevo en la tienda: %s,New in the Shop: %s
+s: y , y , and 
+s:%s y %d más,%s y %d más,%s and %d more
+s:Cancelar,Cancelar,Cancel

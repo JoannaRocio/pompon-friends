@@ -934,14 +934,12 @@ func _check_level_up() -> bool:
 	GameState.save_game()
 	_sync_rooms()
 	_react("levelup", 1.0, true)
-	var text := "¡Nivel %d!" % level
+	var text := T.s("¡Nivel %d!") % level
 	if not new_rooms.is_empty():
-		text += "
-¡Nueva habitación: %s!" % " y ".join(new_rooms)
+		text += "\n" + T.s("¡Nueva habitación: %s!") % T.s(" y ").join(new_rooms)
 	elif not fresh.is_empty():
-		var names: Array = fresh.slice(0, 2).map(func(i): return i["name"])
-		text += "
-Nuevo en la tienda: %s" % (" y ".join(names) if fresh.size() <= 2 else "%s y %d más" % [", ".join(names), fresh.size() - 2])
+		var names: Array = fresh.slice(0, 2).map(func(i): return Catalog.item_name(i["id"]))
+		text += "\n" + T.s("Nuevo en la tienda: %s") % (T.s(" y ").join(names) if fresh.size() <= 2 else T.s("%s y %d más") % [", ".join(names), fresh.size() - 2])
 	_show_tip({"id": "", "text": text})
 	Audio.play("success")
 	return true
@@ -1807,7 +1805,7 @@ func _build_edit_panel() -> void:
 	next_room.pressed.connect(_step_room.bind(1))
 	room_row.add_child(next_room)
 	var hint := Label.new()
-	hint.text = "Arrastra para mover. Los adornos se apoyan en mesas y estantes."
+	hint.text = T.s("Arrastra para mover. Los adornos se apoyan en mesas y estantes.")
 	hint.add_theme_font_size_override("font_size", 20)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	box.add_child(hint)
@@ -1822,7 +1820,7 @@ func _build_edit_panel() -> void:
 	buttons.add_theme_constant_override("separation", 10)
 	box.add_child(buttons)
 	_store_button = Button.new()
-	_store_button.text = "Guardar mueble"
+	_store_button.text = T.s("Guardar mueble")
 	_store_button.disabled = true
 	_store_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_store_button.custom_minimum_size = Vector2(0, 64)
@@ -1834,7 +1832,7 @@ func _build_edit_panel() -> void:
 			_rebuild_tray())
 	buttons.add_child(_store_button)
 	var done := Button.new()
-	done.text = "Listo"
+	done.text = T.s("Listo")
 	done.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	done.custom_minimum_size = Vector2(0, 64)
 	Hud.style_primary(done, 28)
@@ -1849,7 +1847,7 @@ func _on_room_pressed(i: int) -> void:
 		Audio.play("fail")
 		if _tip_panel != null:
 			_dismiss_tip()
-		_show_tip({"id": "", "text": "%s se abre\nen el nivel %d" % [Rooms.room_name(i), Rooms.unlock_level(i)]})
+		_show_tip({"id": "", "text": T.s("%s se abre\nen el nivel %d") % [Rooms.room_name(i), Rooms.unlock_level(i)]})
 		return
 	if i == GameState.current_room:
 		return
@@ -1920,7 +1918,7 @@ func _rebuild_tray() -> void:
 			var b := Button.new()
 			Hud.style_soft(b, 20)
 			b.custom_minimum_size = Vector2(100, 100)
-			b.tooltip_text = Catalog.get_item(id)["name"]
+			b.tooltip_text = Catalog.item_name(id)
 			var icon := ItemIcon.new()
 			icon.set_item(id, 84.0)
 			icon.position = Vector2(8, 8)
@@ -1932,7 +1930,7 @@ func _rebuild_tray() -> void:
 			_tray.add_child(b)
 	if count == 0:
 		var empty := Label.new()
-		empty.text = "No te quedan muebles por colocar. ¡Compra más en la tienda!"
+		empty.text = T.s("No te quedan muebles por colocar. ¡Compra más en la tienda!")
 		empty.add_theme_font_size_override("font_size", 20)
 		_tray.add_child(empty)
 
@@ -1953,13 +1951,13 @@ func _show_food_menu() -> void:
 	box.add_theme_constant_override("separation", 10)
 	_food_panel.add_child(box)
 	var head := Label.new()
-	head.text = "¿Qué le damos a %s?" % (p.display_name() if p != null else "tu Pompon")
+	head.text = T.s("¿Qué le damos a %s?") % (p.display_name() if p != null else T.s("tu Pompon"))
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.add_theme_font_size_override("font_size", 38)
 	head.add_theme_color_override("font_color", Color("d6336c"))
 	box.add_child(head)
 	var sub := Label.new()
-	sub.text = "Lo nuevo le da desconfianza… ¡pero de a poco se anima!"
+	sub.text = T.s("Lo nuevo le da desconfianza… ¡pero de a poco se anima!")
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	sub.add_theme_font_size_override("font_size", 22)
@@ -1978,7 +1976,7 @@ func _show_food_menu() -> void:
 	for food in PomponTastes.FOODS:
 		grid.add_child(_food_card(food, p))
 	var close := Button.new()
-	close.text = "Cancelar"
+	close.text = T.s("Cancelar")
 	close.custom_minimum_size = Vector2(0, 70)
 	Hud.style_soft(close, 26)
 	close.pressed.connect(func():
@@ -2022,14 +2020,14 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	texts.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(texts)
 	var name_label := Label.new()
-	name_label.text = food["name"]
+	name_label.text = PomponTastes.food_name(food["id"])
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.add_theme_font_size_override("font_size", 24)
 	name_label.add_theme_color_override("font_color", Hud.INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(name_label)
 	var price := Label.new()
-	price.text = "gratis" if food["price"] == 0 else "%d monedas" % food["price"]
+	price.text = T.s("gratis") if food["price"] == 0 else T.s("%d monedas") % food["price"]
 	price.add_theme_font_size_override("font_size", 18)
 	price.add_theme_color_override("font_color", Color("a0527a"))
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2037,7 +2035,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	if p != null:
 		if PomponTastes.is_new_food(p, food["id"]):
 			var tag := Label.new()
-			tag.text = "¡Nuevo!"
+			tag.text = T.s("¡Nuevo!")
 			tag.add_theme_font_size_override("font_size", 20)
 			tag.add_theme_color_override("font_color", Color("d6336c"))
 			tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2046,7 +2044,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 			var hearts := PomponTastes.food_hearts(p, food["id"])
 			if hearts == 0:
 				var doubt := Label.new()
-				doubt.text = "todavía duda"
+				doubt.text = T.s("todavía duda")
 				doubt.add_theme_font_size_override("font_size", 18)
 				doubt.add_theme_color_override("font_color", Color("a0527a"))
 				doubt.mouse_filter = Control.MOUSE_FILTER_IGNORE

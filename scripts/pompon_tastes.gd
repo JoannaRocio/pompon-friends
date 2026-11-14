@@ -16,6 +16,11 @@ const COLORS := {
 }
 
 # Comidas. `tier`: 0 basica (gratis), 1 rica, 2 gourmet.
+## Nombre de una comida en el idioma actual.
+static func food_name(id: String) -> String:
+	return T.data("food", id, str(get_food(id).get("name", id)))
+
+
 const FOODS := [
 	{"id": "papilla", "name": "Papilla", "tier": 0, "price": 0, "alimentacion": 30.0, "felicidad": 0.0},
 	{"id": "pan", "name": "Pan tostado", "tier": 0, "price": 0, "alimentacion": 30.0, "felicidad": 0.0},
