@@ -50,6 +50,7 @@ func _initialize() -> void:
 	# --- bienvenida: saluda por nombre, especie en sombras, sexo y cigüena
 	gs.player_name = "Ana"
 	gs.player_title = "f"
+	gs.age_group = "adult"   # (partida nueva: la edad ya se pregunto en el menu)
 	var w: Control = load("res://scenes/welcome.tscn").instantiate()
 	root.add_child(w)
 	await _frames(3)

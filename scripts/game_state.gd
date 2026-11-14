@@ -951,6 +951,44 @@ func kids_mode() -> bool:
 	return age_group == "child"
 
 
+## Menores de 13: el nombre solo puede ser uno de la lista (ProfileDialog.NAME_IDEAS / Pompon.NAME_IDEAS).
+static func is_kid_player_name(text: String) -> bool:
+	return text in ProfileDialog.NAME_IDEAS
+
+
+static func is_kid_pompon_name(text: String) -> bool:
+	return text in Pompon.NAME_IDEAS
+
+
+## Lo que sale del dispositivo (nube y amigos): en modo chicos, un nombre que no es de la lista va vacio.
+func shareable_player_name() -> String:
+	return "" if kids_mode() and not is_kid_player_name(player_name) else player_name
+
+
+func shareable_pompon_name() -> String:
+	if pompon == null:
+		return ""
+	return "" if kids_mode() and not is_kid_pompon_name(pompon.nickname) else pompon.nickname
+
+
+## Partida vieja de un menor de 13 con un nombre escrito a mano (de antes): hay que elegir de la lista.
+func kid_names_needed() -> bool:
+	if not kids_mode():
+		return false
+	if player_name != "" and not is_kid_player_name(player_name):
+		return true
+	return pompon != null and pompon.nickname != "" and not is_kid_pompon_name(pompon.nickname)
+
+
+## La partida para subir a la nube (con los nombres cuidados en modo chicos).
+func upload_dict() -> Dictionary:
+	var d := save_dict()
+	d["player_name"] = shareable_player_name()
+	if d["pompon"] is Dictionary:
+		d["pompon"]["nickname"] = shareable_pompon_name()
+	return d
+
+
 ## Grupo de edad a partir de la edad que eligio (no se guarda la edad).
 static func age_group_for(age: int) -> String:
 	if age < 13:

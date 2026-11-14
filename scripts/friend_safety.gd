@@ -23,7 +23,7 @@ static func _notice(parent: Node, width := 620.0) -> BigNotice:
 static func ask_age(parent: Node, done: Callable) -> BigNotice:
 	var n := _notice(parent, 660.0)
 	n.title("¿Cuántos años tienes?", Color("7a56c4"))
-	n.text_line("Para cuidar tu privacidad con tus amigos.", 24, Color("a0527a"))
+	n.text_line("Para cuidar tu privacidad.", 24, Color("a0527a"))
 	var grid := GridContainer.new()
 	grid.columns = 4
 	grid.add_theme_constant_override("h_separation", 10)

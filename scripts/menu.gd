@@ -13,6 +13,7 @@ const FRIENDS := [
 var _music_button: IconButton
 var _sfx_button: IconButton
 var _profile: ProfileDialog
+var _age: BigNotice   # pregunta de edad (partida nueva, antes del nombre)
 var _logo: RichTextLabel
 var _logo_top := 0.0
 var _play: Button
@@ -266,12 +267,18 @@ func _icon_button(parent: Control, kind: String, callback: Callable) -> IconButt
 	return b
 
 
-## La primera vez se pregunta el nombre y el sexo del jugador; despues se entra directo.
+## La primera vez se pregunta la edad (para cuidar la privacidad de los chicos), despues el nombre y el
+## sexo del jugador; despues se entra directo.
 func _on_play() -> void:
 	if GameState.has_profile():
 		_enter_game()
 		return
-	if _profile != null:
+	if _profile != null or _age != null:
+		return
+	if GameState.age_group == "":
+		_age = FriendSafety.ask_age(self, func(_g):
+			_age = null
+			_on_play())
 		return
 	_profile = ProfileDialog.new()
 	add_child(_profile)

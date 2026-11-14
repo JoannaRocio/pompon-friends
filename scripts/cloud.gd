@@ -46,7 +46,7 @@ func upload(force := false) -> Dictionary:
 	var first := not has_code()
 	var code: String = CloudCode.new_code() if first else GameState.cloud_code
 	var base = null if first or force or GameState.cloud_synced_at == "" else GameState.cloud_synced_at
-	var res := await _rpc("pompon_upload", {"p_code": code, "p_data": GameState.save_dict(), "p_base": base, "p_force": force})
+	var res := await _rpc("pompon_upload", {"p_code": code, "p_data": GameState.upload_dict(), "p_base": base, "p_force": force})
 	busy = false
 	if res["ok"]:
 		GameState.cloud_code = code

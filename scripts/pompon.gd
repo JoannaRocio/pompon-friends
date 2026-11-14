@@ -8,6 +8,11 @@ const PERSONALITIES := ["Energico", "Timido", "Curioso", "Gloton", "Artistico"]
 const EYE_SHAPES := ["redondos", "ovalados", "brillantes", "tiernos"]   # siempre abiertos (parpadean)
 const MOUTH_SHAPES := ["sonrisa", "pico", "colmillitos", "bigotes"]
 const FACE_SHAPES := ["redonda", "ovalada", "ancha"]
+## Nombres tiernos para el Pompon ("Otro nombre"; los menores de 13 solo pueden elegir de aca).
+const NAME_IDEAS := ["Pompi", "Mochi", "Copito", "Bombón", "Canela", "Tofu", "Mimi", "Coco", "Kiwi", "Pelusa",
+	"Lila", "Duki", "Chipa", "Muffin", "Pepita", "Ñoqui", "Nacho", "Dulce", "Bolita", "Galleta",
+	"Churro", "Waffle", "Panqueque", "Frutilla", "Moca", "Turrón", "Merengue", "Pochoclo", "Caramelo", "Cupcake",
+	"Nubecita", "Bizcocho", "Alfajor", "Mazapán", "Rosquita", "Polvorón", "Avellana", "Pistacho", "Tapioca", "Brownie"]
 
 const STAGES := ["Huevo", "Bebé", "Niño", "Adolescente", "Adulto"]
 # Duracion de cada etapa en segundos (el adulto no termina).

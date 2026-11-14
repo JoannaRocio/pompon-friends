@@ -311,6 +311,11 @@ func _show_new_subject(job: Dictionary) -> void:
 func _ask_profile(can_cancel: bool) -> void:
 	if _layer != null:
 		return
+	if GameState.age_group == "":   # (por si se llega sin haber pasado por el menu) primero la edad
+		_layer = FriendSafety.ask_age(self, func(_g):
+			_layer = null
+			_ask_profile(can_cancel))
+		return
 	var dialog := ProfileDialog.new()
 	_layer = dialog
 	add_child(dialog)

@@ -30,6 +30,7 @@ func _initialize() -> void:
 	# ---------- menu: la primera vez pregunta nombre y sexo antes de jugar
 	gs.player_title = ""
 	gs.player_name = ""
+	gs.age_group = "adult"   # (la edad se pregunta antes: ver test_kids_names)
 	print("sin perfil: has_profile=", gs.has_profile())
 	var menu: Control = load("res://scenes/menu.tscn").instantiate()
 	root.add_child(menu)

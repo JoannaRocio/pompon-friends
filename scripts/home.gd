@@ -790,7 +790,7 @@ func _play_hatch() -> void:
 
 ## Avisos importantes: el Pompon crecio / nacio, o se fue de casa.
 func _any_modal() -> bool:
-	return _gift_panel != null or _note_panel != null or _name_panel != null \
+	return _gift_panel != null or _note_panel != null or _name_panel != null or _kid_layer != null \
 		or _food_panel != null or _hatch_layer != null or _journal_panel != null or _profile_panel != null 		or _night_notice != null or _album_panel != null
 
 
@@ -804,6 +804,12 @@ func _check_news() -> void:
 		_show_daily_gift()
 	elif _needs_name() and not _any_modal() and not _edit:
 		_show_name_dialog()
+	elif (_needs_age() or _needs_kid_names()) and not _any_modal() and not _edit and _tut == null \
+			and _tip_panel == null and not _prehatch:
+		if _needs_age():
+			_ask_age_once()
+		else:
+			_show_kid_names_notice()
 	elif _night and not GameState.tips_seen.has(NIGHT_TIP) and not _any_modal() and not _edit:
 		_show_night_notice()
 	elif not _any_modal() and not _edit:
@@ -2179,10 +2185,11 @@ func _on_hatch_pressed() -> void:
 
 # ------------------------------------------------ elegir especie y poner nombre
 
-const NAME_IDEAS := ["Pompi", "Mochi", "Copito", "Bombón", "Canela", "Tofu", "Mimi", "Coco", "Kiwi", "Pelusa",
-	"Lila", "Duki", "Chipa", "Muffin", "Pepita", "Ñoqui", "Nacho", "Dulce", "Bolita", "Galleta"]
+const NAME_IDEAS := Pompon.NAME_IDEAS
 const NAME_MAX := 12
+const KID_NAMES_TIP := "kid_names"   # (partida vieja de un menor de 13: elegir nombres de la lista, una vez)
 var _name_panel: PanelContainer
+var _kid_layer: Control   # pregunta de edad / cartel de nombres / ProfileDialog de una partida vieja
 
 
 func _needs_name() -> bool:
@@ -2190,30 +2197,40 @@ func _needs_name() -> bool:
 	return p != null and p.nickname == "" and p.stage_index(int(Time.get_unix_time_from_system())) > 0
 
 
-## Cuando el huevo nace hay que ponerle nombre.
-func _show_name_dialog() -> void:
+## Cuando el huevo nace hay que ponerle nombre. `rename`: partida vieja de un menor de 13 que tiene que
+## elegir un nombre de la lista. Menores de 13: sin teclado, se elige de una grilla (NamePicker).
+func _show_name_dialog(rename := false) -> void:
 	var p := GameState.pompon
+	var kids := GameState.kids_mode()
 	_name_panel = PanelContainer.new()
 	_name_panel.set_anchors_preset(Control.PRESET_CENTER)
 	_name_panel.offset_left = -310
 	_name_panel.offset_right = 310
 	_name_panel.offset_top = -590   # arriba, para que no lo tape el teclado del celular
 	_name_panel.offset_bottom = -30
+	if kids:   # sin teclado: centrado y del alto de la grilla
+		_name_panel.offset_top = -300
+		_name_panel.offset_bottom = 300
+		_name_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		_name_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_style_modal(_name_panel)
 	add_child(_name_panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 12)
 	_name_panel.add_child(box)
 	var head := Label.new()
-	head.text = "¡Tu Pompon nació!\n¿Cómo se va a llamar?"
+	head.text = "Elige un nombre\npara tu Pompon" if rename else "¡Tu Pompon nació!\n¿Cómo se va a llamar?"
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.add_theme_font_size_override("font_size", 34)
 	box.add_child(head)
 	var preview := PomponView.new()
-	preview.custom_minimum_size = Vector2(0, 250)
+	preview.custom_minimum_size = Vector2(0, 200 if kids else 250)
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	preview.set_pompon(p, GameState.equipped)
 	box.add_child(preview)
+	if kids:
+		_kid_name_grid(box, p)
+		return
 	var edit := LineEdit.new()
 	edit.placeholder_text = "Escribe un nombre"
 	edit.max_length = NAME_MAX
@@ -2254,6 +2271,80 @@ func _show_name_dialog() -> void:
 	ok.pressed.connect(accept)
 	edit.text_submitted.connect(func(_t): accept.call())
 	row.add_child(ok)
+
+
+## Menores de 13: grilla de nombres para el Pompon y "¡Listo!" (sin teclado).
+func _kid_name_grid(box: VBoxContainer, p: Pompon) -> void:
+	var picker := NamePicker.new().setup(NAME_IDEAS, p.nickname)
+	box.add_child(picker)
+	var ok := Button.new()
+	ok.text = "¡Listo!"
+	ok.custom_minimum_size = Vector2(0, 80)
+	Hud.style_primary(ok, 34)
+	ok.disabled = picker.chosen == ""
+	picker.picked.connect(func(_n): ok.disabled = false)
+	ok.pressed.connect(func():
+		if picker.chosen == "":
+			return
+		GameState.pompon.nickname = picker.chosen
+		GameState.save_game()
+		Audio.play("success")
+		pet.celebrate(8)
+		_name_panel.queue_free()
+		_name_panel = null)
+	box.add_child(ok)
+
+
+# ------------------------------------------------ edad y nombres de partidas viejas
+
+## Partida de antes de preguntar la edad al empezar: se pregunta una vez al entrar a la casa.
+func _needs_age() -> bool:
+	return GameState.age_group == "" and GameState.has_profile()
+
+
+## Menor de 13 con un nombre escrito a mano (de antes): una vez, un cartel corto para elegir de la lista.
+func _needs_kid_names() -> bool:
+	return GameState.kid_names_needed() and not GameState.tips_seen.has(KID_NAMES_TIP)
+
+
+func _ask_age_once() -> void:
+	_kid_layer = FriendSafety.ask_age(self, func(_g): _kid_layer = null)
+
+
+func _show_kid_names_notice() -> void:
+	GameState.tips_seen.append(KID_NAMES_TIP)
+	GameState.save_game()
+	var notice := BigNotice.new(640.0)
+	_kid_layer = notice
+	add_child(notice)
+	notice.add(BigNotice.icon_strip([["lock", Color("a98bea")], ["heart", Color("ff7aa8")]]))
+	notice.title("¡Elige nombres nuevos!", Color("7a56c4"))
+	notice.text_line("Para cuidar tu privacidad, elige tu nombre y el de tu Pompon de la lista.", 28)
+	notice.button("Elegir", func():
+		notice.close()
+		_kid_layer = null
+		_kid_pick_player(), true, Color("5fc77f"))
+
+
+## Primero el nombre del jugador (si no es de la lista), despues el del Pompon.
+func _kid_pick_player() -> void:
+	if GameState.is_kid_player_name(GameState.player_name):
+		_kid_pick_pompon()
+		return
+	var dialog := ProfileDialog.new()
+	_kid_layer = dialog
+	add_child(dialog)
+	dialog.setup(false)
+	dialog.accepted.connect(func():
+		dialog.queue_free()
+		_kid_layer = null
+		_kid_pick_pompon())
+
+
+func _kid_pick_pompon() -> void:
+	var p := GameState.pompon
+	if p != null and p.nickname != "" and not GameState.is_kid_pompon_name(p.nickname):
+		_show_name_dialog(true)
 
 
 func _on_pompon_left(_message: String) -> void:

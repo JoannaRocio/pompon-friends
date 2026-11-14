@@ -72,6 +72,7 @@ func snapshot() -> Dictionary:
 		var d := p.to_dict()
 		for k in ["nickname", "hatched", "species", "sex", "personality", "color_primary", "color_secondary", "eyes", "mouth", "face", "born_at"]:
 			pompon[k] = d[k]
+		pompon["nickname"] = GameState.shareable_pompon_name()   # (menor de 13: solo nombres de la lista)
 	var wear := {}
 	for cat in Catalog.WEARABLE:
 		if GameState.equipped.has(cat):
@@ -84,7 +85,7 @@ func snapshot() -> Dictionary:
 				e["on"] = item["on"]
 				e["ox"] = snappedf(float(item.get("ox", 0.0)), 0.1)
 			placed.append(e)
-	return {"v": 1, "player": "" if GameState.kids_mode() else GameState.player_name, "title": GameState.player_title, "pompon": pompon, "equipped": wear,
+	return {"v": 1, "player": "" if GameState.kids_mode() else GameState.shareable_player_name(), "title": GameState.player_title, "pompon": pompon, "equipped": wear,
 		"wall": GameState.equipped.get("wall", ""), "floor": GameState.equipped.get("floor", ""), "placed": placed,
 		"room": GameState.current_room}
 
