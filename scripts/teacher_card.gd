@@ -3,7 +3,7 @@ extends PanelContainer
 ## Ficha de profesor/a: nombre, puesto, nivel (estrella), cuanto paga cada turno y cuanto falta para
 ## ascender. Se ve en las ofertas de empleo, al conseguir el primer trabajo y al ascender.
 
-signal change_pressed   # tocar "Cambiar" (nombre y pronombres)
+signal change_pressed   # tocar T.s("Cambiar") (nombre y pronombres)
 
 const GOLD := Color("ffcf3f")
 
@@ -11,7 +11,7 @@ var _level := 1
 var _star: Control
 
 
-## `level` = nivel a mostrar (-1: el actual). `can_change` agrega el boton "Cambiar".
+## `level` = nivel a mostrar (-1: el actual). `can_change` agrega el boton T.s("Cambiar").
 func setup(level := -1, can_change := false) -> TeacherCard:
 	_level = GameState.career_level() if level < 0 else level
 	add_theme_stylebox_override("panel", Hud.card(Color("fffdf6"), 32, Color("f2c94c"), 5, 8))
@@ -45,7 +45,7 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 	name_row.add_child(who)
 	if can_change:
 		var change := Button.new()
-		change.text = "Cambiar"
+		change.text = T.s("Cambiar")
 		change.custom_minimum_size = Vector2(0, 44)
 		change.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		change.focus_mode = Control.FOCUS_NONE
@@ -53,7 +53,7 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 		change.pressed.connect(change_pressed.emit)
 		name_row.add_child(change)
 	var job := Label.new()
-	job.text = "%s · Escuela Pompon" % subjects()
+	job.text = T.s("%s · Escuela Pompon") % subjects()
 	job.add_theme_font_size_override("font_size", 20)
 	job.add_theme_color_override("font_color", Color("a0527a"))
 	info.add_child(job)
@@ -74,7 +74,7 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 	pay_row.add_theme_constant_override("separation", 6)
 	pay_row.add_child(Hud.coin_icon(30.0))
 	var pay_label := Label.new()
-	pay_label.text = "+%d por turno" % Jobs.pay_for_level(_level)
+	pay_label.text = T.s("+%d por turno") % Jobs.pay_for_level(_level)
 	pay_label.add_theme_font_size_override("font_size", 22)
 	pay_label.add_theme_color_override("font_color", Color("8a6d00"))
 	pay_row.add_child(pay_label)
@@ -89,7 +89,7 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 	if _level >= Jobs.CAREER_MAX:
 		bar.max_value = 1.0
 		bar.value = 1.0
-		bar.text = "¡Nivel máximo!"
+		bar.text = T.s("¡Nivel máximo!")
 	else:
 		var start := Jobs.shifts_for_level(_level)
 		var goal := Jobs.shifts_for_level(_level + 1)
@@ -97,7 +97,7 @@ func setup(level := -1, can_change := false) -> TeacherCard:
 		bar.max_value = float(goal - start)
 		bar.value = float(done)
 		var left := goal - start - done
-		bar.text = "Nivel %d en %d %s" % [_level + 1, left, "turno" if left == 1 else "turnos"]
+		bar.text = T.s("Nivel %d en %d %s") % [_level + 1, left, T.s("turno") if left == 1 else T.s("turnos")]
 	bottom.add_child(bar)
 	return self
 
@@ -107,13 +107,13 @@ static func subjects() -> String:
 	var names: Array = []
 	for s in Jobs.SUBJECTS:
 		if GameState.taught(s):
-			names.append(Jobs.SUBJECT_NAMES[s])
+			names.append(Jobs.subject_name(s))
 	if names.is_empty():
-		return Jobs.SUBJECT_NAMES.get(Jobs.current, "Matemáticas")
+		return Jobs.subject_name(Jobs.current)
 	if names.size() == 1:
 		return names[0]
 	var last: String = names.pop_back()
-	return "%s %s %s" % [", ".join(names), "e" if last.begins_with("I") else "y", last]
+	return "%s %s %s" % [", ".join(names), T.s("e") if last.begins_with("I") else T.s("y"), last]
 
 
 func _draw_star() -> void:

@@ -121,7 +121,7 @@ func _build_ui() -> void:
 	classroom.set_anchors_preset(Control.PRESET_FULL_RECT)
 	classroom.offset_top = 112
 	classroom.offset_bottom = -500
-	classroom.board_text = SYMBOLS[camino]
+	classroom.board_text = T.s(SYMBOLS[camino])
 	classroom.exam_tapped.connect(_on_exam_tapped)
 	add_child(classroom)
 
@@ -157,7 +157,7 @@ func _build_ui() -> void:
 	chip.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.94), 30, Color.WHITE, 3, 6))
 	top.add_child(chip)
 	var title := Label.new()
-	title.text = "Nivel %d" % level
+	title.text = T.s("Nivel %d") % level
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 32)
 	title.add_theme_color_override("font_color", INK)
@@ -206,7 +206,7 @@ func _build_ui() -> void:
 
 	# "Terminar y cobrar": aparece al corregir el primer examen (terminar el turno es opcional)
 	_finish_button = Button.new()
-	_finish_button.text = "Terminar y cobrar +%d" % GameState.job_pay()
+	_finish_button.text = T.s("Terminar y cobrar +%d") % GameState.job_pay()
 	_finish_button.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	_finish_button.offset_left = 120
 	_finish_button.offset_right = -120
@@ -269,13 +269,13 @@ func _show_intro() -> void:
 	var caps := HBoxContainer.new()
 	caps.add_theme_constant_override("separation", 16)
 	box.add_child(caps)
-	for text in ["Ordena los objetos", "Corrige el examen cuando levanten la mano"]:
+	for text in [T.s("Ordena los objetos"), T.s("Corrige el examen cuando levanten la mano")]:
 		var l := _label(text, 25)
 		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		l.custom_minimum_size = Vector2(0, 70)
 		caps.add_child(l)
 	var go := Button.new()
-	go.text = "¡A enseñar!"
+	go.text = T.s("¡A enseñar!")
 	go.custom_minimum_size = Vector2(0, 92)
 	Hud.style_primary(go, 40)
 	go.pressed.connect(func():
@@ -409,11 +409,11 @@ func _open_question() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 12)
 	panel.add_child(box)
-	box.add_child(_label("Examen de %s" % classroom.student_names[_student], 40, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
+	box.add_child(_label(T.s("Examen de %s") % classroom.student_names[_student], 40, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
 	if _problem.get("review", false):
 		var row_chip := HBoxContainer.new()
 		row_chip.alignment = BoxContainer.ALIGNMENT_CENTER
-		row_chip.add_child(Hud.chip("Repaso", Color("fff0cf"), Color("8a6d3b"), 22))
+		row_chip.add_child(Hud.chip(T.s("Repaso"), Color("fff0cf"), Color("8a6d3b"), 22))
 		box.add_child(row_chip)
 	var row: BoxContainer
 	var flag_options: bool = _problem.get("option_flags", false)
@@ -477,7 +477,7 @@ func _geo_prompt(box: VBoxContainer) -> void:
 	if _problem["hint"] != "":   # niveles con pista: la primera letra
 		var hint_row := HBoxContainer.new()
 		hint_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		hint_row.add_child(Hud.chip("Pista: %s" % _problem["hint"], Color("fff3d1"), Color("8a6d00"), 30))
+		hint_row.add_child(Hud.chip(T.s("Pista: %s") % _problem["hint"], Color("fff3d1"), Color("8a6d00"), 30))
 		box.add_child(hint_row)
 
 
@@ -491,7 +491,7 @@ func _geo_answered(box: VBoxContainer) -> void:
 	flag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	flag.show_flag(_problem["id"])
 	row.add_child(flag)
-	row.add_child(Hud.chip("%s · capital: %s" % [_problem["country"], _problem["capital"]], Color("e3f6ea"), Color("1f7a4d"), 24))
+	row.add_child(Hud.chip(T.s("%s · capital: %s") % [_problem["country"], _problem["capital"]], Color("e3f6ea"), Color("1f7a4d"), 24))
 	box.add_child(row)
 	box.move_child(row, box.get_node("Options").get_index() + 1)
 
@@ -512,7 +512,7 @@ func _english_prompt(box: VBoxContainer) -> void:
 		var say_row := HBoxContainer.new()
 		say_row.alignment = BoxContainer.ALIGNMENT_CENTER
 		say_row.add_theme_constant_override("separation", 10)
-		say_row.add_child(Hud.chip("Se dice: %s" % _problem["say"], Color("e6efff"), Color("3f66b0"), 24))
+		say_row.add_child(Hud.chip(T.s("Se dice: %s") % _problem["say"], Color("e6efff"), Color("3f66b0"), 24))
 		if Speech.available():
 			say_row.add_child(_speak_button(_problem["en"]))
 		box.add_child(say_row)
@@ -569,7 +569,7 @@ func _on_option(button: Button) -> void:
 		_geo_answered(box)
 	if right:
 		correct += 1
-		result.text = "¡Correcto!" if seconds > problems.fast_seconds(camino, level) else "¡Correcto y rápido!"
+		result.text = T.s("¡Correcto!") if seconds > problems.fast_seconds(camino, level) else T.s("¡Correcto y rápido!")
 		result.add_theme_color_override("font_color", Color("2f9e6e"))
 		Audio.play("coin")
 		await get_tree().create_timer(1.0 if subject == "math" else 1.8).timeout
@@ -578,7 +578,7 @@ func _on_option(button: Button) -> void:
 		var explanation: String = problems.explanation(_problem)
 		var review: String = "%s = %d" % [_problem["text"], answer] if subject == "math" else _problem["text"]
 		mistakes.append({"text": _problem["text"], "answer": answer, "picked": value, "explanation": explanation, "review": review})
-		result.text = "¡Casi! Es %s" % (str(answer) if not _problem.get("option_flags", false) else "la de %s" % _problem["country"])
+		result.text = T.s("¡Casi! Es %s") % (str(answer) if not _problem.get("option_flags", false) else T.s("la de %s") % _problem["country"])
 		result.add_theme_color_override("font_color", Color("d6336c"))
 		Audio.play("fail")
 		info.visible = true
@@ -589,7 +589,7 @@ func _on_option(button: Button) -> void:
 			hint.show_problem(_problem)
 			info.add_child(hint)
 		var ok := Button.new()
-		ok.text = "¡Entendido!"
+		ok.text = T.t("tut.ok")
 		ok.custom_minimum_size = Vector2(0, 84)
 		Hud.style_primary(ok, 36)
 		ok.pressed.connect(_end_question)
@@ -608,7 +608,7 @@ func _english_answered(box: VBoxContainer) -> void:
 	if camino == "en_words":
 		var row := HBoxContainer.new()
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_child(Hud.chip("%s · se dice: %s" % [_problem["en"], _problem["say"]], Color("e6efff"), Color("3f66b0"), 26))
+		row.add_child(Hud.chip(T.s("%s · se dice: %s") % [_problem["en"], _problem["say"]], Color("e6efff"), Color("3f66b0"), 26))
 		box.add_child(row)
 		box.move_child(row, box.get_node("Options").get_index() + 1)
 	Speech.say(_problem["en"])
@@ -629,7 +629,7 @@ func _end_question() -> void:
 		_signal_t = rng.randf_range(SIGNAL_GAP.x, SIGNAL_GAP.y)
 		if questions_done == 1:  # ya se puede cobrar
 			_finish_button.visible = true
-			_show_toast("¡Ya puedes cobrar!")
+			_show_toast(T.s("¡Ya puedes cobrar!"))
 
 
 # --------------------------------------------------------------------- cartel final
@@ -662,10 +662,10 @@ func _show_promotion(res: Dictionary) -> void:
 	var notice := BigNotice.new(660.0)
 	_layer = notice
 	add_child(notice)
-	notice.title("¡Ascendiste!", Color("d6336c"), 52)
+	notice.title(T.s("¡Ascendiste!"), Color("d6336c"), 52)
 	notice.add(TeacherCard.new().setup(res["career_after"]))
-	notice.text_line("Ahora ganas %d monedas por turno." % Jobs.pay_for_level(res["career_after"]), 28, Color("8a6d00"))
-	notice.button("¡Genial!", _next_step)
+	notice.text_line(T.s("Ahora ganas %d monedas por turno.") % Jobs.pay_for_level(res["career_after"]), 28, Color("8a6d00"))
+	notice.button(T.s("¡Genial!"), _next_step)
 	Audio.play("success")
 	classroom.cheer(8)
 
@@ -680,15 +680,15 @@ func _show_first_shift() -> void:
 	var crib := GameState.egg_waiting() and not GameState.owns_crib()
 	var affordable := crib and GameState.coins >= int(Catalog.get_item(GameState.CRIB_ID)["price"])
 	notice.add(BigNotice.icon_strip([["check", Color("5fc77f")], ["crib", Color("ffb938")]] if crib else [["check", Color("5fc77f")], ["heart", Color("ff7aa8")]]))
-	notice.title("¡Perfecto!")
-	notice.text_line("Ya sabes lo básico para cuidar a tu Pompon.", 30)
+	notice.title(T.s("¡Perfecto!"))
+	notice.text_line(T.s("Ya sabes lo básico para cuidar a tu Pompon."), 30)
 	if crib:
-		notice.text_line("Pronto nacerá: ¡compremos una cuna!", 30, Color("a0527a"))
+		notice.text_line(T.s("Pronto nacerá: ¡compremos una cuna!"), 30, Color("a0527a"))
 	if affordable:
-		notice.button("Ir a la Tienda", func(): get_tree().change_scene_to_file("res://scenes/shop.tscn"), true, Color("5fc77f"))
-		notice.button("Ver mi nota", _next_step, false)
+		notice.button(T.s("Ir a la Tienda"), func(): get_tree().change_scene_to_file("res://scenes/shop.tscn"), true, Color("5fc77f"))
+		notice.button(T.s("Ver mi nota"), _next_step, false)
 	else:
-		notice.button("Ver mi nota", _next_step)
+		notice.button(T.s("Ver mi nota"), _next_step)
 
 
 ## Cartel de avance: el juego decidio que se domina el nivel. El premio es siempre el mismo.
@@ -699,22 +699,22 @@ func _show_level_up(res: Dictionary) -> void:
 	box.add_theme_constant_override("separation", 12)
 	panel.add_child(box)
 	var complete: bool = res["action"] == "complete"
-	box.add_child(_label("¡CAMINO COMPLETO!" if complete else "¡SUBISTE DE NIVEL!", 42, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
+	box.add_child(_label(T.s("¡CAMINO COMPLETO!") if complete else T.s("¡SUBISTE DE NIVEL!"), 42, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
 	if complete:
-		box.add_child(_label("¡Dominaste %s!" % String(problems.LABELS[camino]).to_lower(), 34))
+		box.add_child(_label(T.s("¡Dominaste %s!") % problems.track_label(camino).to_lower(), 34))
 	else:
-		box.add_child(_label("Nivel %d" % res["level_after"], 120, HORIZONTAL_ALIGNMENT_CENTER, Color("e0a800")))
+		box.add_child(_label(T.s("Nivel %d") % res["level_after"], 120, HORIZONTAL_ALIGNMENT_CENTER, Color("e0a800")))
 		box.add_child(_label(problems.level_name(camino, res["level_after"]), 34))
 	var prize := HBoxContainer.new()
 	prize.alignment = BoxContainer.ALIGNMENT_CENTER
 	prize.add_theme_constant_override("separation", 10)
 	prize.add_child(Hud.coin_icon(54.0))
-	var prize_text := _label("+%d monedas" % res["bonus"], 46, HORIZONTAL_ALIGNMENT_CENTER, Color("b8860b"))
+	var prize_text := _label(T.s("+%d monedas") % res["bonus"], 46, HORIZONTAL_ALIGNMENT_CENTER, Color("b8860b"))
 	prize_text.autowrap_mode = TextServer.AUTOWRAP_OFF
 	prize.add_child(prize_text)
 	box.add_child(prize)
 	var go := Button.new()
-	go.text = "¡Genial!"
+	go.text = T.s("¡Genial!")
 	go.custom_minimum_size = Vector2(0, 92)
 	Hud.style_primary(go, 40)
 	go.pressed.connect(_next_step)
@@ -738,8 +738,8 @@ func _show_result(res: Dictionary) -> void:
 	box.add_theme_constant_override("separation", 10)
 	scroll.add_child(box)
 
-	box.add_child(_label("¡Fin del turno!", 36, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
-	box.add_child(_label("Nota: %d / 10" % res["note"], 70, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
+	box.add_child(_label(T.s("¡Fin del turno!"), 36, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+	box.add_child(_label(T.s("Nota: %d / 10") % res["note"], 70, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
 	var stars := StarsRow.new()
 	stars.filled = res["note"]
 	stars.custom_minimum_size = Vector2(0, 46)
@@ -748,28 +748,28 @@ func _show_result(res: Dictionary) -> void:
 	var chips := HBoxContainer.new()
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	chips.add_theme_constant_override("separation", 12)
-	chips.add_child(Hud.chip("%s: %d de %d" % ["Cuentas bien" if subject == "math" else "Bien", correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
-	chips.add_child(Hud.chip("Ordenados: %d" % sorter.sorted_total, Color("e6efff"), Color("3f66b0"), 24))
+	chips.add_child(Hud.chip("%s: %d de %d" % [T.s("Cuentas bien") if subject == "math" else T.s("Bien"), correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
+	chips.add_child(Hud.chip(T.s("Ordenados: %d") % sorter.sorted_total, Color("e6efff"), Color("3f66b0"), 24))
 	box.add_child(chips)
 	var pay := HBoxContainer.new()
 	pay.alignment = BoxContainer.ALIGNMENT_CENTER
 	pay.add_theme_constant_override("separation", 10)
 	pay.add_child(Hud.coin_icon(50.0))
-	var pay_text := _label("+%d monedas" % res["pay"], 44, HORIZONTAL_ALIGNMENT_CENTER, Color("b8860b"))
+	var pay_text := _label(T.s("+%d monedas") % res["pay"], 44, HORIZONTAL_ALIGNMENT_CENTER, Color("b8860b"))
 	pay_text.autowrap_mode = TextServer.AUTOWRAP_OFF
 	pay.add_child(pay_text)
 	box.add_child(pay)
 	if res["extra"] > 0:
 		var extra_row := HBoxContainer.new()
 		extra_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		extra_row.add_child(Hud.chip("¡Turno completo! +%d monedas extra" % res["extra"], Color("fff0cf"), Color("8a6d3b"), 26))
+		extra_row.add_child(Hud.chip(T.s("¡Turno completo! +%d monedas extra") % res["extra"], Color("fff0cf"), Color("8a6d3b"), 26))
 		box.add_child(extra_row)
 	else:
-		box.add_child(_label("Termina el turno completo y gana +%d extra" % problems.FULL_SHIFT_BONUS, 22, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+		box.add_child(_label(T.s("Termina el turno completo y gana +%d extra") % problems.FULL_SHIFT_BONUS, 22, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 	if res["bonus"] > 0:
-		box.add_child(_label("+%d monedas de premio por el nivel" % res["bonus"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
+		box.add_child(_label(T.s("+%d monedas de premio por el nivel") % res["bonus"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
 	box.add_child(HSeparator.new())
-	box.add_child(_label("%s · Nivel %d" % [problems.LABELS[camino], res["level_before"]], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+	box.add_child(_label(T.s("%s · Nivel %d") % [problems.track_label(camino), res["level_before"]], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 	var dots := MasteryDots.new()
 	dots.custom_minimum_size = Vector2(0, 50)
 	dots.set_data(res["history"], problems.fast_seconds(camino, res["level_before"]))
@@ -777,15 +777,15 @@ func _show_result(res: Dictionary) -> void:
 	var streak: int = problems.good_streak(camino, res["level_before"], res["history"])
 	match res["action"]:
 		"up", "jump", "complete":
-			box.add_child(_label("¡Ahora estás en el nivel %d!" % res["level_after"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
+			box.add_child(_label(T.s("¡Ahora estás en el nivel %d!") % res["level_after"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
 		"down":
-			box.add_child(_label("Bajamos un nivel para afirmar. ¡Tú puedes!", 26))
+			box.add_child(_label(T.s("Bajamos un nivel para afirmar. ¡Tú puedes!"), 26))
 		_:
-			box.add_child(_label("Para subir: %d seguidas bien y rápidas (llevas %d)" % [problems.WINDOW, streak], 24))
+			box.add_child(_label(T.s("Para subir: %d seguidas bien y rápidas (llevas %d)") % [problems.WINDOW, streak], 24))
 
 	if not mistakes.is_empty():
 		box.add_child(HSeparator.new())
-		box.add_child(_label("Para repasar", 32, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
+		box.add_child(_label(T.s("Para repasar"), 32, HORIZONTAL_ALIGNMENT_CENTER, Color("d6336c")))
 		for m in mistakes:
 			var card := PanelContainer.new()
 			card.add_theme_stylebox_override("panel", Hud.card(Color("fff1f6"), 24, Color("ffc2d9"), 3, 0))
@@ -800,11 +800,11 @@ func _show_result(res: Dictionary) -> void:
 		bar.max_value = float(price)
 		bar.value = float(mini(GameState.coins, price))
 		bar.font_size = 22
-		bar.text = "Cuna  %d / %d" % [mini(GameState.coins, price), price]
+		bar.text = T.t("home.crib_bar", {"have": mini(GameState.coins, price), "price": price})
 		box.add_child(bar)
 
 	var again := Button.new()
-	again.text = "¡Otra vez!"
+	again.text = T.s("¡Otra vez!")
 	again.custom_minimum_size = Vector2(0, 84)
 	Hud.style_primary(again, 36)
 	again.pressed.connect(func(): get_tree().reload_current_scene())
@@ -813,14 +813,14 @@ func _show_result(res: Dictionary) -> void:
 	row.add_theme_constant_override("separation", 10)
 	outer.add_child(row)
 	var office := Button.new()
-	office.text = "Aula"
+	office.text = T.s("Aula")
 	office.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	office.custom_minimum_size = Vector2(0, 76)
 	Hud.style_soft(office, 30)
 	office.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/job_menu.tscn"))
 	row.add_child(office)
 	var go_on := Button.new()
-	go_on.text = "Casa"  # en la casa una flecha lleva a la Tienda cuando alcanza para la cuna
+	go_on.text = T.s("Casa")  # en la casa una flecha lleva a la Tienda cuando alcanza para la cuna
 	go_on.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	go_on.custom_minimum_size = Vector2(0, 76)
 	Hud.style_soft(go_on, 30)

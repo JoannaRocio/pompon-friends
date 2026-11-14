@@ -276,7 +276,7 @@ func _release(at: Vector2) -> void:
 		combo += 1
 		Audio.play("stamp", minf(1.0 + 0.04 * combo, 1.5))
 		_burst(bin_rect(b).get_center(), 10)
-		_popup("¡Listo!" if combo % 4 != 0 else "¡Racha x%d!" % combo, bin_rect(b).position + Vector2(bin_rect(b).size.x * 0.5, -6.0), Color("1f7a52") if combo % 4 != 0 else Color("d6336c"))
+		_popup(T.s("¡Listo!") if combo % 4 != 0 else T.s("¡Racha x%d!") % combo, bin_rect(b).position + Vector2(bin_rect(b).size.x * 0.5, -6.0), Color("1f7a52") if combo % 4 != 0 else Color("d6336c"))
 		sorted.emit(true, it["kind"])
 	else:
 		it["state"] = "back"

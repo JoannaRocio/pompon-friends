@@ -157,6 +157,10 @@ const LESSON_TRICKS := {
 
 # ------------------------------------------------------------------ utilidades
 
+static func track_label(track: String) -> String:
+	return T.s(LABELS[track])
+
+
 static func level_name(track: String, level: int) -> String:
 	return LEVEL_NAMES[track][clampi(level, 1, MAX_LEVEL) - 1]
 

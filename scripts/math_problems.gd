@@ -65,8 +65,12 @@ static func _shuffle(list: Array, rng: RandomNumberGenerator) -> void:
 		list[j] = tmp
 
 
+static func track_label(track: String) -> String:
+	return T.s(LABELS[track])
+
+
 static func level_name(track: String, level: int) -> String:
-	return LEVEL_NAMES[track][clampi(level, 1, MAX_LEVEL) - 1]
+	return T.s(LEVEL_NAMES[track][clampi(level, 1, MAX_LEVEL) - 1])
 
 
 static func fast_seconds(track: String, level: int) -> float:
@@ -265,20 +269,20 @@ static func explanation(p: Dictionary) -> String:
 	match p["op"]:
 		"add":
 			if b >= 10:
-				return "%d + %d = %d\nSumamos por partes:\n%s" % [a, b, r, _stepwise(a, b, "+")]
+				return T.s("%d + %d = %d\nSumamos por partes:\n%s") % [a, b, r, _stepwise(a, b, "+")]
 			if a + b > 10 and a % 10 + b >= 10:  # completar la decena
 				var to_ten := 10 - a % 10
 				var ten := a + to_ten
-				return "%d + %d = %d\nPrimero completamos la decena: %d + %d = %d,\nluego %d + %d = %d." % [a, b, r, a, to_ten, ten, ten, b - to_ten, r]
-			return "%d + %d = %d\nJuntamos %d y %d: en total hay %d." % [a, b, r, a, b, r]
+				return T.s("%d + %d = %d\nPrimero completamos la decena: %d + %d = %d,\nluego %d + %d = %d.") % [a, b, r, a, to_ten, ten, ten, b - to_ten, r]
+			return T.s("%d + %d = %d\nJuntamos %d y %d: en total hay %d.") % [a, b, r, a, b, r]
 		"sub":
 			if b >= 10:
-				return "%d − %d = %d\nRestamos por partes:\n%s" % [a, b, r, _stepwise(a, b, "-").replace(" - ", " − ")]
+				return T.s("%d − %d = %d\nRestamos por partes:\n%s") % [a, b, r, _stepwise(a, b, "-").replace(" - ", " − ")]
 			if a >= 10 and a % 10 < b and a % 10 != 0:  # bajar hasta la decena
 				var down := a % 10
 				var ten2 := a - down
-				return "%d − %d = %d\nPrimero bajamos hasta la decena: %d − %d = %d,\nluego %d − %d = %d." % [a, b, r, a, down, ten2, ten2, b - down, r]
-			return "%d − %d = %d\nSi tienes %d y quitas %d, te quedan %d." % [a, b, r, a, b, r]
+				return T.s("%d − %d = %d\nPrimero bajamos hasta la decena: %d − %d = %d,\nluego %d − %d = %d.") % [a, b, r, a, down, ten2, ten2, b - down, r]
+			return T.s("%d − %d = %d\nSi tienes %d y quitas %d, te quedan %d.") % [a, b, r, a, b, r]
 		"mul":
 			var groups := mini(a, b)
 			var size := maxi(a, b)
@@ -286,14 +290,14 @@ static func explanation(p: Dictionary) -> String:
 			for i in groups:
 				parts.append(str(size))
 			if groups <= 6 and groups > 1 and size <= 12:
-				return "%d × %d = %d\n%d veces %d: %s = %d." % [a, b, r, groups, size, " + ".join(parts), r]
+				return T.s("%d × %d = %d\n%d veces %d: %s = %d.") % [a, b, r, groups, size, " + ".join(parts), r]
 			if size >= 11 and groups <= 9:
 				var tens: int = size / 10 * 10
 				var rest := size - tens
-				return "%d × %d = %d\nSepáralo: %d × %d = %d y %d × %d = %d.\nLos sumamos: %d + %d = %d." % [a, b, r, tens, groups, tens * groups, rest, groups, rest * groups, tens * groups, rest * groups, r]
-			return "%d × %d = %d\nSon %d grupos de %d: en total hay %d." % [a, b, r, groups, size, r]
+				return T.s("%d × %d = %d\nSepáralo: %d × %d = %d y %d × %d = %d.\nLos sumamos: %d + %d = %d.") % [a, b, r, tens, groups, tens * groups, rest, groups, rest * groups, tens * groups, rest * groups, r]
+			return T.s("%d × %d = %d\nSon %d grupos de %d: en total hay %d.") % [a, b, r, groups, size, r]
 		"div":
-			return "%d ÷ %d = %d\nPorque %d × %d = %d.\nDividir es repartir %d en grupos de %d: salen %d grupos." % [a, b, r, b, r, a, a, b, r]
+			return T.s("%d ÷ %d = %d\nPorque %d × %d = %d.\nDividir es repartir %d en grupos de %d: salen %d grupos.") % [a, b, r, b, r, a, a, b, r]
 	return ""
 
 
@@ -353,17 +357,17 @@ Por 8 es el doble del doble del doble.",
 ## Lo que se muestra antes de practicar un nivel: {"title", "lines"}.
 static func lesson(track: String, level: int) -> Dictionary:
 	level = clampi(level, 1, MAX_LEVEL)
-	var title := "Nivel %d: %s" % [level, level_name(track, level)]
+	var title := T.s("Nivel %d: %s") % [level, level_name(track, level)]
 	var lines: Array = []
 	if track == "addsub":
-		lines.append(ADDSUB_LESSONS[level - 1])
+		lines.append(T.s(ADDSUB_LESSONS[level - 1]))
 	else:
 		if track == "div":
-			lines.append("Dividir es repartir en partes iguales.\n12 ÷ 3 = 4  porque  3 × 4 = 12")
+			lines.append(T.s("Dividir es repartir en partes iguales.\n12 ÷ 3 = 4  porque  3 × 4 = 12"))
 			if level >= 9:
-				lines.append("Separa el número grande.\n48 ÷ 4  →  10 + 2 = 12")
+				lines.append(T.s("Separa el número grande.\n48 ÷ 4  →  10 + 2 = 12"))
 		else:
-			lines.append(MUL_TRICKS[level])
+			lines.append(T.s(MUL_TRICKS[level]))
 		if level in [1, 2, 3, 4, 6, 7]:  # las tablas de este nivel, a la vista para repasar
 			for t in TABLES[level]:
 				lines.append(_table_line(t))
@@ -375,20 +379,20 @@ static func lesson(track: String, level: int) -> Dictionary:
 ## Nota final del turno (de 0 a 10) con mensaje animado.
 static func grade(correct: int, total: int) -> Dictionary:
 	var note := int(round(10.0 * correct / maxf(total, 1)))
-	var title := "¡Ánimo!"
-	var message := "Mira las respuestas de abajo: ¡así se aprende! La próxima te sale mejor."
+	var title := T.s("¡Ánimo!")
+	var message := T.s("Mira las respuestas de abajo: ¡así se aprende! La próxima te sale mejor.")
 	if note >= 9:
-		title = "¡Excelente!"
-		message = "¡Eres un genio de las cuentas!"
+		title = T.s("¡Excelente!")
+		message = T.s("¡Eres un genio de las cuentas!")
 	elif note >= 7:
-		title = "¡Muy bien!"
-		message = "¡Casi perfecto! Sigue así."
+		title = T.s("¡Muy bien!")
+		message = T.s("¡Casi perfecto! Sigue así.")
 	elif note >= 5:
-		title = "¡Bien!"
-		message = "Vas por buen camino. ¡Practicando se mejora!"
+		title = T.s("¡Bien!")
+		message = T.s("Vas por buen camino. ¡Practicando se mejora!")
 	elif note >= 3:
-		title = "¡Sigue intentando!"
-		message = "Cada cuenta que repasas te hace más rápido."
+		title = T.s("¡Sigue intentando!")
+		message = T.s("Cada cuenta que repasas te hace más rápido.")
 	return {"note": note, "title": title, "message": message}
 
 
@@ -412,26 +416,26 @@ static func judge(fast: float, level: int, history: Array, noun := "cuentas") ->
 			times.sort()
 			var median: float = (times[WINDOW / 2 - 1] + times[WINDOW / 2]) / 2.0
 			if median <= fast * JUMP_FACTOR:
-				return _advance(level, 2, "¡Respondiste las últimas %d %s perfectas y rapidísimo!" % [WINDOW, noun])
+				return _advance(level, 2, T.s("¡Respondiste las últimas %d %s perfectas y rapidísimo!") % [WINDOW, T.s(noun)])
 			if median <= fast:
-				return _advance(level, 1, "¡Respondiste las últimas %d %s bien y rápido, varias veces seguidas!" % [WINDOW, noun])
+				return _advance(level, 1, T.s("¡Respondiste las últimas %d %s bien y rápido, varias veces seguidas!") % [WINDOW, T.s(noun)])
 	if n >= CONSTANCY:
 		var recent := history.slice(n - CONSTANCY, n)
 		if recent.all(func(h): return h["c"]):
-			return _advance(level, 1, "¡Llevas %d %s seguidas bien! Tu constancia da frutos." % [CONSTANCY, noun])
+			return _advance(level, 1, T.s("¡Llevas %d %s seguidas bien! Tu constancia da frutos.") % [CONSTANCY, T.s(noun)])
 	if n >= WINDOW and level > 1:
 		var win2 := history.slice(n - WINDOW, n)
 		var right := win2.filter(func(h): return h["c"]).size()
 		if right <= DOWN_MAX_CORRECT:
 			result["action"] = "down"
 			result["levels"] = 1
-			result["reason"] = "Vamos a practicar un nivel más fácil para afirmar lo que ya sabes."
+			result["reason"] = T.s("Vamos a practicar un nivel más fácil para afirmar lo que ya sabes.")
 	return result
 
 
 static func _advance(level: int, steps: int, reason: String) -> Dictionary:
 	if level >= MAX_LEVEL:
-		return {"action": "complete", "levels": 0, "reason": "¡Dominaste todo el camino! %s" % reason}
+		return {"action": "complete", "levels": 0, "reason": T.s("¡Dominaste todo el camino! %s") % reason}
 	var target := mini(MAX_LEVEL, level + steps)
 	return {"action": "jump" if target - level >= 2 else "up", "levels": target - level, "reason": reason}
 

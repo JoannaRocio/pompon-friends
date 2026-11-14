@@ -42,8 +42,9 @@ func _initialize() -> void:
 					elif level <= geo.HINT_LEVELS:
 						var letter: String = geo.initial(p["answer"])
 						var same: int = opts.filter(func(o): return geo.initial(o) == letter).size()
-						# (si en el mundo casi no hay capitales con esa letra, como Q u O, se completa con otras)
-						hint_ok = hint_ok and p["hint"] != "" and (same == 3 or letter in ["Q", "O"])
+						# con pista, las tres empiezan igual; si en el mundo casi no hay capitales con esa letra
+						# (Quito, Ottawa), esa pregunta va sin pista
+						hint_ok = hint_ok and ((p["hint"] != "" and same == 3) or (p["hint"] == "" and letter in ["Q", "O"]))
 					else:
 						hard_ok = hard_ok and p["hint"] == ""
 	print("tipos de pregunta: ", kinds.keys())

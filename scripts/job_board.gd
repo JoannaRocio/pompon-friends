@@ -13,7 +13,7 @@ var _slot: VBoxContainer       # nombre o ficha de profesor/a
 var _message: Label
 var _layer: Control
 var _arrow: GuideArrow
-var _apply_buttons: Array = []   # botones "Aplicar" (la flecha los señala la primera vez)
+var _apply_buttons: Array = []   # botones T.s("Aplicar") (la flecha los señala la primera vez)
 
 
 ## Icono de cada oferta (dibujado por codigo); si esta bloqueado lleva un candado.
@@ -91,13 +91,13 @@ func _ready() -> void:
 	paper_box.add_theme_constant_override("separation", 2)
 	paper.add_child(paper_box)
 	var masthead := Label.new()
-	masthead.text = "EL PERIÓDICO POMPON"
+	masthead.text = T.s("EL PERIÓDICO POMPON")
 	masthead.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	masthead.add_theme_font_size_override("font_size", 34)
 	masthead.add_theme_color_override("font_color", INK)
 	paper_box.add_child(masthead)
 	var section := Label.new()
-	section.text = "OFERTAS DE EMPLEO"
+	section.text = T.s("OFERTAS DE EMPLEO")
 	section.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	section.add_theme_font_size_override("font_size", 22)
 	section.add_theme_color_override("font_color", Color("d6336c"))
@@ -124,7 +124,7 @@ func _ready() -> void:
 	root.add_child(_message)
 
 	_arrow = GuideArrow.new()
-	_arrow.prefer_below = true  # arriba de "Aplicar" esta "Cambiar": la flecha va debajo
+	_arrow.prefer_below = true  # arriba de T.s("Aplicar") esta T.s("Cambiar"): la flecha va debajo
 	add_child(_arrow)
 	_rebuild()
 	if not GameState.tips_seen.has(TIP_INTRO) and GameState.jobs_done == 0:
@@ -153,7 +153,7 @@ func _rebuild() -> void:
 		_list.add_child(_make_ad(job))
 
 
-## Todavia sin trabajo: el nombre del jugador y "Cambiar".
+## Todavia sin trabajo: el nombre del jugador y T.s("Cambiar").
 func _name_row() -> Control:
 	var who := HBoxContainer.new()
 	who.add_theme_constant_override("separation", 12)
@@ -168,7 +168,7 @@ func _name_row() -> Control:
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	chip.add_child(title)
 	var change := Button.new()
-	change.text = "Cambiar"
+	change.text = T.s("Cambiar")
 	change.custom_minimum_size = Vector2(150, 64)
 	Hud.style_soft(change, 24)
 	change.pressed.connect(func(): _ask_profile(true))
@@ -182,9 +182,9 @@ func _show_intro() -> void:
 	_layer = notice
 	add_child(notice)
 	notice.add(BigNotice.icon_strip([["case", Color("ff9b54")], ["coin", Color("ffcf3f")], ["heart", Color("ff7aa8")]]))
-	notice.title("Para cuidar a tu Pompon necesitas monedas")
-	notice.text_line("¡Consíguelas trabajando!", 30, Color("a0527a"))
-	notice.button("¡Vamos!", func():
+	notice.title(T.s("Para cuidar a tu Pompon necesitas monedas"))
+	notice.text_line(T.s("¡Consíguelas trabajando!"), 30, Color("a0527a"))
+	notice.button(T.s("¡Vamos!"), func():
 		GameState.tips_seen.append(TIP_INTRO)
 		GameState.save_game()
 		notice.close()
@@ -198,17 +198,17 @@ func _show_hired(job: Dictionary) -> void:
 	var notice := BigNotice.new(660.0)
 	_layer = notice
 	add_child(notice)
-	notice.title("¡Conseguiste tu primer trabajo!")
+	notice.title(T.s("¡Conseguiste tu primer trabajo!"))
 	notice.add(TeacherCard.new().setup(1))
-	notice.text_line("Sube de nivel trabajando y gana más monedas.", 26, Color("a0527a"))
-	notice.button("¡A trabajar!", func():
+	notice.text_line(T.s("Sube de nivel trabajando y gana más monedas."), 26, Color("a0527a"))
+	notice.button(T.s("¡A trabajar!"), func():
 		GameState.tips_seen.append(TIP_HIRED)
 		GameState.save_game()
 		get_tree().change_scene_to_file(job["scene"]))
 	Audio.play("success")
 
 
-## La flecha señala "Aplicar" mientras haya que aprender a trabajar (no tapa el dialogo del nombre).
+## La flecha señala T.s("Aplicar") mientras haya que aprender a trabajar (no tapa el dialogo del nombre).
 func _process(_delta: float) -> void:
 	_arrow.set_targets(_apply_buttons if GameState.job_guide_on() and _layer == null else [])
 
@@ -243,19 +243,19 @@ func _make_ad(job: Dictionary) -> Control:
 		name_label.add_theme_color_override("font_color", Color(INK, 0.55))
 	info.add_child(name_label)
 	var blurb := Label.new()
-	blurb.text = job["blurb"]
+	blurb.text = T.s(job["blurb"])
 	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	blurb.add_theme_font_size_override("font_size", 22)
 	blurb.add_theme_color_override("font_color", Color("a0527a") if available else Color(INK, 0.45))
 	info.add_child(blurb)
 	var status_row := HBoxContainer.new()
 	info.add_child(status_row)
-	status_row.add_child(Hud.chip("¡Hay vacantes!" if available else "Próximamente",
+	status_row.add_child(Hud.chip(T.s("¡Hay vacantes!") if available else T.s("Próximamente"),
 		Color("d8f5e3") if available else Color("ece6f0"), Color("1f7a4d") if available else Color("7d7390"), 20))
 
 	if available:
 		var apply := Button.new()
-		apply.text = "Aplicar"
+		apply.text = T.s("Aplicar")
 		apply.custom_minimum_size = Vector2(150, 86)
 		apply.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		Hud.style_primary(apply, 30)
@@ -269,7 +269,7 @@ func _make_ad(job: Dictionary) -> Control:
 func _open(job_id: String) -> void:
 	var job := Jobs.get_job(job_id)
 	if job.is_empty() or not job["available"]:
-		_message.text = "Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!"
+		_message.text = T.s("Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!")
 		Audio.play("fail")
 		return
 	Jobs.current = job_id
@@ -297,10 +297,10 @@ func _show_new_subject(job: Dictionary) -> void:
 	add_child(notice)
 	var tint := Color(job["color"])
 	notice.add(BigNotice.icon_strip([["book" if job["id"] == "english" else "house", tint], ["star", Color("ffcf3f")], ["coin", Color("ffcf3f")]]))
-	notice.title("¡Ahora también enseñas %s!" % Jobs.SUBJECT_NAMES.get(job["id"], ""))
-	notice.text_line("Tu nivel y tu paga son los mismos en todas las materias.", 28, Color("a0527a"))
+	notice.title(T.s("¡Ahora también enseñas %s!") % Jobs.subject_name(job["id"]))
+	notice.text_line(T.s("Tu nivel y tu paga son los mismos en todas las materias."), 28, Color("a0527a"))
 	var tip := _subject_tip(job["id"])
-	notice.button("¡A enseñar!", func():
+	notice.button(T.s("¡A enseñar!"), func():
 		GameState.tips_seen.append(tip)
 		GameState.save_game()
 		get_tree().change_scene_to_file(job["scene"]))

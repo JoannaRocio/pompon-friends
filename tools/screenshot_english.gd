@@ -100,6 +100,45 @@ func _initialize() -> void:
 	await create_timer(1.0).timeout
 	h2._show_food_menu()
 	await _shot("11-comida.png")
+	await _clear()
+
+	# trabajo: periodico, aula, examen de geografia y de matematicas, y la nota
+	gs.jobs_done = 3
+	gs.tips_seen.append_array(["job_intro", "job_hired", "job_first_shift"])
+	var board: Control = load("res://scenes/job_board.tscn").instantiate()
+	_add(board)
+	await _shot("12-periodico.png", 1.0)
+	await _clear()
+	Jobs.current = "math"
+	var office: Control = load("res://scenes/job_menu.tscn").instantiate()
+	_add(office)
+	await _shot("13-aula.png", 1.0)
+	office._show_lesson("mul", 2)
+	await _shot("14-leccion.png")
+	await _clear()
+	for subject in ["geography", "math"]:
+		Jobs.current = subject
+		Jobs.set_track("geo_capitals" if subject == "geography" else "addsub")
+		var game: Control = load("res://scenes/job_game.tscn").instantiate()
+		_add(game)
+		await create_timer(0.6).timeout
+		game._close_layer()
+		game.state = game.State.PLAY
+		game._open_question()
+		await _shot("15-examen-geografia.png" if subject == "geography" else "16-examen-matematicas.png")
+		if subject == "math":
+			game._close_layer()
+			game.correct = 4
+			game.questions_done = 5
+			game._finish(true)
+			await create_timer(0.4).timeout
+			for i in 4:
+				if game.find_children("*", "Label", true, false).any(func(l): return l.text == "End of shift!"):
+					break
+				game._next_step()
+				await process_frame
+			await _shot("17-nota.png")
+		await _clear()
 	gs.reset_game()
 	gs.set_language("")
 	quit()

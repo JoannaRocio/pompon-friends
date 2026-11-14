@@ -125,6 +125,91 @@ func _area_shop(t: GDScript) -> void:
 	await process_frame
 
 
+## Area 2: trabajo (periodico, aula, turno), Matematicas y Geografia (pistas por primera letra).
+func _area_jobs(t: GDScript) -> void:
+	var Geo: GDScript = load("res://scripts/geography_problems.gd")
+	var Math: GDScript = load("res://scripts/math_problems.gd")
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for lg in ["es", "en"]:
+		gs.set_language(lg)
+		var bad := []
+		var nohint := []
+		var total := 0
+		for level in range(1, 6):
+			for c in Geo.items("geo_capitals", level):
+				for kind in ["capital", "flag_to_country", "capital_to_country"]:
+					for i in 3:
+						var p: Dictionary = Geo.build_problem("geo_capitals", level, c, rng, kind)
+						total += 1
+						var letter: String = Geo.initial(str(p["answer"]))
+						if p["hint"] == "":
+							if not nohint.has(str(p["answer"])):
+								nohint.append(str(p["answer"]))
+						elif not p["options"].all(func(o): return Geo.initial(str(o)) == letter):
+							var tag := "%s (%s)" % [p["answer"], kind]
+							if not bad.has(tag):
+								bad.append(tag)
+		var sample: Dictionary = Geo.build_problem("geo_capitals", 1, Geo.items("geo_capitals", 1)[1], rng, "capital")
+		print("geografia (", lg, "): ", total, " preguntas | con pista y opciones que NO empiezan igual: ", bad, " | sin pista (no hay 3 con esa letra): ", nohint, " | ej: '", sample["ask"], "' ", sample["options"], " pista ", sample["hint"])
+	gs.set_language("en")
+	print("matematicas (en): ", Math.track_label("mul"), " | ", Math.level_name("addsub", 7), " | ", Math.lesson("mul", 1)["lines"][0].replace("
+", " / "))
+	print("  explicacion: ", Math.explanation({"op": "add", "a": 8, "b": 5, "answer": 13}).replace("
+", " / "))
+	print("  nota: ", Math.grade(9, 10)["title"], " ", Math.grade(9, 10)["message"], " | sube: ", Math.judge(5.0, 3, [{"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}, {"c": true, "t": 1.0}], "cuentas")["reason"])
+	print("geografia (en): ", Geo.level_name("geo_flags", 2), " | ", Geo.explanation({"kind": "capital", "country": "Japan", "capital": "Tokyo"}), " | ", Geo.lesson("geo_capitals", 3)["lines"][0].replace("
+", " / "))
+	# pantallas: periodico, aula y el turno
+	var now := int(Time.get_unix_time_from_system())
+	gs.reset_game()
+	gs.set_language("en")
+	gs.set_profile("Ana", "f")
+	gs.age_group = "adult"
+	gs.jobs_done = 3
+	gs.tips_seen = ["job_intro", "job_hired", "job_first_shift"]
+	for scene in ["job_board", "job_menu"]:
+		var sc: Control = load("res://scenes/%s.tscn" % scene).instantiate()
+		root.add_child(sc)
+		await create_timer(0.3).timeout
+		var tx := _texts(sc)
+		print(scene, " (en): ", tx.slice(0, 14), " | sigue en español: ", _spanish_left(tx, ["Ana"]), " | claves sueltas: ", _raw_keys(tx))
+		if scene == "job_menu":
+			sc._show_lesson("mul", 2)
+			await process_frame
+			var lt := _texts(sc)
+			print("  leccion: ", lt.filter(func(s): return s.begins_with("Times") or s.begins_with("Level")), " | sigue en español: ", _spanish_left(lt, ["Ana"]))
+		sc.queue_free()
+		await process_frame
+	for subject in ["math", "geography"]:
+		var Jobs: GDScript = load("res://scripts/jobs.gd")
+		Jobs.current = subject
+		Jobs.set_track("addsub" if subject == "math" else "geo_capitals")
+		var game: Control = load("res://scenes/job_game.tscn").instantiate()
+		root.add_child(game)
+		await create_timer(0.3).timeout
+		var it := _texts(game)
+		print("turno ", subject, " (en): ", it.filter(func(s): return s.begins_with("Welcome") or s in ["Tidy up the things", "Check the test when a hand goes up", "Let's teach!"]), " | sigue en español: ", _spanish_left(it, ["Ana"]))
+		game._close_layer()
+		game.state = game.State.PLAY
+		game._open_question()
+		await process_frame
+		var qt := _texts(game)
+		print("  examen: ", qt.filter(func(s): return s.ends_with("test") or s.begins_with("What") or s.begins_with("Which") or s.begins_with("Hint") or s.begins_with("This")), " | sigue en español: ", _spanish_left(qt, ["Ana"]))
+		game._finish(true)
+		await create_timer(0.3).timeout
+		var et := _texts(game)
+		for i in 4:   # recorre los carteles en fila hasta la nota
+			if et.any(func(s): return s == "End of shift!"):
+				break
+			game._next_step()
+			await process_frame
+			et = _texts(game)
+		print("  final: ", et.filter(func(s): return s == "End of shift!" or s.begins_with("Grade") or s in ["Again!", "Classroom", "Home"]), " | sigue en español: ", _spanish_left(et, ["Ana"]))
+		game.queue_free()
+		await process_frame
+
+
 func _initialize() -> void:
 	_load_spanish_only()
 	await process_frame
@@ -270,6 +355,7 @@ func _initialize() -> void:
 	gs.set_language("en")
 	await _code_check(t)
 	await _area_shop(t)
+	await _area_jobs(t)
 
 	gs.language = ""
 	gs.reset_game()

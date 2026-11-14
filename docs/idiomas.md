@@ -59,6 +59,12 @@ cartel de nombres nuevos, la despedida (solo los botones) y el tutorial guiado c
 - Tienda, vestidor, decorar, menú de comida, nombres de los 119 objetos (`Catalog.item_name`, claves
   `item.<id>`), comidas (`PomponTastes.food_name`, `food.<id>`), habitaciones (`Rooms.room_name`) y el
   aviso de nivel nuevo.
+- Trabajo: periódico, ficha de profe, aula, lecciones, turno y carteles finales; Matemáticas (nombres de
+  niveles, lecciones, explicaciones, nota) y Geografía: los 51 países y capitales en inglés (`geo.c.<id>`,
+  `geo.k.<id>`) y listas propias de otras capitales y países del mundo para las opciones con pista
+  (`EXTRA_CAPITALS_EN`, `EXTRA_COUNTRIES_EN`). La pista ("B…") solo sale si las tres opciones empiezan con
+  esa letra; si no hay suficientes (Quito y Ottawa en español, Quito y Jakarta en inglés), esa pregunta va
+  sin pista. `test_locale` lo revisa en los dos idiomas.
 
 ## Falta migrar (de más texto a menos)
 Cantidad aproximada de textos en español que quedan en cada archivo:

@@ -15,7 +15,7 @@ func setup(camino: String, level: int) -> void:
 	add_child(box)
 
 	var head := Label.new()
-	head.text = "Nivel %d" % level
+	head.text = T.s("Nivel %d") % level
 	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	head.add_theme_font_size_override("font_size", 44)
 	head.add_theme_color_override("font_color", Color("d6336c"))
@@ -63,7 +63,7 @@ func setup(camino: String, level: int) -> void:
 		board.visible = false
 
 	var ok := Button.new()
-	ok.text = "¡Entendido!"
+	ok.text = T.t("tut.ok")
 	ok.custom_minimum_size = Vector2(0, 88)
 	Hud.style_primary(ok, 38)
 	ok.pressed.connect(func(): closed.emit())

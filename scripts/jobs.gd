@@ -86,17 +86,22 @@ static func normalize(gender: String) -> String:
 
 static func title(job_id: String, gender: String) -> String:
 	var job := get_job(job_id)
-	return "" if job.is_empty() else job["title"][normalize(gender)]
+	return "" if job.is_empty() else T.s(job["title"][normalize(gender)])
+
+
+## Nombre de la materia en el idioma actual.
+static func subject_name(id: String) -> String:
+	return T.s(SUBJECT_NAMES.get(id, SUBJECT_NAMES["math"]))
 
 
 ## Palabra suelta: "Profesora", "Profesor" o "Profesor/a".
 static func teacher_word(gender: String) -> String:
 	match normalize(gender):
 		"f":
-			return "Profesora"
+			return T.s("Profesora")
 		"m":
-			return "Profesor"
-	return "Profesor/a"
+			return T.s("Profesor")
+	return T.s("Profesor/a")
 
 
 ## "Profesora Ana", "Profesor Ana" o "Profesor/a Ana" (sin nombre: solo la palabra).
@@ -109,10 +114,10 @@ static func greeting(gender: String, player_name: String = "") -> String:
 	var who := player_name.strip_edges()
 	match normalize(gender):
 		"f":
-			return "¡Bienvenida a la escuela, profesora%s!" % ("" if who == "" else " " + who)
+			return T.s("¡Bienvenida a la escuela, profesora%s!") % ("" if who == "" else " " + who)
 		"m":
-			return "¡Bienvenido a la escuela, profesor%s!" % ("" if who == "" else " " + who)
-	return "¡Te damos la bienvenida a la escuela%s!" % ("" if who == "" else ", " + who)
+			return T.s("¡Bienvenido a la escuela, profesor%s!") % ("" if who == "" else " " + who)
+	return T.s("¡Te damos la bienvenida a la escuela%s!") % ("" if who == "" else ", " + who)
 
 
 # ------------------------------------------------------------------ carrera (niveles de profesor/a)

@@ -359,3 +359,415 @@ s:Nuevo en la tienda: %s,Nuevo en la tienda: %s,New in the Shop: %s
 s: y , y , and 
 s:%s y %d más,%s y %d más,%s and %d more
 s:Cancelar,Cancelar,Cancel
+geo.c.argentina,Argentina,Argentina
+geo.k.argentina,Buenos Aires,Buenos Aires
+geo.c.brasil,Brasil,Brazil
+geo.k.brasil,Brasilia,Brasilia
+geo.c.chile,Chile,Chile
+geo.k.chile,Santiago,Santiago
+geo.c.uruguay,Uruguay,Uruguay
+geo.k.uruguay,Montevideo,Montevideo
+geo.c.paraguay,Paraguay,Paraguay
+geo.k.paraguay,Asunción,Asuncion
+geo.c.peru,Perú,Peru
+geo.k.peru,Lima,Lima
+geo.c.colombia,Colombia,Colombia
+geo.k.colombia,Bogotá,Bogota
+geo.c.venezuela,Venezuela,Venezuela
+geo.k.venezuela,Caracas,Caracas
+geo.c.ecuador,Ecuador,Ecuador
+geo.k.ecuador,Quito,Quito
+geo.c.mexico,México,Mexico
+geo.k.mexico,Ciudad de México,Mexico City
+geo.c.eeuu,Estados Unidos,United States
+geo.k.eeuu,Washington D. C.,"Washington, D.C."
+geo.c.canada,Canadá,Canada
+geo.k.canada,Ottawa,Ottawa
+geo.c.cuba,Cuba,Cuba
+geo.k.cuba,La Habana,Havana
+geo.c.costa_rica,Costa Rica,Costa Rica
+geo.k.costa_rica,San José,San Jose
+geo.c.panama,Panamá,Panama
+geo.k.panama,Ciudad de Panamá,Panama City
+geo.c.guatemala,Guatemala,Guatemala
+geo.k.guatemala,Ciudad de Guatemala,Guatemala City
+geo.c.honduras,Honduras,Honduras
+geo.k.honduras,Tegucigalpa,Tegucigalpa
+geo.c.jamaica,Jamaica,Jamaica
+geo.k.jamaica,Kingston,Kingston
+geo.c.dominicana,República Dominicana,Dominican Republic
+geo.k.dominicana,Santo Domingo,Santo Domingo
+geo.c.espana,España,Spain
+geo.k.espana,Madrid,Madrid
+geo.c.francia,Francia,France
+geo.k.francia,París,Paris
+geo.c.italia,Italia,Italy
+geo.k.italia,Roma,Rome
+geo.c.alemania,Alemania,Germany
+geo.k.alemania,Berlín,Berlin
+geo.c.portugal,Portugal,Portugal
+geo.k.portugal,Lisboa,Lisbon
+geo.c.reino_unido,Reino Unido,United Kingdom
+geo.k.reino_unido,Londres,London
+geo.c.irlanda,Irlanda,Ireland
+geo.k.irlanda,Dublín,Dublin
+geo.c.paises_bajos,Países Bajos,Netherlands
+geo.k.paises_bajos,Ámsterdam,Amsterdam
+geo.c.suecia,Suecia,Sweden
+geo.k.suecia,Estocolmo,Stockholm
+geo.c.grecia,Grecia,Greece
+geo.k.grecia,Atenas,Athens
+geo.c.suiza,Suiza,Switzerland
+geo.k.suiza,Berna,Bern
+geo.c.rusia,Rusia,Russia
+geo.k.rusia,Moscú,Moscow
+geo.c.japon,Japón,Japan
+geo.k.japon,Tokio,Tokyo
+geo.c.china,China,China
+geo.k.china,Pekín,Beijing
+geo.c.corea_sur,Corea del Sur,South Korea
+geo.k.corea_sur,Seúl,Seoul
+geo.c.india,India,India
+geo.k.india,Nueva Delhi,New Delhi
+geo.c.tailandia,Tailandia,Thailand
+geo.k.tailandia,Bangkok,Bangkok
+geo.c.vietnam,Vietnam,Vietnam
+geo.k.vietnam,Hanói,Hanoi
+geo.c.indonesia,Indonesia,Indonesia
+geo.k.indonesia,Yakarta,Jakarta
+geo.c.filipinas,Filipinas,Philippines
+geo.k.filipinas,Manila,Manila
+geo.c.turquia,Turquía,Turkey
+geo.k.turquia,Ankara,Ankara
+geo.c.banglades,Bangladés,Bangladesh
+geo.k.banglades,Daca,Dhaka
+geo.c.egipto,Egipto,Egypt
+geo.k.egipto,El Cairo,Cairo
+geo.c.marruecos,Marruecos,Morocco
+geo.k.marruecos,Rabat,Rabat
+geo.c.nigeria,Nigeria,Nigeria
+geo.k.nigeria,Abuya,Abuja
+geo.c.ghana,Ghana,Ghana
+geo.k.ghana,Acra,Accra
+geo.c.kenia,Kenia,Kenya
+geo.k.kenia,Nairobi,Nairobi
+geo.c.senegal,Senegal,Senegal
+geo.k.senegal,Dakar,Dakar
+geo.c.etiopia,Etiopía,Ethiopia
+geo.k.etiopia,Adís Abeba,Addis Ababa
+geo.c.australia,Australia,Australia
+geo.k.australia,Canberra,Canberra
+geo.c.nueva_zelanda,Nueva Zelanda,New Zealand
+geo.k.nueva_zelanda,Wellington,Wellington
+geo.c.madagascar,Madagascar,Madagascar
+geo.k.madagascar,Antananarivo,Antananarivo
+"s:%d + %d = %d
+Sumamos por partes:
+%s","%d + %d = %d
+Sumamos por partes:
+%s","%d + %d = %d
+We add in parts:
+%s"
+"s:%d + %d = %d
+Primero completamos la decena: %d + %d = %d,
+luego %d + %d = %d.","%d + %d = %d
+Primero completamos la decena: %d + %d = %d,
+luego %d + %d = %d.","%d + %d = %d
+First we make 10: %d + %d = %d,
+then %d + %d = %d."
+"s:%d + %d = %d
+Juntamos %d y %d: en total hay %d.","%d + %d = %d
+Juntamos %d y %d: en total hay %d.","%d + %d = %d
+Put %d and %d together: that makes %d."
+"s:%d − %d = %d
+Restamos por partes:
+%s","%d − %d = %d
+Restamos por partes:
+%s","%d − %d = %d
+We take away in parts:
+%s"
+"s:%d − %d = %d
+Primero bajamos hasta la decena: %d − %d = %d,
+luego %d − %d = %d.","%d − %d = %d
+Primero bajamos hasta la decena: %d − %d = %d,
+luego %d − %d = %d.","%d − %d = %d
+First go down to 10: %d − %d = %d,
+then %d − %d = %d."
+"s:%d − %d = %d
+Si tienes %d y quitas %d, te quedan %d.","%d − %d = %d
+Si tienes %d y quitas %d, te quedan %d.","%d − %d = %d
+If you have %d and take away %d, %d are left."
+"s:%d × %d = %d
+%d veces %d: %s = %d.","%d × %d = %d
+%d veces %d: %s = %d.","%d × %d = %d
+%d times %d: %s = %d."
+"s:%d × %d = %d
+Sepáralo: %d × %d = %d y %d × %d = %d.
+Los sumamos: %d + %d = %d.","%d × %d = %d
+Sepáralo: %d × %d = %d y %d × %d = %d.
+Los sumamos: %d + %d = %d.","%d × %d = %d
+Split it: %d × %d = %d and %d × %d = %d.
+Add them: %d + %d = %d."
+"s:%d × %d = %d
+Son %d grupos de %d: en total hay %d.","%d × %d = %d
+Son %d grupos de %d: en total hay %d.","%d × %d = %d
+%d groups of %d: that makes %d."
+"s:%d ÷ %d = %d
+Porque %d × %d = %d.
+Dividir es repartir %d en grupos de %d: salen %d grupos.","%d ÷ %d = %d
+Porque %d × %d = %d.
+Dividir es repartir %d en grupos de %d: salen %d grupos.","%d ÷ %d = %d
+Because %d × %d = %d.
+Dividing is sharing %d in groups of %d: you get %d groups."
+"s:Dividir es repartir en partes iguales.
+12 ÷ 3 = 4  porque  3 × 4 = 12","Dividir es repartir en partes iguales.
+12 ÷ 3 = 4  porque  3 × 4 = 12","Dividing is sharing into equal parts.
+12 ÷ 3 = 4  because  3 × 4 = 12"
+"s:Separa el número grande.
+48 ÷ 4  →  10 + 2 = 12","Separa el número grande.
+48 ÷ 4  →  10 + 2 = 12","Split the big number.
+48 ÷ 4  →  10 + 2 = 12"
+s:¡Ánimo!,¡Ánimo!,Keep going!
+s:Mira las respuestas de abajo: ¡así se aprende! La próxima te sale mejor.,Mira las respuestas de abajo: ¡así se aprende! La próxima te sale mejor.,Look at the answers below: that's how we learn! Next time will be better.
+s:¡Excelente!,¡Excelente!,Excellent!
+s:¡Eres un genio de las cuentas!,¡Eres un genio de las cuentas!,You're a math genius!
+s:¡Muy bien!,¡Muy bien!,Very good!
+s:¡Casi perfecto! Sigue así.,¡Casi perfecto! Sigue así.,Almost perfect! Keep it up.
+s:¡Bien!,¡Bien!,Good!
+s:Vas por buen camino. ¡Practicando se mejora!,Vas por buen camino. ¡Practicando se mejora!,You're on the right track. Practice makes progress!
+s:¡Sigue intentando!,¡Sigue intentando!,Keep trying!
+s:Cada cuenta que repasas te hace más rápido.,Cada cuenta que repasas te hace más rápido.,Every problem you review makes you faster.
+s:¡Respondiste las últimas %d %s perfectas y rapidísimo!,¡Respondiste las últimas %d %s perfectas y rapidísimo!,You got the last %d %s perfect and super fast!
+"s:¡Respondiste las últimas %d %s bien y rápido, varias veces seguidas!","¡Respondiste las últimas %d %s bien y rápido, varias veces seguidas!","You got the last %d %s right and fast, many times in a row!"
+s:¡Llevas %d %s seguidas bien! Tu constancia da frutos.,¡Llevas %d %s seguidas bien! Tu constancia da frutos.,%d %s right in a row! Your hard work pays off.
+s:Vamos a practicar un nivel más fácil para afirmar lo que ya sabes.,Vamos a practicar un nivel más fácil para afirmar lo que ya sabes.,Let's practice an easier level to make what you know stronger.
+s:¡Dominaste todo el camino! %s,¡Dominaste todo el camino! %s,You mastered the whole path! %s
+s:cuentas,cuentas,problems
+s:Sumas y restas,Sumas y restas,Adding and taking away
+s:Multiplicaciones,Multiplicaciones,Multiplying
+s:Divisiones,Divisiones,Dividing
+s:Sumas muy fáciles,Sumas muy fáciles,Very easy adding
+s:Sumas hasta 10,Sumas hasta 10,Adding up to 10
+s:Restas hasta 10,Restas hasta 10,Taking away up to 10
+s:Sumas hasta 20,Sumas hasta 20,Adding up to 20
+s:Restas hasta 20,Restas hasta 20,Taking away up to 20
+s:Decenas y unidades,Decenas y unidades,Tens and ones
+s:Cruzar la decena,Cruzar la decena,Crossing ten
+s:Dos cifras sin llevar,Dos cifras sin llevar,"Two digits, no carrying"
+s:Dos cifras llevando,Dos cifras llevando,Two digits with carrying
+s:Tres cifras,Tres cifras,Three digits
+s:Tabla del 2,Tabla del 2,Times table of 2
+s:Tablas del 5 y 10,Tablas del 5 y 10,Times tables of 5 and 10
+s:Tabla del 3,Tabla del 3,Times table of 3
+s:Tabla del 4,Tabla del 4,Times table of 4
+"s:Tablas 2, 3, 4, 5 y 10","Tablas 2, 3, 4, 5 y 10","Tables 2, 3, 4, 5 and 10"
+s:Tablas del 6 y 9,Tablas del 6 y 9,Times tables of 6 and 9
+s:Tablas del 7 y 8,Tablas del 7 y 8,Times tables of 7 and 8
+s:Todas las tablas,Todas las tablas,All the tables
+s:Dos cifras × una (fácil),Dos cifras × una (fácil),Two digits × one (easy)
+s:Dos cifras × una cifra,Dos cifras × una cifra,Two digits × one digit
+s:Dividir entre 2,Dividir entre 2,Dividing by 2
+s:Dividir entre 5 y 10,Dividir entre 5 y 10,Dividing by 5 and 10
+s:Dividir entre 3,Dividir entre 3,Dividing by 3
+s:Dividir entre 4,Dividir entre 4,Dividing by 4
+"s:Dividir entre 2, 3, 4, 5 y 10","Dividir entre 2, 3, 4, 5 y 10","Dividing by 2, 3, 4, 5 and 10"
+s:Dividir entre 6 y 9,Dividir entre 6 y 9,Dividing by 6 and 9
+s:Dividir entre 7 y 8,Dividir entre 7 y 8,Dividing by 7 and 8
+s:Todas las divisiones,Todas las divisiones,All the divisions
+s:Dos cifras ÷ una (fácil),Dos cifras ÷ una (fácil),Two digits ÷ one (easy)
+s:Dos cifras ÷ una cifra,Dos cifras ÷ una cifra,Two digits ÷ one digit
+"s:Sumar es juntar.
+3 + 2 = 5","Sumar es juntar.
+3 + 2 = 5","Adding is putting together.
+3 + 2 = 5"
+"s:Busca las parejas del 10.
+1+9  ·  2+8  ·  3+7  ·  4+6  ·  5+5","Busca las parejas del 10.
+1+9  ·  2+8  ·  3+7  ·  4+6  ·  5+5","Find the pairs that make 10.
+1+9  ·  2+8  ·  3+7  ·  4+6  ·  5+5"
+"s:Restar es quitar.
+8 − 3 = 5","Restar es quitar.
+8 − 3 = 5","Taking away is removing.
+8 − 3 = 5"
+"s:Completa el 10 primero.
+8 + 5  →  8 + 2 = 10  →  10 + 3 = 13","Completa el 10 primero.
+8 + 5  →  8 + 2 = 10  →  10 + 3 = 13","Make 10 first.
+8 + 5  →  8 + 2 = 10  →  10 + 3 = 13"
+"s:Baja primero hasta el 10.
+14 − 6  →  14 − 4 = 10  →  10 − 2 = 8","Baja primero hasta el 10.
+14 − 6  →  14 − 4 = 10  →  10 − 2 = 8","Go down to 10 first.
+14 − 6  →  14 − 4 = 10  →  10 − 2 = 8"
+"s:Mira solo las unidades.
+34 + 5  →  4 + 5 = 9  →  39","Mira solo las unidades.
+34 + 5  →  4 + 5 = 9  →  39","Look only at the ones.
+34 + 5  →  4 + 5 = 9  →  39"
+"s:Llega a la decena y sigue.
+38 + 7  →  38 + 2 = 40  →  45","Llega a la decena y sigue.
+38 + 7  →  38 + 2 = 40  →  45","Get to the next ten and keep going.
+38 + 7  →  38 + 2 = 40  →  45"
+"s:Decenas con decenas, unidades con unidades.
+34 + 25  →  50 + 9 = 59","Decenas con decenas, unidades con unidades.
+34 + 25  →  50 + 9 = 59","Tens with tens, ones with ones.
+34 + 25  →  50 + 9 = 59"
+"s:Suma por partes.
+47 + 38  →  47 + 30 = 77  →  77 + 8 = 85","Suma por partes.
+47 + 38  →  47 + 30 = 77  →  77 + 8 = 85","Add in parts.
+47 + 38  →  47 + 30 = 77  →  77 + 8 = 85"
+"s:Separa en centenas, decenas y unidades.
+234 + 156  →  334  →  384  →  390","Separa en centenas, decenas y unidades.
+234 + 156  →  334  →  384  →  390","Split into hundreds, tens and ones.
+234 + 156  →  334  →  384  →  390"
+"s:Por 2 es el doble.
+2 × 6 = 12","Por 2 es el doble.
+2 × 6 = 12","Times 2 is double.
+2 × 6 = 12"
+"s:Por 10 agregas un 0. Por 5 termina en 0 o 5.
+10 × 7 = 70","Por 10 agregas un 0. Por 5 termina en 0 o 5.
+10 × 7 = 70","Times 10, add a 0. Times 5 ends in 0 or 5.
+10 × 7 = 70"
+"s:La tabla del 3 va de 3 en 3.
+3 · 6 · 9 · 12 · 15","La tabla del 3 va de 3 en 3.
+3 · 6 · 9 · 12 · 15","The 3 times table goes up by 3.
+3 · 6 · 9 · 12 · 15"
+"s:Por 4 es el doble del doble.
+4 × 6  →  12  →  24","Por 4 es el doble del doble.
+4 × 6  →  12  →  24","Times 4 is double, then double again.
+4 × 6  →  12  →  24"
+"s:Repasamos las tablas del 2, 3, 4, 5 y 10.","Repasamos las tablas del 2, 3, 4, 5 y 10.","Let's review the tables of 2, 3, 4, 5 and 10."
+"s:Tabla del 9: sus dígitos suman 9.
+9 × 4 = 36  →  3 + 6 = 9","Tabla del 9: sus dígitos suman 9.
+9 × 4 = 36  →  3 + 6 = 9","9 times table: the digits add up to 9.
+9 × 4 = 36  →  3 + 6 = 9"
+"s:Repite las tablas del 7 y del 8.
+Por 8 es el doble del doble del doble.","Repite las tablas del 7 y del 8.
+Por 8 es el doble del doble del doble.","Practice the 7 and 8 tables.
+Times 8 is double, double, double."
+s:Todas las tablas mezcladas. ¡Tú puedes!,Todas las tablas mezcladas. ¡Tú puedes!,All the tables mixed up. You can do it!
+"s:Separa el número grande.
+12 × 3  →  30 + 6 = 36","Separa el número grande.
+12 × 3  →  30 + 6 = 36","Split the big number.
+12 × 3  →  30 + 6 = 36"
+"s:Separa el número grande.
+23 × 4  →  80 + 12 = 92","Separa el número grande.
+23 × 4  →  80 + 12 = 92","Split the big number.
+23 × 4  →  80 + 12 = 92"
+s:Capitales,Capitales,Capitals
+s:Banderas,Banderas,Flags
+s:Capitales y banderas,Capitales y banderas,Capitals and flags
+s:Sudamérica,Sudamérica,South America
+s:Norte y Centroamérica,Norte y Centroamérica,North and Central America
+s:Europa,Europa,Europe
+s:Asia,Asia,Asia
+s:África y Oceanía,África y Oceanía,Africa and Oceania
+s: (con pista), (con pista), (with hints)
+s:¿Cuál es la capital de %s?,¿Cuál es la capital de %s?,What is the capital of %s?
+s:¿De qué país es esta bandera?,¿De qué país es esta bandera?,Which country has this flag?
+s:¿De qué país es la capital?,¿De qué país es la capital?,This is the capital of which country?
+s:¿Cuál es su bandera?,¿Cuál es su bandera?,Which one is its flag?
+s:¿Cuál es la bandera del país de esta capital?,¿Cuál es la bandera del país de esta capital?,Which flag belongs to this capital's country?
+s:La capital de %s es %s.,La capital de %s es %s.,The capital of %s is %s.
+s:Esta es la bandera de %s.,Esta es la bandera de %s.,This is the flag of %s.
+s:¡Conoces el mundo entero!,¡Conoces el mundo entero!,You know the whole world!
+s:¡Casi perfecto! Ya eres un gran viajero.,¡Casi perfecto! Ya eres un gran viajero.,Almost perfect! You're a great traveler.
+s:Vas por buen camino. ¡Cada bandera se te queda!,Vas por buen camino. ¡Cada bandera se te queda!,You're on the right track. Every flag sticks!
+s:Repasa las capitales de abajo: ¡la próxima te salen!,Repasa las capitales de abajo: ¡la próxima te salen!,Review the capitals below: next time you'll get them!
+s:respuestas,respuestas,answers
+s:Nivel %d: %s,Nivel %d: %s,Level %d: %s
+s:Mira la bandera y aprende su capital.,Mira la bandera y aprende su capital.,Look at the flag and learn its capital.
+s:Mira bien los colores de cada bandera.,Mira bien los colores de cada bandera.,Look carefully at the colors of each flag.
+s:Une la capital con su país y su bandera.,Une la capital con su país y su bandera.,Match the capital with its country and flag.
+s:Profesora,Profesora,Teacher
+s:Profesor,Profesor,Teacher
+s:Profesor/a,Profesor/a,Teacher
+"s:¡Bienvenida a la escuela, profesora%s!","¡Bienvenida a la escuela, profesora%s!","Welcome to school, teacher%s!"
+"s:¡Bienvenido a la escuela, profesor%s!","¡Bienvenido a la escuela, profesor%s!","Welcome to school, teacher%s!"
+s:¡Te damos la bienvenida a la escuela%s!,¡Te damos la bienvenida a la escuela%s!,Welcome to school%s!
+s:Profesora de Matemáticas,Profesora de Matemáticas,Math Teacher
+s:Profesor de Matemáticas,Profesor de Matemáticas,Math Teacher
+s:Profesor/a de Matemáticas,Profesor/a de Matemáticas,Math Teacher
+s:Profesora de Inglés,Profesora de Inglés,English Teacher
+s:Profesor de Inglés,Profesor de Inglés,English Teacher
+s:Profesor/a de Inglés,Profesor/a de Inglés,English Teacher
+s:Profesora de Geografía,Profesora de Geografía,Geography Teacher
+s:Profesor de Geografía,Profesor de Geografía,Geography Teacher
+s:Profesor/a de Geografía,Profesor/a de Geografía,Geography Teacher
+s:Resuelve cuentas con tus alumnos,Resuelve cuentas con tus alumnos,Solve math problems with your students
+s:Palabras y frases en inglés,Palabras y frases en inglés,Words and phrases in English
+s:Capitales y banderas del mundo,Capitales y banderas del mundo,Capitals and flags of the world
+s:Matemáticas,Matemáticas,Math
+s:Inglés,Inglés,English
+s:Geografía,Geografía,Geography
+s:EL PERIÓDICO POMPON,EL PERIÓDICO POMPON,THE POMPON NEWS
+s:OFERTAS DE EMPLEO,OFERTAS DE EMPLEO,JOBS
+s:Cambiar,Cambiar,Change
+s:Para cuidar a tu Pompon necesitas monedas,Para cuidar a tu Pompon necesitas monedas,To take care of your Pompon you need coins
+s:¡Consíguelas trabajando!,¡Consíguelas trabajando!,Earn them by working!
+s:¡Vamos!,¡Vamos!,Let's go!
+s:¡Conseguiste tu primer trabajo!,¡Conseguiste tu primer trabajo!,You got your first job!
+s:Sube de nivel trabajando y gana más monedas.,Sube de nivel trabajando y gana más monedas.,Level up by working and earn more coins.
+s:¡A trabajar!,¡A trabajar!,Let's work!
+s:¡Hay vacantes!,¡Hay vacantes!,Now hiring!
+s:Próximamente,Próximamente,Coming soon
+s:Aplicar,Aplicar,Apply
+s:Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!,Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!,This job isn't open yet. More jobs are coming soon!
+s:¡Ahora también enseñas %s!,¡Ahora también enseñas %s!,Now you also teach %s!
+s:Tu nivel y tu paga son los mismos en todas las materias.,Tu nivel y tu paga son los mismos en todas las materias.,Your level and pay are the same in every subject.
+s:¡A enseñar!,¡A enseñar!,Let's teach!
+s:%s · Escuela Pompon,%s · Escuela Pompon,%s · Pompon School
+s:+%d por turno,+%d por turno,+%d per shift
+s:¡Nivel máximo!,¡Nivel máximo!,Top level!
+s:Nivel %d en %d %s,Nivel %d en %d %s,Level %d in %d %s
+s:turno,turno,shift
+s:turnos,turnos,shifts
+s:e,e,and
+s:y,y,and
+s:Aula de %s,Aula de %s,%s classroom
+s:Escuela Pompon · %s,Escuela Pompon · %s,Pompon School · %s
+s:¿Qué practicamos?,¿Qué practicamos?,What shall we practice?
+s:Ir a la Tienda,Ir a la Tienda,Go to the Shop
+s:¡Completo!,¡Completo!,Done!
+s:Trabajar,Trabajar,Work
+s:Lección,Lección,Lesson
+s:¡Listo!,¡Listo!,Done!
+s:¡Racha x%d!,¡Racha x%d!,Streak x%d!
+s:Mundo,Mundo,World
+s:Terminar y cobrar +%d,Terminar y cobrar +%d,Finish and get +%d
+s:Ordena los objetos,Ordena los objetos,Tidy up the things
+s:Corrige el examen cuando levanten la mano,Corrige el examen cuando levanten la mano,Check the test when a hand goes up
+s:Examen de %s,Examen de %s,%s's test
+s:Repaso,Repaso,Review
+s:Pista: %s,Pista: %s,Hint: %s
+s:Se dice: %s,Se dice: %s,Say it: %s
+s:¡Correcto!,¡Correcto!,Correct!
+s:¡Correcto y rápido!,¡Correcto y rápido!,Correct and fast!
+s:¡Ya puedes cobrar!,¡Ya puedes cobrar!,You can get paid now!
+s:¡Ascendiste!,¡Ascendiste!,You got promoted!
+s:Ahora ganas %d monedas por turno.,Ahora ganas %d monedas por turno.,Now you earn %d coins per shift.
+s:¡Genial!,¡Genial!,Awesome!
+s:¡Perfecto!,¡Perfecto!,Perfect!
+s:Ya sabes lo básico para cuidar a tu Pompon.,Ya sabes lo básico para cuidar a tu Pompon.,You know the basics to care for your Pompon.
+s:Pronto nacerá: ¡compremos una cuna!,Pronto nacerá: ¡compremos una cuna!,It will hatch soon: let's buy a crib!
+s:Ver mi nota,Ver mi nota,See my grade
+s:¡CAMINO COMPLETO!,¡CAMINO COMPLETO!,PATH COMPLETE!
+s:¡SUBISTE DE NIVEL!,¡SUBISTE DE NIVEL!,LEVEL UP!
+s:¡Dominaste %s!,¡Dominaste %s!,You mastered %s!
+s:+%d monedas,+%d monedas,+%d coins
+s:¡Fin del turno!,¡Fin del turno!,End of shift!
+s:Nota: %d / 10,Nota: %d / 10,Grade: %d / 10
+s:Cuentas bien,Cuentas bien,Problems right
+s:Bien,Bien,Right
+s:Ordenados: %d,Ordenados: %d,Tidied: %d
+s:¡Turno completo! +%d monedas extra,¡Turno completo! +%d monedas extra,Full shift! +%d extra coins
+s:Termina el turno completo y gana +%d extra,Termina el turno completo y gana +%d extra,Finish the full shift to earn +%d extra
+s:+%d monedas de premio por el nivel,+%d monedas de premio por el nivel,+%d bonus coins for the level
+s:%s · Nivel %d,%s · Nivel %d,%s · Level %d
+s:¡Ahora estás en el nivel %d!,¡Ahora estás en el nivel %d!,Now you're at level %d!
+s:Bajamos un nivel para afirmar. ¡Tú puedes!,Bajamos un nivel para afirmar. ¡Tú puedes!,We'll go down a level to practice. You can do it!
+s:Para subir: %d seguidas bien y rápidas (llevas %d),Para subir: %d seguidas bien y rápidas (llevas %d),To level up: %d in a row right and fast (you have %d)
+s:Para repasar,Para repasar,To review
+s:¡Otra vez!,¡Otra vez!,Again!
+s:Aula,Aula,Classroom
+s:%s · capital: %s,%s · capital: %s,%s · capital: %s
+s:%s · se dice: %s,%s · se dice: %s,%s · say it: %s
+s:¡Casi! Es %s,¡Casi! Es %s,Almost! It's %s
+s:la de %s,la de %s,the one for %s
+s:Casa,Casa,Home

@@ -11,7 +11,7 @@ const SYMBOLS := {"addsub": "+ −", "mul": "×", "div": "÷", "en_words": "ABC"
 var _layer: Control
 var _arrow: GuideArrow
 var _shop_button: Button
-var _work_buttons: Array = []   # los tres "Trabajar": la flecha los recorre la primera vez
+var _work_buttons: Array = []   # los tres T.s("Trabajar"): la flecha los recorre la primera vez
 var _problems: GDScript         # MathProblems o EnglishProblems
 
 
@@ -45,13 +45,13 @@ func _ready() -> void:
 	texts.add_theme_constant_override("separation", 0)
 	head.add_child(texts)
 	var title := Label.new()
-	title.text = "Aula de %s" % Jobs.SUBJECT_NAMES.get(Jobs.current, "Matemáticas")
+	title.text = T.s("Aula de %s") % Jobs.subject_name(Jobs.current)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.add_theme_font_size_override("font_size", 40)
 	title.add_theme_color_override("font_color", Color("fffbe8"))
 	texts.add_child(title)
 	var who := Label.new()
-	who.text = "Escuela Pompon · %s" % Jobs.full_title(GameState.player_title, GameState.player_name)
+	who.text = T.s("Escuela Pompon · %s") % Jobs.full_title(GameState.player_title, GameState.player_name)
 	who.add_theme_font_size_override("font_size", 22)
 	who.add_theme_color_override("font_color", Color("ffe9a3"))
 	texts.add_child(who)
@@ -69,7 +69,7 @@ func _ready() -> void:
 		root.add_child(_crib_card())
 
 	var pick := Label.new()
-	pick.text = "¿Qué practicamos?"
+	pick.text = T.s("¿Qué practicamos?")
 	pick.add_theme_font_size_override("font_size", 34)
 	pick.add_theme_color_override("font_color", Color("a0527a"))
 	root.add_child(pick)
@@ -89,8 +89,8 @@ func _ready() -> void:
 	add_child(_arrow)
 
 
-## Mientras haya que aprender a trabajar, la flecha pasa por los tres "Trabajar" (sirve cualquiera).
-## Si ya alcanza para la cuna, señala "Ir a la Tienda".
+## Mientras haya que aprender a trabajar, la flecha pasa por los tres T.s("Trabajar") (sirve cualquiera).
+## Si ya alcanza para la cuna, señala T.s("Ir a la Tienda").
 func _process(_delta: float) -> void:
 	if _layer != null:
 		_arrow.set_targets([])
@@ -115,11 +115,11 @@ func _crib_card() -> Control:
 	bar.max_value = float(price)
 	bar.value = float(mini(GameState.coins, price))
 	bar.font_size = 22
-	bar.text = "Cuna  %d / %d" % [mini(GameState.coins, price), price]
+	bar.text = T.t("home.crib_bar", {"have": mini(GameState.coins, price), "price": price})
 	row.add_child(bar)
 	if GameState.coins >= price:
 		var go := Button.new()
-		go.text = "Ir a la Tienda"
+		go.text = T.s("Ir a la Tienda")
 		go.custom_minimum_size = Vector2(0, 62)
 		Hud.style_primary(go, 24)
 		go.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/shop.tscn"))
@@ -166,15 +166,15 @@ func _track_card(camino: String) -> Control:
 	info.add_theme_constant_override("separation", 4)
 	row.add_child(info)
 	var name_label := Label.new()
-	name_label.text = _problems.LABELS[camino]
+	name_label.text = _problems.track_label(camino)
 	name_label.add_theme_font_size_override("font_size", 30)
 	info.add_child(name_label)
 	var lvl_row := HBoxContainer.new()
 	lvl_row.add_theme_constant_override("separation", 10)
 	info.add_child(lvl_row)
-	lvl_row.add_child(Hud.chip("Nivel %d" % level, Color("ffe6ef"), Color("d6336c"), 20))
+	lvl_row.add_child(Hud.chip(T.s("Nivel %d") % level, Color("ffe6ef"), Color("d6336c"), 20))
 	if st["completed"]:
-		lvl_row.add_child(Hud.chip("¡Completo!", Color("d8f5e3"), Color("1f7a4d"), 20))
+		lvl_row.add_child(Hud.chip(T.s("¡Completo!"), Color("d8f5e3"), Color("1f7a4d"), 20))
 	var lvl := Label.new()
 	lvl.text = _problems.level_name(camino, level)
 	lvl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -191,7 +191,7 @@ func _track_card(camino: String) -> Control:
 	buttons.add_theme_constant_override("separation", 8)
 	row.add_child(buttons)
 	var go := Button.new()
-	go.text = "Trabajar"
+	go.text = T.s("Trabajar")
 	go.custom_minimum_size = Vector2(160, 72)
 	Hud.style_primary(go, 28, color)
 	go.pressed.connect(func():
@@ -213,7 +213,7 @@ func _track_card(camino: String) -> Control:
 	pay.add_child(pay_label)
 	under.add_child(pay)
 	var learn := Button.new()
-	learn.text = "Lección"
+	learn.text = T.s("Lección")
 	learn.custom_minimum_size = Vector2(88, 40)
 	Hud.style_soft(learn, 18)
 	learn.pressed.connect(func(): _show_lesson(camino, level))

@@ -63,6 +63,31 @@ const EXTRA_COUNTRIES := ["Japón", "Jordania", "Bolivia", "Bélgica", "Bulgaria
 	"Senegal", "Sri Lanka", "Suiza", "Suecia", "Singapur", "Eritrea", "Etiopía", "Egipto", "El Salvador", "Níger",
 	"Nigeria", "Nueva Zelanda", "Dominica", "Irlanda", "India", "Indonesia", "Italia", "Israel", "Honduras", "Libia"]
 
+# Las mismas listas en inglés (para las opciones con pista cuando se juega en inglés).
+const EXTRA_CAPITALS_EN := [
+	"Tbilisi", "Tehran", "Tashkent", "Tirana", "Tripoli", "Tunis", "Taipei", "Tallinn", "Thimphu", "Baku", "Belgrade",
+	"Bucharest", "Budapest", "Bratislava", "Beirut", "Bamako", "Baghdad", "Brazzaville", "Brussels", "Copenhagen",
+	"Conakry", "Colombo", "Doha", "Damascus", "Dodoma", "Dushanbe", "Djibouti", "Yerevan", "Freetown", "Gaborone",
+	"Georgetown", "Harare", "Helsinki", "Islamabad", "Juba", "Khartoum", "Kabul", "Kampala", "Kigali", "Kathmandu",
+	"Kuala Lumpur", "Kuwait City", "La Paz", "Luanda", "Lusaka", "Ljubljana", "Luxembourg", "Minsk", "Maputo",
+	"Managua", "Muscat", "Monrovia", "Niamey", "Nicosia", "Nouakchott", "Oslo", "Prague", "Port-au-Prince", "Riga",
+	"Reykjavik", "Riyadh", "Sofia", "Sarajevo", "San Salvador", "Singapore", "Skopje", "Ulaanbaatar", "Vilnius",
+	"Vienna", "Warsaw", "Vientiane", "Windhoek", "Yaounde", "Zagreb", "Abu Dhabi", "Amman", "Algiers", "Asmara",
+	"Astana", "Pyongyang", "Phnom Penh", "Port Moresby", "Suva", "Apia", "Gitega", "Ouagadougou", "Yamoussoukro",
+	"Victoria", "Valletta", "Honiara"]
+const EXTRA_COUNTRIES_EN := [
+	"Japan", "Jordan", "Bolivia", "Belgium", "Bulgaria", "Bhutan", "Bahamas", "Cambodia", "Cameroon", "Croatia",
+	"Denmark", "Djibouti", "Dominica", "Ecuador", "Slovenia", "Estonia", "Finland", "France", "Gabon", "Georgia",
+	"Haiti", "Hungary", "Iran", "Iraq", "Iceland", "Kazakhstan", "Laos", "Latvia", "Lebanon", "Malaysia", "Mali",
+	"Mongolia", "Mozambique", "Nepal", "Nicaragua", "Norway", "Oman", "Pakistan", "Poland", "Qatar", "Romania",
+	"Rwanda", "Serbia", "Syria", "Somalia", "Sudan", "Taiwan", "Tanzania", "Tunisia", "Ukraine", "Uganda", "Uzbekistan",
+	"United Arab Emirates", "Venezuela", "Vanuatu", "Vatican City", "Yemen", "Zambia", "Zimbabwe", "Austria", "Angola",
+	"Algeria", "Armenia", "Australia", "Albania", "Guinea", "Greece", "Ghana", "Paraguay", "Panama", "Peru", "Portugal",
+	"Thailand", "Turkey", "Togo", "Tonga", "Chad", "Cyprus", "North Korea", "Kenya", "Kuwait", "Kyrgyzstan",
+	"Madagascar", "Malta", "Morocco", "Senegal", "Sri Lanka", "Switzerland", "Sweden", "Singapore", "Eritrea",
+	"Ethiopia", "Egypt", "El Salvador", "Niger", "Nigeria", "New Zealand", "Ireland", "India", "Indonesia", "Italy",
+	"Israel", "Honduras", "Libya", "Fiji"]
+
 const LESSON_TRICK := {
 	"geo_capitals": "Mira la bandera y aprende su capital.",
 	"geo_flags": "Mira bien los colores de cada bandera.",
@@ -82,20 +107,33 @@ static func has_hint(level: int) -> bool:
 
 static func level_name(_track: String, level: int) -> String:
 	level = clampi(level, 1, MAX_LEVEL)
-	return "%s%s" % [REGIONS[region_of(level)], " (con pista)" if has_hint(level) else ""]
+	return "%s%s" % [T.s(REGIONS[region_of(level)]), T.s(" (con pista)") if has_hint(level) else ""]
 
 
 static func fast_seconds(track: String, _level: int) -> float:
 	return FAST_SECONDS[track]
 
 
-## Los paises de una region: [{"id", "country", "capital"}].
+## Los paises de una region, en el idioma actual: [{"id", "country", "capital"}].
 static func countries(region: int) -> Array:
 	var out: Array = []
 	for line in COUNTRIES[clampi(region, 0, REGIONS.size() - 1)]:
 		var f := String(line).split("|")
-		out.append({"id": f[0], "country": f[1], "capital": f[2]})
+		out.append({"id": f[0], "country": T.data("geo.c", f[0], f[1]), "capital": T.data("geo.k", f[0], f[2])})
 	return out
+
+
+## Otras capitales y paises del mundo (para las opciones con pista), en el idioma actual.
+static func extra_capitals() -> Array:
+	return EXTRA_CAPITALS_EN if T.lang() == "en" else EXTRA_CAPITALS
+
+
+static func extra_countries() -> Array:
+	return EXTRA_COUNTRIES_EN if T.lang() == "en" else EXTRA_COUNTRIES
+
+
+static func track_label(track: String) -> String:
+	return T.s(LABELS[track])
 
 
 static func all_countries() -> Array:
@@ -180,27 +218,27 @@ static func build_problem(track: String, level: int, item: Dictionary, rng: Rand
 		"capital":   # bandera + pais -> capital
 			p["flag"] = item["id"]
 			p["prompt"] = item["country"]
-			p["ask"] = "¿Cuál es la capital de %s?" % item["country"]
+			p["ask"] = T.s("¿Cuál es la capital de %s?") % item["country"]
 			p["answer"] = item["capital"]
-			var world_caps: Array = world.map(func(c): return c["capital"]) + EXTRA_CAPITALS
+			var world_caps: Array = world.map(func(c): return c["capital"]) + extra_capitals()
 			options = _distractors(item["capital"], region.map(func(c): return c["capital"]), world_caps, hint, rng)
 		"flag_to_country":   # bandera -> pais
 			p["flag"] = item["id"]
 			p["prompt"] = ""
-			p["ask"] = "¿De qué país es esta bandera?"
+			p["ask"] = T.s("¿De qué país es esta bandera?")
 			p["answer"] = item["country"]
-			var world_names: Array = world.map(func(c): return c["country"]) + EXTRA_COUNTRIES
+			var world_names: Array = world.map(func(c): return c["country"]) + extra_countries()
 			options = _distractors(item["country"], region.map(func(c): return c["country"]), world_names, hint, rng)
 		"capital_to_country":   # capital -> pais
 			p["prompt"] = item["capital"]
-			p["ask"] = "¿De qué país es la capital?"
+			p["ask"] = T.s("¿De qué país es la capital?")
 			p["answer"] = item["country"]
-			var world_names2: Array = world.map(func(c): return c["country"]) + EXTRA_COUNTRIES
+			var world_names2: Array = world.map(func(c): return c["country"]) + extra_countries()
 			options = _distractors(item["country"], region.map(func(c): return c["country"]), world_names2, hint, rng)
 		_:   # "country_to_flag" o "capital_to_flag": se elige entre tres banderas
 			p["option_flags"] = true
 			p["prompt"] = item["country"] if kind == "country_to_flag" else item["capital"]
-			p["ask"] = "¿Cuál es su bandera?" if kind == "country_to_flag" else "¿Cuál es la bandera del país de esta capital?"
+			p["ask"] = T.s("¿Cuál es su bandera?") if kind == "country_to_flag" else T.s("¿Cuál es la bandera del país de esta capital?")
 			p["answer"] = item["id"]
 			# con pista: banderas de otras regiones (muy distintas); sin pista: de la misma region
 			var pool: Array = (world if hint else region).filter(func(c): return c["id"] != item["id"] and (not hint or not region.has(c)))
@@ -211,7 +249,9 @@ static func build_problem(track: String, level: int, item: Dictionary, rng: Rand
 	options.append(p["answer"])
 	_shuffle(options, rng)
 	p["options"] = options
-	if hint and not p["option_flags"]:
+	# la pista ("Q…") solo si las tres opciones empiezan con esa letra (con Quito u Ottawa no hay suficientes)
+	var letter := initial(str(p["answer"]))
+	if hint and not p["option_flags"] and options.all(func(o): return initial(str(o)) == letter):
 		p["hint"] = String(p["answer"]).substr(0, 1).to_upper() + "…"
 	return p
 
@@ -252,16 +292,16 @@ static func pick_problem(track: String, level: int, rng: RandomNumberGenerator, 
 static func explanation(p: Dictionary) -> String:
 	match p["kind"]:
 		"capital", "capital_to_country", "capital_to_flag":
-			return "La capital de %s es %s." % [p["country"], p["capital"]]
-	return "Esta es la bandera de %s." % p["country"]
+			return T.s("La capital de %s es %s.") % [p["country"], p["capital"]]
+	return T.s("Esta es la bandera de %s.") % p["country"]
 
 
 ## Antes de practicar un nivel: los paises de la region con su capital.
 static func lesson(track: String, level: int) -> Dictionary:
 	level = clampi(level, 1, MAX_LEVEL)
-	var title := "Nivel %d: %s" % [level, level_name(track, level)]
+	var title := T.s("Nivel %d: %s") % [level, level_name(track, level)]
 	var list := items(track, level)
-	var head: String = LESSON_TRICK[track]
+	var head: String = T.s(LESSON_TRICK[track])
 	for i in 3:
 		head += "\n%s: %s" % [list[i]["country"], list[i]["capital"]]
 	var lines: Array = [head]
@@ -277,13 +317,13 @@ static func grade(correct: int, total: int) -> Dictionary:
 	var g := MathProblems.grade(correct, total)
 	var note: int = g["note"]
 	if note >= 9:
-		g["message"] = "¡Conoces el mundo entero!"
+		g["message"] = T.s("¡Conoces el mundo entero!")
 	elif note >= 7:
-		g["message"] = "¡Casi perfecto! Ya eres un gran viajero."
+		g["message"] = T.s("¡Casi perfecto! Ya eres un gran viajero.")
 	elif note >= 5:
-		g["message"] = "Vas por buen camino. ¡Cada bandera se te queda!"
+		g["message"] = T.s("Vas por buen camino. ¡Cada bandera se te queda!")
 	elif note >= 3:
-		g["message"] = "Repasa las capitales de abajo: ¡la próxima te salen!"
+		g["message"] = T.s("Repasa las capitales de abajo: ¡la próxima te salen!")
 	return g
 
 
