@@ -67,7 +67,7 @@ album (en): ["Mochi\'s album", "1 of 36 stickers", "First times", "Give her a ba
 minigames (en): ["Minigames", "Playing helps it grow and learn new things!", "Growth", "Math", "Your level", "up to 10", "Play!"] | sigue en español: [] | claves sueltas: []
 simon_game (en): ["Watch!"] | sigue en español: [] | claves sueltas: []
 pattern_game (en): ["What comes next?"] | sigue en español: [] | claves sueltas: []
-math_game (en): * · Level 1", * 2 = ?"] | sigue en español: [] | claves sueltas: []
+math_game (en): [* · Level 1", "* = ?"] | sigue en español: [] | claves sueltas: []
 jump_game (en): ["Move your finger from side to side\nto jump from cloud to cloud"] | sigue en español: [] | claves sueltas: []
 paint_game (en): ["Pencil", "Bucket", "Erase", "Done!"] | sigue en español: [] | claves sueltas: []
 music_game (en): ["Tap the squares, then Play!", "Play", "Erase", "Done!"] | sigue en español: [] | claves sueltas: []

@@ -5,4 +5,4 @@ veces contadas: 202 (esperado 202)
 habitacion: primera='Hoy conocí la cocina: me dio un poquito de miedo' | otra vez nunca: true
 tres comidas nuevas seguidas: ["Hoy probé papa por primera vez y ¡quiero más!", "Hoy probé pizza por primera vez y ¡quiero más!", "Hoy probé helado por primera vez y ¡quiero más!"]
 en la cola del diario: ["Hoy jugué a Memoria por primera vez y *"]
-diario tras comer pan y beber: ["Hoy probé pan tostado por primera vez y *a!", "Crecí y ahora soy miedoso", "Todavía no sé decir palabras nuevas…", "Crecí y ahora soy miedoso", "Todavía no sé decir palabras nuevas…", "Crecí y ahora soy miedoso"]
+diario tras comer pan y beber: ["Hoy probé pan tostado por primera vez y *", *"Crecí y ahora soy miedoso"]

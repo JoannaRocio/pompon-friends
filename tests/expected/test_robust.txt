@@ -3,7 +3,7 @@ huevo sin cuna: sigue huevo=true | sin aviso=''
 aviso al eclosionar: '¡Tu huevo eclosionó!'
 aviso al crecer: '¡Tu Pompon ahora es niño!'
 pompon se fue: true coins conserva=77
-nota guardada: * tu * se fue de casa.  Dejó
+nota guardada: *se fue de casa.*
 nota tras recargar: true
 modal de despedida visible: true
 tras 'Mas tarde': nota=true sin pompon=true

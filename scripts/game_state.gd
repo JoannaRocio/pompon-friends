@@ -794,25 +794,57 @@ var friend_requests: Array = []   # solicitudes recibidas que esperan respuesta
 var friend_sent: Array = []   # solicitudes enviadas que el otro todavia no acepto
 
 
-## Guardado seguro: se escribe a un archivo temporal y se conserva una copia de respaldo,
-## asi un corte de bateria justo al guardar no deja la partida a medias.
-func save_game() -> void:
+## Guardado seguro, a prueba de cortes de bateria y de memoria llena:
+## 1) se escribe la partida en save.json.tmp y se vuelve a leer para comprobar que quedo entera;
+## 2) el save.json anterior pasa a ser el respaldo (save.json.bak), solo si estaba entero;
+## 3) el .tmp pasa a ser save.json.
+## Si se corta en cualquier momento, siempre queda al menos un archivo entero, y load_game() elige el
+## mas nuevo de los tres. Devuelve false si no se pudo guardar (lo anterior queda como estaba).
+func save_game() -> bool:
 	save_count += 1
-	var data := save_dict()
+	var text := JSON.stringify(save_dict())
 	var tmp_path := SAVE_PATH + ".tmp"
-	var f := FileAccess.open(tmp_path, FileAccess.WRITE)
-	if f == null:
+	if not _write_checked(tmp_path, text):
 		push_warning("No se pudo guardar la partida.")
-		return
-	f.store_string(JSON.stringify(data))
-	f.close()
-	var dir := DirAccess.open("user://")
-	if dir == null:
-		return
+		DirAccess.remove_absolute(tmp_path)   # (un .tmp a medias no sirve)
+		return false
 	if FileAccess.file_exists(SAVE_PATH):
-		dir.copy(SAVE_PATH, BACKUP_PATH)
-		dir.remove(SAVE_PATH)
-	dir.rename(tmp_path, SAVE_PATH)
+		if _looks_complete(SAVE_PATH):   # no se pisa un respaldo bueno con un guardado roto
+			if FileAccess.file_exists(BACKUP_PATH):
+				DirAccess.remove_absolute(BACKUP_PATH)
+			DirAccess.rename_absolute(SAVE_PATH, BACKUP_PATH)
+		else:
+			DirAccess.remove_absolute(SAVE_PATH)
+		if FileAccess.file_exists(SAVE_PATH):   # (Windows a veces no deja moverlo: se pisa)
+			DirAccess.remove_absolute(SAVE_PATH)
+	if DirAccess.rename_absolute(tmp_path, SAVE_PATH) != OK:
+		if not _write_checked(SAVE_PATH, text):
+			return false   # queda el .tmp entero: load_game() lo usa
+		DirAccess.remove_absolute(tmp_path)
+	return true
+
+
+## Escribe el archivo y lo vuelve a leer: true solo si quedo exactamente igual (memoria llena, etc.).
+func _write_checked(path: String, text: String) -> bool:
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f == null:
+		return false
+	f.store_string(text)
+	var ok := f.get_error() == OK
+	f.close()
+	return ok and FileAccess.get_file_as_string(path) == text
+
+
+## Un guardado que empieza con "{" y termina con "}" (uno cortado a la mitad no termina asi).
+func _looks_complete(path: String) -> bool:
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null or f.get_length() < 2:
+		return false
+	var first := f.get_8()
+	f.seek(f.get_length() - 1)
+	var last := f.get_8()
+	f.close()
+	return first == 0x7B and last == 0x7D
 
 
 ## Toda la partida como diccionario (lo que se escribe en el archivo y lo que se sube a la nube).
@@ -906,10 +938,25 @@ func _read_save(path: String) -> Dictionary:
 	return json.data if typeof(json.data) == TYPE_DICTIONARY else {}
 
 
+var last_load_from := ""   # de que archivo salio la partida ("" = no habia ninguna sana)
+
+
+## Carga save.json si esta sano. Un .tmp sano y mas nuevo (el guardado se corto justo antes de renombrarlo)
+## gana. Si save.json falta o esta danado: el mas nuevo entre el .tmp y el respaldo .bak.
 func load_game() -> void:
+	last_load_from = ""
 	var parsed := _read_save(SAVE_PATH)
-	if parsed.is_empty():
-		parsed = _read_save(BACKUP_PATH)  # el guardado principal falta o esta danado
+	if not parsed.is_empty():
+		last_load_from = SAVE_PATH
+	var tmp := _read_save(SAVE_PATH + ".tmp")
+	if not tmp.is_empty() and (parsed.is_empty() or int(tmp.get("last_saved", 0)) > int(parsed.get("last_saved", 0))):
+		parsed = tmp
+		last_load_from = SAVE_PATH + ".tmp"
+	if parsed.is_empty() or last_load_from == SAVE_PATH + ".tmp":
+		var bak := _read_save(BACKUP_PATH)
+		if not bak.is_empty() and (parsed.is_empty() or int(bak.get("last_saved", 0)) > int(parsed.get("last_saved", 0))):
+			parsed = bak
+			last_load_from = BACKUP_PATH
 	if parsed.is_empty():
 		return
 	apply_save(parsed)
@@ -1506,6 +1553,8 @@ func _notification(what: int) -> void:
 			mark_visit()
 		NOTIFICATION_WM_CLOSE_REQUEST:
 			save_game()
+		NOTIFICATION_APPLICATION_FOCUS_OUT:   # (en la web y la PC no siempre llega el aviso de cerrar)
+			save_game()
 		NOTIFICATION_WM_GO_BACK_REQUEST:  # boton "atras" de Android
 			_on_back()
 
@@ -1527,6 +1576,7 @@ func _on_back() -> void:
 		return
 	match scene.scene_file_path.get_file().get_basename():
 		"menu":
+			save_game()   # (salir con "atras" no manda el aviso de cerrar)
 			get_tree().quit()
 		"home", "intro":
 			get_tree().change_scene_to_file("res://scenes/menu.tscn")

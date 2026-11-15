@@ -1,0 +1,15 @@
+guardado normal: devuelve true, save y respaldo, sin .tmp sobrante: true
+tmp a medio escribir: carga save.json (200): true
+  el siguiente guardado reemplaza el tmp roto: true
+corte entre los dos renombres (sin save.json): carga el tmp, que es el mas nuevo (350): true
+  al guardar vuelve a quedar save.json y no queda tmp: true
+save.json cortado: carga el respaldo (350): true
+  guardar con save.json roto no lo copia al respaldo (sigue 350) y guarda bien (500): true
+los tres rotos: sin caida, la partida en memoria sigue (77): true
+guarda al pausar: true
+guarda al salir de foco: true
+guarda al cerrar: true
+guarda al comprar (y nacer): true
+guarda al nacer: true
+guarda al terminar el turno: true
+FIN test_save_crash
