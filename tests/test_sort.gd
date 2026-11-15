@@ -72,9 +72,11 @@ func _initialize() -> void:
 	await process_frame
 	print("arrastre estable aunque cambie la lista: ", field.items.size() >= 1)
 
-	# en pausa no se juega
+	# en pausa no se juega: no aparece ningun objeto nuevo. (Uno que ya iba volando al canasto puede
+	# terminar de caer y desaparecer: por eso antes esta prueba fallaba a veces, segun el azar.)
 	field.paused = true
-	var before: int = field.items.size()
+	var before_ids: Array = field.items.map(func(it): return it["id"])
 	await create_timer(3.0).timeout
-	print("en pausa no aparecen objetos: ", field.items.size() == before)
+	var new_items: Array = field.items.filter(func(it): return not before_ids.has(it["id"]))
+	print("en pausa no aparecen objetos: ", new_items.is_empty(), " | (antes ", before_ids.size(), ", ahora ", field.items.size(), ")")
 	quit()
