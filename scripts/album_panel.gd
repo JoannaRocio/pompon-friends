@@ -113,8 +113,8 @@ func _sticker(s: Dictionary, won: bool, day: int) -> Control:
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(120, 0)
-	name_label.add_theme_font_size_override("font_size", 18 if won else 16)
-	name_label.add_theme_color_override("font_color", INK if won else Color(INK, 0.45))
+	name_label.add_theme_font_size_override("font_size", 18)   # la pista también se tiene que poder leer
+	name_label.add_theme_color_override("font_color", INK if won else Color(INK, 0.7))
 	col.add_child(name_label)
 	if won and day > 0:
 		var row := HBoxContainer.new()

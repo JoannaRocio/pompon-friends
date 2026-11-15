@@ -97,6 +97,7 @@ func _show_lobby() -> void:
 		b.custom_minimum_size = Vector2(118, 132)
 		b.focus_mode = Control.FOCUS_NONE
 		b.text = "" if not entry.is_empty() else "Solo"
+		b.add_theme_font_size_override("font_size", 26)
 		b.set_meta("entry", entry)
 		b.pressed.connect(_pick_companion.bind(entry))
 		row.add_child(b)
@@ -119,6 +120,7 @@ func _show_lobby() -> void:
 			name_label.add_theme_font_size_override("font_size", 20)
 			name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			b.add_child(name_label)
+			b.set_meta("name_label", name_label)
 	_pick_companion({})
 
 	var spacer := Control.new()
@@ -187,6 +189,8 @@ func _pick_companion(entry: Dictionary) -> void:
 		for st in ["normal", "hover", "pressed", "focus"]:
 			b.add_theme_stylebox_override(st, sb)
 		b.add_theme_color_override("font_color", INK if picked else Color("ffe9a3"))
+		if b.has_meta("name_label"):   # el nombre del vecino: oscuro sobre la tarjeta clara, claro sobre la oscura
+			(b.get_meta("name_label") as Label).add_theme_color_override("font_color", INK if picked else Color("ffe9a3"))
 
 
 func _buy() -> void:

@@ -171,9 +171,8 @@ func _pompon_card() -> Control:
 		bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if GameState.pompon != null:
 			bar.value = PomponGrowth.quality(GameState.pompon, int(Time.get_unix_time_from_system())) if stat == "crecimiento" else float(GameState.pompon.stats.get(stat, 0.0))
-		if stat == "crecimiento":
-			bar.text = T.s("Crecimiento")
-			bar.font_size = 18
+		bar.text = T.s("Crecimiento") if stat == "crecimiento" else T.label("Diversión" if stat == "diversion" else "Confianza")
+		bar.font_size = 18   # cada barra dice qué es (antes solo la de crecimiento)
 		col.add_child(bar)
 		if stat == "crecimiento":
 			_int_bar = bar

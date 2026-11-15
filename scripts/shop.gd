@@ -299,11 +299,9 @@ func _make_card(item: Dictionary) -> Control:
 	var kind: String = Catalog.category_name(item["category"])
 	if item["id"] == GameState.CRIB_ID and GameState.egg_waiting():
 		tag.add_child(Hud.chip(T.s("¡Para que nazca!"), Color("ffe6ef"), Color("d6336c"), 20))
-	elif needed:
-		tag.add_child(Hud.chip(T.s("¡Lo necesita!"), Color("ffe6ef"), Color("d6336c"), 20))
-	elif item.has("species"):
-		tag.add_child(Hud.chip(T.s("Para %s") % Pompon.species_label(item["species"]), Color("e6efff"), Color("3f66b0"), 20))
-	else:
+	elif needed:   # pensado para su especie (ya no es obligatorio: no decir "lo necesita")
+		tag.add_child(Hud.chip(T.s("Para %s") % Pompon.species_label(item["species"]), Color("ffe6ef"), Color("d6336c"), 20))
+	else:   # lo de otra especie también lo puede usar: se muestra como cualquier mueble
 		tag.add_child(Hud.chip(kind, Color("f3eefc"), Color("7a56c4"), 20))
 
 	var buy := Button.new()

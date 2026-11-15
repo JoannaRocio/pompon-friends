@@ -1,6 +1,7 @@
 extends Control
 ## Casa: el cuarto, el Pompon (o su huevo), sus estadisticas y las acciones de cuidado.
 
+const FOOD_ART := preload("res://scripts/food_art.gd")   # dibujos de cada comida
 const STAT_LABELS := {
 	"alimentacion": "Comida", "hidratacion": "Agua", "aseo": "Aseo",
 	"diversion": "Diversión", "comodidad": "Comodidad", "sueno": "Sueño",
@@ -2005,13 +2006,15 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	margin.add_child(row)
 	var tint: Color = [Color("e0b48f"), Color("ffa94d"), Color("ff7aa8")][food["tier"]]
 	var badge := Control.new()
-	badge.custom_minimum_size = Vector2(56, 56)
+	badge.custom_minimum_size = Vector2(72, 72)
 	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.draw.connect(func():
+	var food_id: String = food["id"]
+	badge.draw.connect(func():   # el dibujo de la comida (se reconoce sin leer), con un aro del color de su precio
 		var c := badge.size * 0.5
-		badge.draw_circle(c, 28.0, tint)
-		Hud.draw_icon(badge, "apple", c, 36.0, Color.WHITE, tint.darkened(0.3)))
+		badge.draw_circle(c, 35.0, Color.WHITE)
+		badge.draw_arc(c, 34.0, 0, TAU, 40, tint, 4.0, true)
+		FOOD_ART.draw(badge, food_id, c, 52.0))
 	row.add_child(badge)
 	var texts := VBoxContainer.new()
 	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2028,7 +2031,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	texts.add_child(name_label)
 	var price := Label.new()
 	price.text = T.s("gratis") if food["price"] == 0 else T.s("%d monedas") % food["price"]
-	price.add_theme_font_size_override("font_size", 18)
+	price.add_theme_font_size_override("font_size", 20)
 	price.add_theme_color_override("font_color", Color("a0527a"))
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(price)

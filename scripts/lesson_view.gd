@@ -57,8 +57,30 @@ func setup(camino: String, level: int) -> void:
 	board.add_child(chalk)
 	for i in range(1, first.size()):
 		chalk.add_child(_chalk(first[i], 44 if first[i].length() <= 14 else (36 if first[i].length() <= 22 else 30)))
-	for i in range(1, lines.size()):  # tablas para repasar
-		chalk.add_child(_chalk(String(lines[i]), 22, true))
+	# tablas para repasar: una columna por tabla ("5 × 1 = 5" arriba de "5 × 2 = 10"...), así se leen
+	# como en el cuaderno y ninguna cuenta queda partida entre dos renglones
+	var tables: Array = []
+	for i in range(1, lines.size()):
+		var parts := String(lines[i]).split("  ·  ")
+		if parts.size() > 1:
+			tables.append(parts)
+		else:
+			chalk.add_child(_chalk(String(lines[i]), 22, true))
+	if not tables.is_empty():
+		var grid := GridContainer.new()
+		grid.columns = tables.size()
+		grid.add_theme_constant_override("h_separation", 48)
+		grid.add_theme_constant_override("v_separation", 0)
+		grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		chalk.add_child(grid)
+		var rows := 0
+		for t in tables:
+			rows = maxi(rows, t.size())
+		for r in rows:
+			for t in tables:
+				var cell := _chalk(t[r] if r < t.size() else "", 24 if tables.size() > 1 else 26, true)
+				cell.autowrap_mode = TextServer.AUTOWRAP_OFF   # (en una grilla sin ancho se partiría letra por letra)
+				grid.add_child(cell)
 	if first.size() == 1 and lines.size() == 1:
 		board.visible = false
 
