@@ -191,7 +191,7 @@ func _initialize() -> void:
 		room.set_state(Rooms.default_style(i)["wall"], Rooms.default_style(i)["floor"], gs.placed, i)
 		room.hour_override = [12.0, 22.0, 7.5][i % 3]
 		room.scroll = 0.0
-		room.queue_redraw()
+		room.redraw()
 		await process_frame
 		room.scroll = room.max_scroll()
 		await process_frame

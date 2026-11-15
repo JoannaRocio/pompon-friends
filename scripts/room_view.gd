@@ -19,12 +19,22 @@ var wall_id := ""
 var floor_id := ""
 var placed: Array = []      # misma lista que GameState.placed (se edita en el lugar)
 var room_index := -1        # que habitacion se muestra (-1 = todos los items, para las visitas)
-var world_screens := Rooms.WORLD_SCREENS
+var world_screens := Rooms.WORLD_SCREENS:
+	set(v):
+		world_screens = v
+		_layout()
+## El cuarto se dibuja en `_world` (ancho de todo el mundo) y deslizar solo lo mueve: no hace falta
+## volver a dibujar todos los muebles en cada cuadro. Encima van la vineta (fija) y las chispitas.
+var _world: Control
+var _vignette: Control
 var _shine: Control   # chispitas de los especiales
+var _canvas: CanvasItem   # donde dibujan las funciones de dibujo (_world o _vignette)
+var _specials: Array = []   # items especiales del cuarto (se arma al dibujar el cuarto; las chispitas los recorren cada cuadro)
 var scroll := 0.0:
 	set(v):
 		scroll = clampf(v, 0.0, max_scroll())
-		queue_redraw()
+		if _world != null:
+			_world.position.x = -scroll
 var edit_mode := false:
 	set(v):
 		edit_mode = v
@@ -32,7 +42,7 @@ var edit_mode := false:
 			selected = ""
 			_dragging = false
 			selection_changed.emit("")
-		queue_redraw()
+		redraw()
 var selected := ""
 
 var hour_override := -1.0   # para pruebas y capturas; -1 usa la hora real
@@ -82,7 +92,19 @@ func _time_state() -> Array:
 
 
 func _ready() -> void:
-	resized.connect(func(): scroll = scroll)  # vuelve a acotar la camara si cambia el tamaño
+	_world = Control.new()
+	_world.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_world.draw.connect(_draw_world)
+	add_child(_world)
+	move_child(_world, 0)
+	_vignette = Control.new()
+	_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_vignette.draw.connect(_draw_vignette)
+	add_child(_vignette)
+	move_child(_vignette, 1)
+	resized.connect(_layout)
+	_layout()
 	# capa liviana encima: solo las chispitas de los items especiales (se redibuja cada cuadro)
 	_shine = Control.new()
 	_shine.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -91,17 +113,34 @@ func _ready() -> void:
 	add_child(_shine)
 
 
+## El cuarto entero cambio (muebles, pared, edicion, hora): se vuelve a dibujar una vez.
+func redraw() -> void:
+	if _world != null:
+		_world.queue_redraw()
+
+
+## Tamaño del mundo y camara (al cambiar el tamaño o las pantallas de ancho).
+func _layout() -> void:
+	if _world == null:
+		return
+	_world.size = Vector2(world_w(), size.y)
+	scroll = scroll   # vuelve a acotar la camara
+	_world.queue_redraw()
+	_vignette.queue_redraw()
+
+
 func _draw_shine() -> void:
 	var t := Time.get_ticks_msec() / 1000.0
-	for p in _items():
-		if Catalog.is_special(p["id"]):
-			var r := _item_rect(p)
-			r.position.x -= scroll
-			ItemArt.draw_shine(_shine, r, t + float(hash(p["id"]) % 100) * 0.1)
+	for p in _specials:
+		var r := _item_rect(p)
+		r.position.x -= scroll
+		if r.end.x < -40.0 or r.position.x > size.x + 40.0:   # fuera de la pantalla (con margen para las chispitas)
+			continue
+		ItemArt.draw_shine(_shine, r, t + float(hash(p["id"]) % 100) * 0.1)
 
 
 func _process(delta: float) -> void:
-	if _shine != null and _items().any(func(p): return Catalog.is_special(p["id"])):
+	if _shine != null and not _specials.is_empty():
 		_shine.queue_redraw()
 	if _dragging and selected != "":
 		var dx := 0.0
@@ -121,7 +160,7 @@ func _process(delta: float) -> void:
 	var bucket := int(_hour() * 6.0)  # cada 10 minutos
 	if bucket != _hour_bucket:
 		_hour_bucket = bucket
-		queue_redraw()
+		redraw()
 
 
 func set_state(wall: String, floor_item: String, placed_items: Array, room := -1) -> void:
@@ -133,7 +172,7 @@ func set_state(wall: String, floor_item: String, placed_items: Array, room := -1
 	floor_id = floor_item
 	placed = placed_items
 	room_index = room
-	queue_redraw()
+	redraw()
 
 
 ## Mueve la camara (con animacion suave si `animated`).
@@ -200,23 +239,23 @@ func _order_key(p: Dictionary) -> float:
 	return float(p["y"])
 
 
-func _draw() -> void:
+func _draw_world() -> void:
+	_canvas = _world
 	var w := size.x
 	var ww := world_w()
 	var h := size.y
 	var fy := h * FLOOR_START
-	draw_set_transform(Vector2(-scroll, 0.0))
 
-	ItemArt.draw_wall(self, Rect2(0, 0, ww, fy), wall_id)
+	ItemArt.draw_wall(_canvas, Rect2(0, 0, ww, fy), wall_id)
 	_gradient(Rect2(0, 0, ww, fy), Color(1, 1, 1, 0.16), Color(1, 1, 1, 0.0))   # luz suave desde arriba
 	_gradient(Rect2(0, fy - 90, ww, 90), Color(0.45, 0.25, 0.35, 0.0), Color(0.45, 0.25, 0.35, 0.10))
 	# zocalo (baseboard) con brillo arriba
-	draw_rect(Rect2(0, fy - 26, ww, 30), Color("fffaf0"))
-	draw_rect(Rect2(0, fy - 26, ww, 6), Color("ffffff"))
-	draw_rect(Rect2(0, fy - 2, ww, 6), Color("ecdcc4"))
-	draw_line(Vector2(0, fy - 26), Vector2(ww, fy - 26), Color(OUTLINE, 0.5), 2.0)
-	draw_line(Vector2(0, fy + 4), Vector2(ww, fy + 4), OUTLINE, 3.0)
-	ItemArt.draw_floor(self, Rect2(0, fy + 2, ww, h - fy), floor_id)
+	_canvas.draw_rect(Rect2(0, fy - 26, ww, 30), Color("fffaf0"))
+	_canvas.draw_rect(Rect2(0, fy - 26, ww, 6), Color("ffffff"))
+	_canvas.draw_rect(Rect2(0, fy - 2, ww, 6), Color("ecdcc4"))
+	_canvas.draw_line(Vector2(0, fy - 26), Vector2(ww, fy - 26), Color(OUTLINE, 0.5), 2.0)
+	_canvas.draw_line(Vector2(0, fy + 4), Vector2(ww, fy + 4), OUTLINE, 3.0)
+	ItemArt.draw_floor(_canvas, Rect2(0, fy + 2, ww, h - fy), floor_id)
 	_gradient(Rect2(0, fy + 4, ww, 110), Color(0.3, 0.15, 0.2, 0.22), Color(0.3, 0.15, 0.2, 0.0))   # sombra bajo la pared
 	_gradient(Rect2(0, h * 0.8, ww, h * 0.2), Color(1, 0.95, 0.85, 0.0), Color(1, 0.95, 0.85, 0.10))
 
@@ -233,6 +272,10 @@ func _draw() -> void:
 	var walls := []
 	var floors := []
 	var items := _items()
+	var had_specials := not _specials.is_empty()
+	_specials = items.filter(func(p): return Catalog.is_special(p["id"]))
+	if had_specials and _specials.is_empty() and _shine != null:
+		_shine.queue_redraw()   # (se saco el ultimo especial: borrar sus chispitas)
 	for p in items:
 		(walls if _is_wall_item(p["id"]) else floors).append(p)
 	floors.sort_custom(func(a, b): return _order_key(a) < _order_key(b))
@@ -242,24 +285,24 @@ func _draw() -> void:
 	ItemArt.night_amount = night
 	ItemArt.sky = Color("bfe3f5").lerp(Color("f6b38a"), warm * 0.8).lerp(Color("1f2a5c"), night)
 	for p in walls:
-		ItemArt.draw_item(self, p["id"], _item_center(p))
+		ItemArt.draw_item(_canvas, p["id"], _item_center(p))
 	for p in floors:
-		ItemArt.draw_item(self, p["id"], _item_center(p))
+		ItemArt.draw_item(_canvas, p["id"], _item_center(p))
 	ItemArt.night_amount = 0.0
 	ItemArt.sky = Color("bfe3f5")
 
 	# luz del dia: la noche oscurece suave el cuarto y el atardecer lo vuelve calido
 	if night > 0.01:
-		draw_rect(Rect2(0, 0, ww, h), Color(0.08, 0.10, 0.30, 0.30 * night))
+		_canvas.draw_rect(Rect2(0, 0, ww, h), Color(0.08, 0.10, 0.30, 0.30 * night))
 	if warm > 0.01:
-		draw_rect(Rect2(0, 0, ww, h), Color(1.0, 0.6, 0.3, 0.10 * warm))
+		_canvas.draw_rect(Rect2(0, 0, ww, h), Color(1.0, 0.6, 0.3, 0.10 * warm))
 	if night > 0.2:  # lamparas y chimenea siguen encendidas
 		for p in items:
 			var shape := Catalog.shape_of(p["id"])
 			if LIGHT_SOURCES.has(shape):
 				var c: Vector2 = _item_center(p) + LIGHT_SOURCES[shape]
-				draw_circle(c, 120.0, Color(1.0, 0.85, 0.5, 0.10 * night))
-				draw_circle(c, 70.0, Color(1.0, 0.88, 0.55, 0.16 * night))
+				_canvas.draw_circle(c, 120.0, Color(1.0, 0.85, 0.5, 0.10 * night))
+				_canvas.draw_circle(c, 70.0, Color(1.0, 0.88, 0.55, 0.16 * night))
 
 	# las esquinas de la habitacion se ven un poco mas oscuras: marcan donde termina
 	_gradient(Rect2(0, 0, 90, h), Color(0.25, 0.1, 0.2, 0.22), Color(0.25, 0.1, 0.2, 0.0), true)
@@ -268,7 +311,11 @@ func _draw() -> void:
 	if edit_mode:
 		_draw_edit_marks()
 
-	draw_set_transform(Vector2.ZERO)
+
+func _draw_vignette() -> void:
+	_canvas = _vignette
+	var w := size.x
+	var h := size.y
 	# bordes mas oscuros (vineta): enfoca la mirada al centro
 	_gradient(Rect2(0, 0, 70, h), Color(0.25, 0.1, 0.2, 0.12), Color(0.25, 0.1, 0.2, 0.0), true)
 	_gradient(Rect2(w - 70, 0, 70, h), Color(0.25, 0.1, 0.2, 0.0), Color(0.25, 0.1, 0.2, 0.12), true)
@@ -278,20 +325,20 @@ func _rug(rc: Vector2, w: float, rug: Color) -> void:
 	_ellipse(rc + Vector2(0, 10), w * 0.405, 90.0, Color(0.3, 0.15, 0.2, 0.14), false)
 	for i in 36:
 		var a := TAU * i / 36.0
-		draw_circle(rc + Vector2(cos(a) * w * 0.41, sin(a) * 88.0), 7.0, Color("fff1de"))
+		_canvas.draw_circle(rc + Vector2(cos(a) * w * 0.41, sin(a) * 88.0), 7.0, Color("fff1de"))
 	_ellipse(rc, w * 0.40, 86.0, Color("fff6e8"))
 	_ellipse(rc, w * 0.35, 68.0, rug, false)
 	_ellipse(rc, w * 0.31, 58.0, Color("fff6e8"), false)
 	for i in 14:
 		var a2 := TAU * i / 14.0
-		draw_circle(rc + Vector2(cos(a2) * w * 0.33, sin(a2) * 62.0), 6.0, Color("ffc2d9"))
+		_canvas.draw_circle(rc + Vector2(cos(a2) * w * 0.33, sin(a2) * 62.0), 6.0, Color("ffc2d9"))
 
 
 ## Degradado lineal (vertical por defecto; horizontal si `horizontal`).
 func _gradient(r: Rect2, from: Color, to: Color, horizontal := false) -> void:
 	var pts := PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
 	var cols := PackedColorArray([from, to, to, from]) if horizontal else PackedColorArray([from, from, to, to])
-	draw_polygon(pts, cols)
+	_canvas.draw_polygon(pts, cols)
 
 
 func _draw_edit_marks() -> void:
@@ -305,7 +352,7 @@ func _draw_edit_marks() -> void:
 			var hw: float = surf["hw"]
 			var yy: float = pc.y + float(surf["dy"])
 			var on: bool = p["id"] == _snap_support
-			draw_line(Vector2(pc.x - hw, yy), Vector2(pc.x + hw, yy), Color("ff7aa0") if on else Color(1, 1, 1, 0.8), 8.0 if on else 5.0, true)
+			_canvas.draw_line(Vector2(pc.x - hw, yy), Vector2(pc.x + hw, yy), Color("ff7aa0") if on else Color(1, 1, 1, 0.8), 8.0 if on else 5.0, true)
 	for p in _items():
 		var r := _item_rect(p).grow(6.0)
 		var on2: bool = p["id"] == selected
@@ -314,7 +361,7 @@ func _draw_edit_marks() -> void:
 		sb.border_color = Color("ff7aa0") if on2 else Color(1, 1, 1, 0.65)
 		sb.set_border_width_all(4 if on2 else 2)
 		sb.set_corner_radius_all(14)
-		draw_style_box(sb, r)
+		_canvas.draw_style_box(sb, r)
 
 
 func _ellipse(c: Vector2, rx: float, ry: float, fill: Color, outline := true) -> void:
@@ -322,10 +369,10 @@ func _ellipse(c: Vector2, rx: float, ry: float, fill: Color, outline := true) ->
 	for i in 48:
 		var a := TAU * i / 48.0
 		pts.append(c + Vector2(cos(a) * rx, sin(a) * ry))
-	draw_colored_polygon(pts, fill)
+	_canvas.draw_colored_polygon(pts, fill)
 	if outline:
 		pts.append(pts[0])
-		draw_polyline(pts, OUTLINE, 4.0, true)
+		_canvas.draw_polyline(pts, OUTLINE, 4.0, true)
 
 
 # ------------------------------------------------------------------ camara y edicion
@@ -361,7 +408,7 @@ func _on_press(pos: Vector2) -> void:
 		if hit != "":
 			_dragging = true
 			_drag_offset = _item_center(_find(hit)) - (pos + Vector2(scroll, 0.0))
-			queue_redraw()
+			redraw()
 			return
 	_panning = true
 	if _scroll_tween != null:
@@ -375,7 +422,7 @@ func _on_release() -> void:
 	_dragging = false
 	_panning = false
 	_snap_support = ""
-	queue_redraw()
+	redraw()
 
 
 ## El item seleccionado sigue al dedo; un adorno chico se pega a la superficie que tenga cerca.
@@ -391,7 +438,7 @@ func _apply_drag() -> void:
 			GameState.attach_item(id, snap["support"], snap["ox"])
 			var c := _item_center(_find(id))
 			GameState.move_item(id, c.x / world_w(), c.y / size.y)  # por si despues se suelta en el aire
-			queue_redraw()
+			redraw()
 			return
 		_snap_support = ""
 		GameState.detach_item(id)
@@ -399,7 +446,7 @@ func _apply_drag() -> void:
 	if Catalog.is_small(id):
 		y_range = Vector2(WALL_Y_RANGE.x, _floor_y_max(id))
 	GameState.move_item(id, nx, clampf(pos.y / size.y, y_range.x, y_range.y))
-	queue_redraw()
+	redraw()
 
 
 ## Al soltar: un adorno que no quedo sobre nada cae al piso.
@@ -444,7 +491,7 @@ func select(item_id: String) -> void:
 		return
 	selected = item_id
 	selection_changed.emit(item_id)
-	queue_redraw()
+	redraw()
 
 
 func _find(item_id: String) -> Dictionary:
