@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cgt171wnq0imi"
-path="res://.godot/imported/07-cuentas.png-70b1e8b1402ab8ac804fb07a70879e21.ctex"
+uid="uid://c4o02echo51uk"
+path="res://.godot/imported/11-pueblo.png-75b141f5002a96dd6a03e84fd45503ea.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/store/images/07-cuentas.png"
-dest_files=["res://.godot/imported/07-cuentas.png-70b1e8b1402ab8ac804fb07a70879e21.ctex"]
+source_file="res://docs/store/images/es/11-pueblo.png"
+dest_files=["res://.godot/imported/11-pueblo.png-75b141f5002a96dd6a03e84fd45503ea.ctex"]
 
 [params]
 

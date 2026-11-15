@@ -1,7 +1,10 @@
 ﻿extends SceneTree
 ## Genera las imagenes para la ficha de Google Play (capturas 1080x1920 y grafico 1024x500).
 ## Uso: godot --path . --rendering-method gl_compatibility --resolution 540x960 \
-##        --script tools/store_images.gd -- <carpeta_salida>
+##        --script tools/store_images.gd -- <carpeta_salida> [es|en]
+## Las capturas van a <carpeta_salida>/<idioma>/ (el grafico de funciones, sin texto traducido, a la carpeta).
+## Respaldar antes %APPDATA%\Godot\app_userdata\Pompon Friends\save.json* (guarda partidas de ejemplo).
+## Google Play acepta hasta 8 capturas por idioma: ver la seleccion sugerida en docs/store/store-listing.md.
 
 const SHOTS := [
 	# [escena, archivo, especie (indice), modo]
@@ -13,6 +16,11 @@ const SHOTS := [
 	["job_menu", "06-aula", 0, ""],
 	["job_game", "07-cuentas", 1, "job"],
 	["job_game", "08-aprende", 3, "job_wrong"],
+	["job_menu", "09-idiomas", 2, "lang"],
+	["minigames", "10-minijuegos", 4, ""],
+	["town", "11-pueblo", 0, "scroll"],
+	["cinema", "12-cine", 1, ""],
+	["neighbors", "13-vecinos", 3, ""],
 ]
 const SPECIES := ["Felino", "Conejo", "Dragon", "Canino", "Ave", "Raton", "Reptil"]
 const COLORS := [["ffb3cc", "fff0f5"], ["a8d8f0", "f4f9ff"], ["9ad9a8", "e8f8d8"], ["e8c08c", "fff0d8"], ["ffe27a", "fff6cf"]]
@@ -25,6 +33,7 @@ const FRIENDS := [
 ]
 
 var _out := "user://store"
+var _lang := "es"
 
 
 ## Fondo del grafico de funciones: pared de estrellitas y piso, de dia.
@@ -40,9 +49,14 @@ func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() > 0:
 		_out = args[0]
-	DirAccess.make_dir_recursive_absolute(_out)
+	if args.size() > 1 and args[1] in ["es", "en"]:
+		_lang = args[1]
+	var shots_dir := _out.path_join(_lang)
+	DirAccess.make_dir_recursive_absolute(shots_dir)
 	await process_frame
 	var gs := root.get_node("GameState")
+	gs.set_language(_lang)
+	load("res://scripts/day_clock.gd").debug_hour = 14.0   # capturas siempre de dia (sin el cartel de la noche)
 
 	for shot in SHOTS:
 		_prepare_game(gs, shot[2])
@@ -52,11 +66,16 @@ func _initialize() -> void:
 		sv.size_2d_override_stretch = true
 		sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 		root.add_child(sv)
+		var jobs: GDScript = load("res://scripts/jobs.gd")
+		jobs.current = "english" if shot[3] == "lang" else "math"   # (en ingles, la clase de idiomas es de Español)
 		var scene: Control = load("res://scenes/%s.tscn" % shot[0]).instantiate()
 		scene.theme = root.theme  # un SubViewport no hereda el tema de la ventana
 		sv.add_child(scene)
 		if shot[3] == "edit":
 			scene._set_edit(true)
+		if shot[3] == "scroll":   # el pueblo: que se vean la tienda y el cine
+			await create_timer(0.5).timeout
+			scene._scroll.scroll_horizontal = 520
 		if scene.get("room") != null:
 			scene.room.hour_override = 14.0  # capturas siempre de dia
 		if shot[3] in ["job", "job_wrong"]:  # trabajo en el salon: se llega hasta un examen
@@ -77,7 +96,7 @@ func _initialize() -> void:
 						break
 		await create_timer(1.2).timeout
 		var img := sv.get_texture().get_image()
-		print(shot[1], " -> ", img.save_png("%s/%s.png" % [_out, shot[1]]), " ", img.get_size())
+		print(shot[1], " -> ", img.save_png("%s/%s.png" % [shots_dir, shot[1]]), " ", img.get_size())
 		sv.queue_free()
 		await process_frame
 
@@ -103,6 +122,9 @@ func _prepare_game(gs: Node, species_index: int) -> void:
 	gs.coins = 120
 	gs.player_name = "Ana"
 	gs.player_title = "f"  # ya dijo su nombre y como quiere que la llamen
+	gs.age_group = "adult"
+	gs.tutorial["off"] = true
+	gs.notify_on = false
 	gs.jobs_done = 3  # ya no se muestra la explicacion inicial del trabajo
 	for camino in MathProblems.TRACKS:  # lecciones ya vistas: se llega directo al juego
 		for lvl in range(1, 11):

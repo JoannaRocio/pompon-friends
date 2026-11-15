@@ -32,9 +32,9 @@ godot --headless --path . --export-release "Android" build/PomponFriends.aab
 
 ## 4. Subir y configurar en Play Console
 
-1. Crear app → idioma español, "Juego", "Gratis".
-2. **Panel → Configurar la app:** política de privacidad, acceso a la app (todo disponible), anuncios (**no**), clasificación de contenido, público objetivo, seguridad de los datos (no se recopilan datos). Textos listos en `store-listing.md`.
-3. **Ficha de la tienda:** textos, ícono 512 × 512, gráfico de funciones 1024 × 500 y capturas (`docs/store/images/`).
+1. Crear app → idioma predeterminado español (Latinoamérica), "Juego", "Gratis". Después, en la ficha, agregar la traducción al inglés (`en-US`) con los textos y capturas en inglés.
+2. **Panel → Configurar la app:** política de privacidad, acceso a la app (todo disponible), anuncios (**no**), clasificación de contenido (hay interacción limitada entre usuarios: amigos por código y dibujos, sin chat), público objetivo (incluye menores de 13: programa Familias) y **seguridad de los datos: sí se recopilan datos, solo si el jugador usa la nube o los amigos** (nombre de jugador, progreso, dibujos y códigos al azar; cifrados en tránsito, no se comparten). La tabla para completar el formulario está en `seguridad-datos.md`; los textos de la ficha, en `store-listing.md`.
+3. **Ficha de la tienda:** textos, ícono 512 × 512, gráfico de funciones 1024 × 500 y capturas (`docs/store/images/es/` para español y `docs/store/images/en/` para inglés).
 4. **Pruebas → Pruebas internas / cerradas:** sube `PomponFriends.aab`, agrega testers y compártelo.
 5. Cuando cumplas los requisitos, **Producción → Crear versión** y envía a revisión (suele tardar de horas a unos días).
 
@@ -42,5 +42,5 @@ godot --headless --path . --export-release "Android" build/PomponFriends.aab
 
 - **Probar en un Android real:** instala `build/PomponFriends.apk` (APK de prueba) y revisa tamaños, sonido y fluidez.
 - **Compras dentro de la app:** el GDD las menciona, pero **no están implementadas**. Requieren el plugin de Google Play Billing y productos creados en Play Console. La versión 1.0 puede salir sin ellas.
-- **Visitas sociales por ID:** requieren un servidor propio. Quedan para una versión posterior.
+- **Nube y amigos de verdad:** ya funcionan con Supabase. Antes de publicar, correr en Supabase el bloque "LIMITES EN EL SERVIDOR" del final de `server/supabase.sql` (paso a paso en `HANDOFF.md`) y probarlo en dos celulares.
 - Tablets y pantallas grandes: con API 36, en pantallas de 600 dp o más Android no respeta el bloqueo de orientación. El juego usa escalado "expand", así que se verá bien, pero conviene probarlo en una tablet.

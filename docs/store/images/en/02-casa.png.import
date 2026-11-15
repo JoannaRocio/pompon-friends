@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b13hgk2h4yjax"
-path="res://.godot/imported/06-aula.png-02737ebe9e04f88211a2b33e3f5bbf03.ctex"
+uid="uid://vadado04xgex"
+path="res://.godot/imported/02-casa.png-2ae01fefbeae476eb12c0de33f449d1b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/store/images/06-aula.png"
-dest_files=["res://.godot/imported/06-aula.png-02737ebe9e04f88211a2b33e3f5bbf03.ctex"]
+source_file="res://docs/store/images/en/02-casa.png"
+dest_files=["res://.godot/imported/02-casa.png-2ae01fefbeae476eb12c0de33f449d1b.ctex"]
 
 [params]
 

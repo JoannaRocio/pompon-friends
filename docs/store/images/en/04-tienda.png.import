@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bx2ynvthb5b5k"
-path="res://.godot/imported/03-decorar.png-6bce4a1531f5b4555212e66c4610d15c.ctex"
+uid="uid://clle2l0wouvmi"
+path="res://.godot/imported/04-tienda.png-03c8070ea0b3b088b0478e0059908f44.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/store/images/03-decorar.png"
-dest_files=["res://.godot/imported/03-decorar.png-6bce4a1531f5b4555212e66c4610d15c.ctex"]
+source_file="res://docs/store/images/en/04-tienda.png"
+dest_files=["res://.godot/imported/04-tienda.png-03c8070ea0b3b088b0478e0059908f44.ctex"]
 
 [params]
 

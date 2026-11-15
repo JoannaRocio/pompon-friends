@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dcoglr1bfwlyh"
-path="res://.godot/imported/05-empleos.png-660d123598831c4239a673036f43cfcb.ctex"
+uid="uid://brhdpmrnoq5j8"
+path="res://.godot/imported/03-decorar.png-2fd85a7a34ae93163c6e6ce0eccbd305.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/store/images/05-empleos.png"
-dest_files=["res://.godot/imported/05-empleos.png-660d123598831c4239a673036f43cfcb.ctex"]
+source_file="res://docs/store/images/es/03-decorar.png"
+dest_files=["res://.godot/imported/03-decorar.png-2fd85a7a34ae93163c6e6ce0eccbd305.ctex"]
 
 [params]
 

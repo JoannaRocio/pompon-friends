@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://x3jqn7bpicjh"
-path="res://.godot/imported/04-tienda.png-fca1d32743881e4da9385abd9501a03f.ctex"
+uid="uid://bqst3713j58ys"
+path="res://.godot/imported/10-minijuegos.png-fbac184bb61e77bddd32f270dd020498.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/store/images/04-tienda.png"
-dest_files=["res://.godot/imported/04-tienda.png-fca1d32743881e4da9385abd9501a03f.ctex"]
+source_file="res://docs/store/images/es/10-minijuegos.png"
+dest_files=["res://.godot/imported/10-minijuegos.png-fbac184bb61e77bddd32f270dd020498.ctex"]
 
 [params]
 
