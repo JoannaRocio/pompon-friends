@@ -416,3 +416,163 @@ revoke all on function public.pompon_friend_report(text, text, text, text, text)
 grant execute on function public.pompon_friend_report(text, text, text, text, text) to anon;
 
 notify pgrst, 'reload schema';
+
+-- ======================================================================================================
+-- LIMITES EN EL SERVIDOR (14/11/2026) — BLOQUE NUEVO PARA CORRER A MANO EN SUPABASE
+-- Copiar desde esta linea hasta el final, pegarlo en Supabase > SQL Editor y tocar "Run". Se puede
+-- volver a correr sin problema (no borra datos: solo reemplaza funciones).
+-- Hasta ahora estos limites los controlaba solo el juego; ahora tambien el servidor:
+--   - Maximo 10 amigos por jugador, contando las solicitudes que mando y siguen esperando
+--     (pompon_friend_request devuelve 'full'; pompon_friend_answer devuelve 'full' al aceptar).
+--   - 3 dibujos por dia al mismo amigo (pompon_friend_gift_art devuelve 'limit').
+--   - 10 denuncias por dia (pompon_friend_report devuelve 'limit').
+-- El juego ya entiende 'full' y 'limit' y muestra un aviso amable.
+-- ======================================================================================================
+
+-- (interna) lugares ocupados en la lista de un jugador: amigos aceptados + solicitudes enviadas esperando
+create or replace function public.pompon_friend_count(p_code text)
+returns integer
+language sql
+stable
+security definer
+set search_path = public
+as $$
+	select count(*)::integer from friend_links
+	where (status = 'accepted' and (from_code = p_code or to_code = p_code))
+		or (status = 'pending' and from_code = p_code);
+$$;
+revoke all on function public.pompon_friend_count(text) from public, anon, authenticated;
+
+-- Mandar solicitud (con el tope de 10). Devuelve: 'sent', 'accepted', 'friends', 'self', 'not_found',
+-- 'limit' (demasiadas solicitudes hoy) o 'full' (alguno de los dos ya tiene la lista llena)
+create or replace function public.pompon_friend_request(p_code text, p_secret text, p_to text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+	target text := upper(coalesce(p_to, ''));
+begin
+	if not pompon_friend_auth(p_code, p_secret) then
+		raise exception 'auth';
+	end if;
+	if target = p_code then
+		return 'self';
+	end if;
+	if not exists (select 1 from friend_profiles where code = target) then
+		return 'not_found';
+	end if;
+	if exists (select 1 from friend_links where status = 'accepted'
+			and ((from_code = p_code and to_code = target) or (from_code = target and to_code = p_code))) then
+		return 'friends';
+	end if;
+	if exists (select 1 from friend_links where from_code = target and to_code = p_code and status = 'pending') then
+		-- el otro ya me la habia mandado: aceptarla ocupa un lugar en mi lista (en la suya ya lo ocupa)
+		if pompon_friend_count(p_code) >= 10 then
+			return 'full';
+		end if;
+		update friend_links set status = 'accepted' where from_code = target and to_code = p_code;
+		return 'accepted';
+	end if;
+	if exists (select 1 from friend_links where from_code = p_code and to_code = target) then
+		return 'sent';
+	end if;
+	if pompon_friend_count(p_code) >= 10 then
+		return 'full';
+	end if;
+	if (select count(*) from friend_links where from_code = p_code and created_at > now() - interval '1 day') >= 20 then
+		return 'limit';
+	end if;
+	insert into friend_links (from_code, to_code) values (p_code, target);
+	return 'sent';
+end;
+$$;
+
+-- Aceptar o rechazar una solicitud recibida. Devuelve 'ok' o 'full' (si acepta con la lista llena).
+create or replace function public.pompon_friend_answer(p_code text, p_secret text, p_from text, p_accept boolean)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+	if not pompon_friend_auth(p_code, p_secret) then
+		raise exception 'auth';
+	end if;
+	if p_accept then
+		if pompon_friend_count(p_code) >= 10 then
+			return 'full';
+		end if;
+		update friend_links set status = 'accepted' where from_code = p_from and to_code = p_code and status = 'pending';
+	else
+		delete from friend_links where from_code = p_from and to_code = p_code and status = 'pending';
+	end if;
+	return 'ok';
+end;
+$$;
+
+-- Regalar un dibujo: hasta 3 en las ultimas 24 horas al mismo amigo.
+create or replace function public.pompon_friend_gift_art(p_code text, p_secret text, p_to text, p_art text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+	if not pompon_friend_auth(p_code, p_secret) then
+		raise exception 'auth';
+	end if;
+	if p_art is null or length(p_art) <> 256 or p_art !~ '^[0-9a-f]+$' then
+		raise exception 'dibujo invalido';
+	end if;
+	if not exists (select 1 from friend_links where status = 'accepted'
+			and ((from_code = p_code and to_code = p_to) or (from_code = p_to and to_code = p_code))) then
+		return 'not_friends';
+	end if;
+	if (select count(*) from friend_events where from_code = p_code and to_code = p_to and kind = 'art'
+			and created_at > now() - interval '24 hours') >= 3 then
+		return 'limit';
+	end if;
+	insert into friend_events (to_code, from_code, kind, data) values (p_to, p_code, 'art', p_art);
+	return 'ok';
+end;
+$$;
+
+-- Denunciar: hasta 10 por dia (igual que antes; se repite aca para que este bloque deje todo completo).
+create or replace function public.pompon_friend_report(p_code text, p_secret text, p_about text, p_reason text, p_art text)
+returns text
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+	if not pompon_friend_auth(p_code, p_secret) then
+		raise exception 'auth';
+	end if;
+	if p_reason not in ('art', 'name', 'other') then
+		raise exception 'motivo invalido';
+	end if;
+	if p_art is not null and p_art <> '' and (length(p_art) <> 256 or p_art !~ '^[0-9a-f]+$') then
+		raise exception 'dibujo invalido';
+	end if;
+	if (select count(*) from friend_reports where from_code = p_code and created_at > now() - interval '1 day') >= 10 then
+		return 'limit';
+	end if;
+	insert into friend_reports (from_code, about_code, reason, art, about_snapshot)
+	values (p_code, left(p_about, 16), p_reason, nullif(p_art, ''),
+		(select snapshot from friend_profiles where code = p_about));
+	return 'ok';
+end;
+$$;
+
+revoke all on function public.pompon_friend_request(text, text, text) from public;
+revoke all on function public.pompon_friend_answer(text, text, text, boolean) from public;
+revoke all on function public.pompon_friend_gift_art(text, text, text, text) from public;
+revoke all on function public.pompon_friend_report(text, text, text, text, text) from public;
+grant execute on function public.pompon_friend_request(text, text, text) to anon;
+grant execute on function public.pompon_friend_answer(text, text, text, boolean) to anon;
+grant execute on function public.pompon_friend_gift_art(text, text, text, text) to anon;
+grant execute on function public.pompon_friend_report(text, text, text, text, text) to anon;
+
+notify pgrst, 'reload schema';
