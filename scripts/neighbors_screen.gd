@@ -359,11 +359,7 @@ func _request_row(f: Dictionary) -> Control:
 	text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(text)
 	var code: String = f["code"]
-	row.add_child(_pill_button("Aceptar", func():
-		if Friends.is_full():
-			_show_message("¡Lista llena!", T.s("Ya tienes %d amigos. Para aceptar a otro, primero quita uno.") % Friends.MAX_FRIENDS)
-		else:
-			Friends.answer(code, true), GREEN, Vector2(140, 64)))
+	row.add_child(_pill_button("Aceptar", func(): _accept(code), GREEN, Vector2(140, 64)))
 	var no := Button.new()
 	no.text = "No"
 	no.custom_minimum_size = Vector2(80, 64)
@@ -387,6 +383,17 @@ func _request_row(f: Dictionary) -> Control:
 		n.button("Cancelar", n.close, false))
 	row.add_child(no)
 	return row
+
+
+## Aceptar una solicitud: si la lista esta llena (lo diga el juego o el servidor), un aviso amable.
+func _accept(code: String) -> void:
+	var res: Dictionary = await Friends.answer(code, true)
+	if not is_inside_tree() or res["ok"]:
+		return
+	if res["result"] == "full":
+		_show_message("¡Lista llena!", Friends.limit_text("accept", "full"))
+	else:
+		_show_message("¡Ups!", _error_text(res["result"]))
 
 
 func _small(text: String, font_size: int, color := Hud.INK) -> Label:
@@ -470,10 +477,12 @@ func _send(text: String) -> void:
 		"friends": "Ya son amigos.",
 		"self": "Ese es tu propio código.",
 		"not_found": "No encontramos ese código. Revisa las letras.",
-		"limit": "Ya mandaste muchas solicitudes hoy. Prueba mañana.",
-		"full": T.s("Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno.") % Friends.MAX_FRIENDS,
+		"limit": Friends.limit_text("request", "limit"),
+		"full": Friends.limit_text("request", "full"),
 	}.get(res["result"], _error_text(res["result"]))
-	_show_message("¡Listo!" if res["ok"] else "¡Ups!", msg)
+	if not is_inside_tree():
+		return
+	_show_message("¡Listo!" if res["ok"] else ("¡Lista llena!" if res["result"] == "full" else "¡Ups!"), msg)
 
 
 func _ask_remove(entry: Dictionary) -> void:

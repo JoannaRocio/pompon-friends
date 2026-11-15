@@ -209,7 +209,7 @@ func _send(code: String, who: String) -> void:
 		return
 	var text: String = {
 		"ok": T.s("¡Le mandaste tu dibujo a %s! Le va a llegar a su juego.") % who,
-		"limit": T.s("Hoy ya le regalaste muchos dibujos a %s. ¡Prueba mañana!") % who,
+		"limit": Friends.limit_text("art", "limit", who),
 		"not_friends": T.s("Ya no son amigos."),
 		"off": T.s("Para regalar dibujos hay que activar los amigos en Vecinos."),
 	}.get(res["result"], T.s("No se pudo enviar. Revisa la conexión a internet."))

@@ -1656,6 +1656,8 @@ s:Esperando que %s acepte…,Esperando que %s acepte…,Waiting for %s to accept
 s:¡%s quiere ser tu amigo!,¡%s quiere ser tu amigo!,%s wants to be your friend!
 "s:Ya tienes %d amigos. Para aceptar a otro, primero quita uno.","Ya tienes %d amigos. Para aceptar a otro, primero quita uno.","You already have %d friends. To accept another one, remove one first."
 "s:Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno.","Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno.","You already have %d friends (counting the requests you sent). To add another, remove one."
+"s:Tu lista ya está llena (%d, contando las solicitudes que mandaste). Para aceptar a otro amigo, primero quita uno.","Tu lista ya está llena (%d, contando las solicitudes que mandaste). Para aceptar a otro amigo, primero quita uno.","Your list is already full (%d, counting the requests you sent). To accept another friend, remove one first."
+"s:Hoy ya nos avisaste muchas veces. Vamos a revisar todo. Si quieres, puedes bloquear a %s.","Hoy ya nos avisaste muchas veces. Vamos a revisar todo. Si quieres, puedes bloquear a %s.","You already told us many times today. We will check everything. If you want, you can block %s."
 s:%s ya no va a aparecer en tu lista.,%s ya no va a aparecer en tu lista.,%s won't be on your list anymore.
 s:Casa de %s,Casa de %s,%s's house
 s:%s (de %s),%s (de %s),%s (%s's)

@@ -135,9 +135,13 @@ static func report(parent: Node, code: String, who: String, art := "", changed :
 			n.close()
 			var res: Dictionary = await Friends.report(code, reason, art)
 			var done := _notice(parent)
-			done.title("¡Gracias!" if res["ok"] else "No se pudo enviar", GREEN if res["ok"] else PINK)
-			done.text_line(T.s("Lo vamos a revisar. Si quieres, también puedes bloquear a %s.") % who if res["ok"] else "Revisa la conexión a internet y prueba otra vez.", 26)
-			if res["ok"] and not GameState.is_blocked(code):
+			var limit: bool = res["result"] == "limit"   # (demasiadas denuncias hoy: lo dice el servidor)
+			done.title("¡Gracias!" if res["ok"] or limit else "No se pudo enviar", GREEN if res["ok"] or limit else PINK)
+			if limit:
+				done.text_line(Friends.limit_text("report", "limit", who), 26)
+			else:
+				done.text_line(T.s("Lo vamos a revisar. Si quieres, también puedes bloquear a %s.") % who if res["ok"] else "Revisa la conexión a internet y prueba otra vez.", 26)
+			if (res["ok"] or limit) and not GameState.is_blocked(code):
 				done.button("Bloquear", func():
 					done.close()
 					await Friends.block(code)

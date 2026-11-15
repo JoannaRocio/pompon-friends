@@ -106,8 +106,27 @@ func room_left() -> int:
 	return maxi(0, MAX_FRIENDS - GameState.friends.size() - GameState.friend_sent.size())
 
 
+## Lista llena: no se puede pedir ni aceptar otro amigo (el servidor cuenta igual: amigos + solicitudes enviadas).
 func is_full() -> bool:
-	return GameState.friends.size() >= MAX_FRIENDS
+	return room_left() <= 0
+
+
+## Avisos amables cuando el juego o el servidor dicen que no (lista llena, demasiados por hoy).
+## `what`: "request" (pedir), "accept" (aceptar), "art" (regalar dibujo), "report" (denunciar).
+static func limit_text(what: String, result: String, who := "") -> String:
+	if result == "full":
+		if what == "accept":
+			return T.s("Tu lista ya está llena (%d, contando las solicitudes que mandaste). Para aceptar a otro amigo, primero quita uno.") % MAX_FRIENDS
+		return T.s("Ya tienes %d amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno.") % MAX_FRIENDS
+	if result == "limit":
+		match what:
+			"request":
+				return T.s("Ya mandaste muchas solicitudes hoy. Prueba mañana.")
+			"art":
+				return T.s("Hoy ya le regalaste muchos dibujos a %s. ¡Prueba mañana!") % who
+			"report":
+				return T.s("Hoy ya nos avisaste muchas veces. Vamos a revisar todo. Si quieres, puedes bloquear a %s.") % who
+	return ""
 
 
 ## Manda una solicitud. Devuelve {"ok", "result"}: "sent", "accepted", "friends", "self", "not_found",
@@ -130,12 +149,17 @@ func request(text: String) -> Dictionary:
 	return {"ok": result in ["sent", "accepted", "friends"], "result": result}
 
 
+## Acepta o rechaza una solicitud. Devuelve {"ok", "result"}: "ok", "full" (lista llena: lo dice el juego
+## o el servidor, y la solicitud sigue esperando) o el error de red.
 func answer(code: String, accept: bool) -> Dictionary:
-	if accept and is_full():   # con 10 amigos hay que quitar uno antes de aceptar otro
-		return {"ok": false, "error": "full"}
+	if accept and is_full():   # con la lista llena hay que quitar uno antes de aceptar otro
+		return {"ok": false, "result": "full"}
 	var res: Dictionary = await Cloud.server_call("pompon_friend_answer", {"p_code": GameState.friend_code, "p_secret": GameState.friend_secret, "p_from": code, "p_accept": accept})
 	await refresh()
-	return res
+	if not res["ok"]:
+		return {"ok": false, "result": str(res["error"])}
+	var result := "full" if str(res["value"]) == "full" else "ok"   # (el servidor viejo devuelve "ok" o nada)
+	return {"ok": result == "ok", "result": result}
 
 
 func remove(code: String) -> Dictionary:
@@ -310,6 +334,13 @@ func fake_rpc(store: Dictionary, fn: String, body: Dictionary) -> Dictionary:
 		return {"ok": false, "value": null, "error": "server"}
 	var linked := func(a: String, b: String) -> bool:
 		return links.get(a + ">" + b, "") == "accepted" or links.get(b + ">" + a, "") == "accepted"
+	var count := func(c: String) -> int:   # pompon_friend_count: amigos + solicitudes enviadas esperando
+		var n := 0
+		for k in links:
+			var ends: PackedStringArray = k.split(">")
+			if (links[k] == "accepted" and c in ends) or (links[k] == "pending" and ends[0] == c):
+				n += 1
+		return n
 	match fn:
 		"pompon_friend_update":
 			profiles[me]["snapshot"] = JSON.parse_string(JSON.stringify(body["p_snapshot"]))
@@ -323,16 +354,22 @@ func fake_rpc(store: Dictionary, fn: String, body: Dictionary) -> Dictionary:
 			if linked.call(me, to):
 				return _ok("friends")
 			if links.get(to + ">" + me, "") == "pending":
+				if count.call(me) >= MAX_FRIENDS:
+					return _ok("full")
 				links[to + ">" + me] = "accepted"
 				return _ok("accepted")
 			if links.has(me + ">" + to):
 				return _ok("sent")
+			if count.call(me) >= MAX_FRIENDS:
+				return _ok("full")
 			links[me + ">" + to] = "pending"
 			return _ok("sent")
 		"pompon_friend_answer":
 			var key := str(body["p_from"]) + ">" + me
 			if links.get(key, "") == "pending":
 				if body["p_accept"]:
+					if count.call(me) >= MAX_FRIENDS:
+						return _ok("full")
 					links[key] = "accepted"
 				else:
 					links.erase(key)
