@@ -1,0 +1,6 @@
+tarjetas=5 (esperado 5) premios pase=5 (esperado 5)
+boton cobrar habilitado=true
+tras cobrar: monedas=15 (esperado 15) xp=20 (esperado 20) cobrada=true
+premio 1 habilitado=true
+tras premio 1: monedas=25 (esperado 25) reclamado=true
+premio 2 bloqueado=true (esperado true)

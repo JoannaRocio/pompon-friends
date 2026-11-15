@@ -1,0 +1,27 @@
+Luna: igual en cada carga=true mueble clave=true items=6 ropa=2
+Nube: igual en cada carga=true mueble clave=true items=6 ropa=2
+Bruno: igual en cada carga=true mueble clave=true items=6 ropa=3
+Pipo: igual en cada carga=true mueble clave=true items=6 ropa=3
+Chispa: igual en cada carga=true mueble clave=true items=6 ropa=2
+visita: pts=1 (esperado 1) otra visita hoy: pts=0 (esperado 0) mision visitar=true
+acariciar: pts=1 repetir hoy: ok=true pts=0 (esperado true 0)
+puntos con Luna: 2 (esperado 2)
+regalo: pts=1 cobra=5 (esperado 5; repetir no cobra) repetir pts=0
+jugar: pts=1 logica +3.0 (esperado 3.0 una sola vez) puntos=4 (esperado 4)
+sin monedas: ok=false msg='No te alcanzan las monedas.'
+socializando: 20 (esperado 20) socializar=100.0 (esperado 100) otra vez hoy: 0 (esperado 0)
+conocidos: false -> true
+niveles: 0=Conocidos 30=Compañeros 50=Amigos 99=Mejores amigos
+al dia siguiente: pts=1 (esperado 1)
+hito 50: bonus=20 monedas=20 (esperado 20)
+tope de amistad: 100 (max 100)
+sin Pompon: Necesitas un Pompon para visitar a tus vecinos.
+regalo hoy: 10 repetir: 0 racha=1
+al dia siguiente seguido: 15 racha=2
+tras faltar dias: 10 racha=1
+racha larga: 30 (tope 30)
+recarga: puntos luna=100.0 dia regalo ok=true
+escena neighbors ok
+escena visit ok
+escena home ok
+escena missions ok

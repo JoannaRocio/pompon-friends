@@ -1,0 +1,11 @@
+gourmet: monedas=88 comida=60.0 confianza=55.0
+basica: monedas=88 care=2
+care tras 5 usos: 5 lista=true
+reclamar care: true otra vez: false monedas=98 xp=10
+minigame/buy listos: truetrue
+xp total=35
+nivel1 reclamar: true nivel3 sin xp: false
+nivel3 con xp (corona): true owned corona=true
+recarga: claimed=["care", "minigame", "buy"] pass_claimed=[0, 2] xp=100
+dia nuevo: claimed=[] progreso={ "care": 0 } xp conserva=100
+pantalla misiones ok

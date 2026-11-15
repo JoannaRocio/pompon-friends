@@ -1,0 +1,27 @@
+pintar un cuadrito: color=2 | pintados=1 | valido=true | invalido=false
+balde: pintados=256 (255 azules + 1 rojo) | colores=2
+dibujo guardado: * | es un cuadro de pared: deco | en Decorar: true
+colgado: true | el Pompon va a verlo al volver: * | lo admira: admira su dibujo
+guardar y cargar: sigue colgado=true | mismo dibujo=true
+se dibuja en el cuarto sin errores
+con poco pintado pide mas: true
+pintados=128 | estrellas=5 | monedas=10
+balde abajo: pintados=256 | estrellas=5
+terminar: '¡Qué lindo dibujo! | ' | botones: ["Colgar en mi cuarto", "Regalar a un amigo", "Guardar"]
+colgado en el cuarto: true | tarjeta de premios: true
+elegir amigo: ["Luna (de Luna)", "Mejor no"]
+enviado: true
+mas regalos el mismo dia: ["ok", "ok", "limit"] (hasta 3)
+el dibujo espera que Luna lo acepte: 3 | sin guardar todavia: true
+a Luna le llego el dibujo: true | de: 'Mochi (de Mochi)' | para colgar: true | en su diario: true
+  nombre en Decorar: Dibujo de Mochi (de Mochi)
+salto: nubes=20 | esperando el primer toque=true
+subio * m | * | * | se *
+al caerse termina con premios: true
+nota armada por codigo: 19844 bytes
+sin notas pide mas: true
+notas=10 | estrellas=4
+tocando: vueltas=2 | estrellas=5
+terminar: premios=true
+habilidades: salto->[["fisico", 1.0]] pintar->[["creatividad", 1.0]] musica->[["musica", 1.0]] | sumo musica=true
+menu: true

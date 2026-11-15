@@ -1,0 +1,34 @@
+listas: jugador=40 nombres (distintos: 40) | Pompon=40 (distintos: 40)
+partida nueva: pregunta la edad primero: true | subtitulo: 'Para cuidar tu privacidad.' | todavia sin nombre: true
+eligio 9 -> grupo=child | aparece ¿Cómo te llamas?: true
+menor de 13: sin cuadro de texto (LineEdit)=true | grilla de nombres=true | se ven 12 nombres
+  'Ver otros' muestra otros: true | paginas: 4
+  sin elegir, ¡Listo! apagado: true
+  eligio 'Brisa' y 'Soy ella' -> ¡Listo! prendido: true
+  guardado: nombre=Brisa | de la lista=true | pronombre=f
+adulto: grupo=adult | con cuadro de texto=true | sin grilla=true
+  escribe su nombre: Joaquina
+  edad ya respondida: no se pregunta otra vez=true | va directo al nombre=true
+Pompon recien nacido (menor de 13): ventana del nombre=true | sin cuadro de texto=true | grilla=true
+  eligio 'Pompi': nickname=Pompi | de la lista Pompon=true | ventana cerrada=true
+Pompon recien nacido (adulto): con cuadro de texto=true | sin grilla=true
+partida vieja sin edad: pregunta en la casa=true | bloquea tutorial y otros carteles=true
+  eligio 8 -> grupo=child | cartel 'elige nombres nuevos'=true
+  ¿Cómo te llamas? con grilla=true | sin teclado=true
+  despues, el Pompon: ventana=true | grilla=true
+  nombres nuevos: jugador=Pelusa Pompon=Bombón | ya no hace falta=true | no se repite el cartel=true
+  diario y textos guardados sin el nombre viejo: Joaquina=false Firulais=false (esperado false false)
+  ahora dicen: ["Bombón toca el piano", "Pelusa me dio de comer. ¡Gracias, Pelusa!", "Firulaiss es otra palabra", "Extraño a Pelusa"] | pendiente: [] | crecimiento: ["Bombón creció"]
+  palabras parecidas no se tocan: true | en el archivo guardado tampoco esta: true
+partida vieja de un adulto: grupo=adult | sin cartel de nombres=true | conserva nombres=Joaquina/Firulais
+nube (menor, nombres escritos a mano): ok=true | jugador='' Pompon='' (vacios) | en el celular siguen: Joaquina/Firulais
+  textos en la nube sin nombres escritos a mano: Joaquina=false Firulais=false (esperado false false) | diario subido: ["Pompon toca el piano", "mi cuidador me dio de comer. ¡Gracias, mi cuidador!", "Firulaiss es otra palabra"]
+  en el celular el diario no cambia: true
+nube (menor, nombres de la lista): jugador='Canela' Pompon='Churro'
+recuperar con nombres vacios: ok=true | pide nombre otra vez=true | Pompon sin nombre (lo pide la casa)=true
+nube (adulto): jugador='Joaquina' Pompon='Firulais'
+amigos (menor, nombres escritos a mano): jugador='' Pompon=''
+amigos (menor, Pompon de la lista): Pompon='Churro' | jugador=''
+  el amigo lo ve como: 'Pompon' (nombre vacio tolerado)
+amigos (adulto): jugador='Joaquina' Pompon='Firulais'
+FIN test_kids_names

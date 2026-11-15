@@ -1,0 +1,33 @@
+las tareas del dia suman: 1.0 (esperado 1.0)
+duracion: bebe 7 dias, niño 14, adolescente 30, adulto 0
+cuidado perfecto: calidad antes del ultimo dia termina=100.0 | al final=100.0
+perfecto: nivel excelente | rasgo: Muy amable | palabras: 5 ["agua", "mamá", "comida", "hola", "gracias"] | avisos: 2
+rasgo muy positivo: true
+no se cierra dos veces: true
+cuidado basico: calidad=50.0 nivel normal | rasgo: Curioso | palabras: 2 | normal=true
+mal cuidado: calidad=15.0 nivel floja | rasgo: Miedoso | palabras: 0 | negativo=true
+cuida 4 de 7 dias: 57.1 (esperado ~57)
+mucha vida social -> Muy amable | mucho cariño -> Súper confiado | regalos -> Muy generoso
+a los 3 dias de buen cuidado ya dice palabras: ["agua", "mamá"] | avisos nuevos: 2 luego: 0
+sin cuidado no dice nada: true
+hoy hizo: ["Entrar a verlo", "Mantener sus necesidades bien", "Darle de comer (2 veces)"]
+solo con el cuidador: 50.0 (tope 50)
+con otros Pompons pasa de la mitad: 80.0
+el cuidador no baja ni sube lo que ya tiene: 80.0
+caminar por la casa: fisico nivel 3 (tope 3), xp=28.0
+con objetos sigue subiendo: nivel 7
+vecino creado: * | primero en la lista: buddy | total vecinos: 6
+misma edad: true | etapa igual: true
+el vecino se conserva al recargar: true
+note_event suma al dia: comer=1.0 (esperado 1.0)
+un minijuego hace crecer la barra: +1.61
+el 3ro ya no suma (el dia se completo): true (0.0)
+visitar al vecino suma: false | socializar=12.0
+al pasar a niño: avisos=2 | ["¡Aprendí 5 palabras nuevas: «agua», «mamá», «comida», «hola», «gracias»!", "Crecí y ahora soy muy amable"]
+rasgos y palabras guardados: 1 5
+umbrales de palabras: 0125 (esperado 0 1 2 5)
+tras un dia perfecto todavia no habla: true (calidad 14.3)
+al nacer lo que 'dice' son sonidos: [frase] Pi pi… ¡ba! | sin palabras de adulto: true
+niño: encima del cuerpo=true cabeza=true | pared arriba=false | costado=false | esquina=false
+huevo: encima=true | lejos=false
+tras recargar: rasgos=1 palabras=5 historial=["1"]

@@ -1,0 +1,9 @@
+turnos para nivel 2/3/4/5/6/100: [5, 10, 20, 30, 40, 980] (esperado [5, 10, 20, 30, 40, 980])
+nivel y turnos coinciden en los 100 niveles: true | tope con 5000 turnos: 100
+paga nivel 1/2/50/100: [50, 55, 273, 500] (de 50 a 500)
+turno 5: paga=50 (esperado 50) ascendio=true nivel 1->2 | ahora paga 55
+cartel 1 en las ofertas: true | flecha escondida mientras: true
+cartel 1 visto: true | sin ficha todavia: true
+cartel 2 al aplicar: true con ficha: true
+cartel 3: ¡Perfecto! / Ya sabes lo básico para cuidar a tu Pompon. / Pronto nacerá: ¡compremos una cuna! /
+queda el resultado en la fila: 1 (esperado 1)

@@ -1,0 +1,11 @@
+serie piezas=6 opciones=3 respuesta_en_opciones=true
+serie piezas=6 opciones=3 respuesta_en_opciones=true
+serie piezas=6 opciones=3 respuesta_en_opciones=true
+serie piezas=6 opciones=3 respuesta_en_opciones=true
+serie piezas=6 opciones=3 respuesta_en_opciones=true
+patrones: monedas=10
+simon: terminado=true rondas=6 monedas=12
+simon error: terminado=true monedas=0
+escena minigames ok
+escena home ok
+escena math_game ok

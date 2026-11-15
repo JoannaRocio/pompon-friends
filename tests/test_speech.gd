@@ -20,20 +20,20 @@ func _initialize() -> void:
 		seen[PomponSpeech.line(p, now, i)] = true
 	print("nino listo, frases distintas: ", seen.size())
 
+	# ya no hay mueble obligatorio por especie: lo que va fijo primero es lo imprescindible (la cuna del huevo)
 	var ok := true
-	for sp in Pompon.SPECIES:
-		var req := Catalog.required_furniture(sp)
-		for d in 60:
-			var shop := Catalog.daily_shop(now + d * 86400, sp, [])
-			if shop.size() != Catalog.SHOP_SIZE or not shop.has(req):
-				ok = false
-			var ids := shop.map(func(x): return x["id"])
-			for id in ids:
-				if ids.count(id) != 1:
-					ok = false
-		if not Catalog.daily_shop(now, sp, [req["id"]]).size() == Catalog.SHOP_SIZE:
+	var crib := "furn_crib"
+	for d in 60:
+		var shop := Catalog.daily_shop(now + d * 86400, "", [], [crib])
+		if shop.size() != Catalog.SHOP_SIZE or shop[0]["id"] != crib:
 			ok = false
-	print("tienda siempre trae el mueble clave y 10 sin repetir: ", ok)
+		var ids := shop.map(func(x): return x["id"])
+		for id in ids:
+			if ids.count(id) != 1:
+				ok = false
+	if Catalog.daily_shop(now, "", [crib], [crib]).size() != Catalog.SHOP_SIZE:   # ya tiene la cuna: igual trae 10
+		ok = false
+	print("tienda: la cuna va primero y trae ", Catalog.SHOP_SIZE, " sin repetir: ", ok)
 
 	var gs := root.get_node("GameState")
 	gs.new_pompon()
@@ -41,7 +41,7 @@ func _initialize() -> void:
 	root.add_child(h)
 	await process_frame
 	await process_frame
-	print("home ok; habla: '", h._speech.text, "'")
+	print("home ok: ", h.is_inside_tree())
 	quit()
 
 

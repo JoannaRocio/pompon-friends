@@ -1,0 +1,29 @@
+huevo no piensa: true true
+con hambre, habla de hambre seguido (16/40) y no inventa otras necesidades: true
+urgente: ¡Tengo muchísima hambre! | sentimiento
+de dia no habla de la noche: true
+menciona su biblioteca y su mueble: true true
+no menciona muebles que no tiene: true
+cuenta del florero sobre la comoda: true
+ropa: true true
+recuerda que trabajo hoy: true | no lo recuerda a los 3 dias: true
+sin repetir lo ultimo dicho: repeticiones=0
+bebe: 'Pi pi! :)' (sonido, no frases largas) largo=9
+reaccion bebe: ¡Ñam ñam!
+reaccion cambio de cuarto: Me gusta estar en el dormitorio
+vuelve tras 5 h: ¡Volviste! Te extrañé | tras 10 min: true
+nacimiento 1: [sentimiento] ¡Acabo de nacer! Todo es nuevo y me siento muy curioso
+nacimiento 2: [pensamiento] ¿Quién será esa persona que me cuida? Quiero conocerla…
+nacimiento 3: [frase] Pi pi… ¡ba!
+bebe: actividades distintas=14 | ej: * se ríe solito
+de dia no cabecea de sueño: true | de noche si: true
+bebe camina: * curiosea por el dormitorio | nino camina: Mochi pasea por el dormitorio
+recien comio: mastica contento: true
+no repite la misma actividad seguida: true
+el diario guarda como maximo 120: 120 | ultima: Entrada 129 | primera: Entrada 10
+entradas vacias se ignoran: 120
+tras recargar: diario=120 ultima=Entrada 129 evento fed guardado=true
+guardado con basura: entradas validas=1 (esperado 1)
+comprar anota 'bought': true
+cambiar de cuarto anota 'room_changed': true
+jugar anota 'played': true

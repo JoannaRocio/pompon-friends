@@ -1,0 +1,14 @@
+puerta en la sala: visible=true | a la izquierda=true | aviso del pueblo listo=true
+aviso: 'town1' | la flecha señala la puerta=true
+en otra habitacion no hay puerta: true
+edificios: ["home", "shop", "cinema", "market", "museum"] + 6 casas de vecinos (vecinos: 6)
+carteles: ["Casa de Mochi", "Tienda", "Cine", "Supermercado", "Museo", "Casa de * "Casa de Luna"]
+abren pronto: ["market", "museum"]
+la calle se desliza: ancho=4678.0 > pantalla=1280.0
+tocar el museo: '¡El museo abre muy pronto! | '
+menu del amigo: ["Visitar", "Más opciones", "Cerrar"]
+confirmar: true
+con 10 amigos: lugares libres=0 | lleno=true
+pedir otro: full | aceptar otro:
+con 9 amigos: lugares libres=1
+visita desde el pueblo: vecino=chispa | vuelve al pueblo=true

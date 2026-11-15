@@ -1,0 +1,11 @@
+recien nacido: 1 de 36 figuritas (solo ¡Nació!)
+primera vez que mira: no avisa nada (partidas viejas): true
+primer baño -> figurita nueva: ["Primer baño"] | no se repite: true
+  dia en que la gano: 1
+comio pizza: true | helado todavia no: true
+jugo a Memoria: true | primer vecino: true | amigo de verdad: true
+con 30 dias: niño=true adolescente=true grande=false
+progreso: 8 de 36
+en la casa, primer mimo -> aviso de figurita nueva: true
+album abierto: true | bloquea otras ventanas: true
+album cerrado: true

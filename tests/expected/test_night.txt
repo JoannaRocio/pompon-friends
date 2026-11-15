@@ -1,0 +1,13 @@
+noche a las 23, 2 y 7:59: truetruetrue | dia a las 8 y 21:59: truetrue
+Sueño: de dia 50 -> 45.0 (-5) | de noche -> 56.0 (+11) | con su mueble -> 71.0 (+15)
+ya no existe Felicidad: true | Sueño es una necesidad: true
+partida vieja: sueño=80.0 (80) felicidad borrada=true
+14 h de dia: sueño=30.0 (30) | despues de 10 h de noche: 100.0 (100)
+de noche: modo noche=true | en su camita durmiendo=true | mantita=bed | pijama=shirt_pajama sin gorro=true
+cartel de la primera noche: true
+  visto una vez: true
+tocarlo de noche: se despierta un ratito=true dice='*'
+actividad: 'Mochi está en su camita'
+mientras duerme, sueña: 'Zzz… (sueña algo lindo)'
+reloj: 23:00
+a las 8:30: modo noche=false | durmiendo=false | ropa de siempre=shirt_dress | dice='¡Buen día! Dormí riquísimo'

@@ -1,0 +1,15 @@
+grupos de edad: 6->child 12->child 13->teen 18->adult
+edades: 13 opciones, de '6 o menos' a '18 o más' | todas iguales (ninguna marcada): true
+eligio 9: grupo=child | modo chicos=true
+permiso de adulto: respuesta mal -> otra cuenta: true | sigue cerrado: true
+  respuesta bien -> permiso: true
+tarjeta de un menor de 13: nombre de jugador='' | lo que ven sus amigos: 'Mochi'
+tarjeta de un adulto: 'Luna (de LunaJugador)'
+dibujos recibidos esperando: 2 | guardados solos: 0 (no se guardan sin preguntar)
+ventana del dibujo: '¡Luna (de LunaJugador) te mandó un dibujo! | ' | botones: ["Guardarlo", "No, gracias", "Denunciar"]
+guardarlo: dibujos=1 | quedan=1
+denunciar: motivos=["Un dibujo feo o que me hizo sentir mal", "Un nombre feo", "Otra cosa", "Cancelar"]
+  respuesta: '¡Gracias! | Lo vamos a revisar. Si quieres, también puedes b' | denuncia en el servidor: [[true, "art", 256]]
+bloquear: bloqueados=1 | ya no es amigo: true
+bloqueado: dibujo enviado=not_friends | su solicitud nueva se rechaza sola: true
+tras cargar: edad=child | * | dibujos esperando=1

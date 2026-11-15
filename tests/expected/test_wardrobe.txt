@@ -1,0 +1,7 @@
+ropa: tarjetas=3 (esperado 3) vacio=false
+poner gorro: hat_bow (esperado hat_bow)
+quitar gorro: false (esperado false)
+cuarto: tarjetas=2 (esperado 2) chip=true
+pared: wall_stars (esperado wall_stars)
+tazones: tarjetas=1 (esperado 1)
+sin tazones: vacio=true (esperado true)

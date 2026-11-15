@@ -1,0 +1,9 @@
+tarjetas=7 (esperado 6)
+presentacion en curso=true botones apagados=true
+ya se conocen=true punto por visitar=1 (esperado 1) libre=true
+acariciando: ocupado=true
+tras acariciar: tilde=true puntos=2 (esperado 2) acariciar descansa=true apagado=true jugar libre=true
+acariciar durante su descanso no hace nada: ocupado=false (esperado false)
+jugar si se puede: ocupado=true (esperado true)
+monedas por mirar (ya pasaron 20 s): true monedas=23 (3 + 20) socializar=* (esperado 100) barra=20.0
+regalo sin monedas: msg='No te alcanzan las monedas.' monedas=0

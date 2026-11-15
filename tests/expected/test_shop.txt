@@ -1,0 +1,11 @@
+tienda: 10 items; estable=true cambia_manana=true
+sin repetidos=true
+compra caro sin monedas: true monedas=10
+compra gorro: true monedas=0
+recompra: false
+equipado: { "hat": "hat_cap" }
+tras recargar: owned=["furn_bed", "hat_cap"] equipped={ "hat": "hat_cap" } coins=0
+quitar: {  }
+escena shop ok
+escena wardrobe ok
+escena home ok

@@ -196,7 +196,7 @@ func _area_jobs(t: GDScript) -> void:
 		game._open_question()
 		await process_frame
 		var qt := _texts(game)
-		print("  examen: ", qt.filter(func(s): return s.ends_with("test") or s.begins_with("What") or s.begins_with("Which") or s.begins_with("Hint") or s.begins_with("This")), " | sigue en español: ", _spanish_left(qt, ["Ana"]))
+		print("  examen: ", qt.filter(func(s): return s.ends_with("test") or s.begins_with("What") or s.begins_with("Which") or s.begins_with("Hint") or s.begins_with("This")), " | sigue en español: ", _spanish_left(qt.filter(func(s): return not s.ends_with("'s test")), ["Ana"]))   # (el nombre del alumno queda en español, como los de los vecinos)
 		game._finish(true)
 		await create_timer(0.3).timeout
 		var et := _texts(game)
@@ -271,7 +271,7 @@ func _area_spanish_class(t: GDScript) -> void:
 		game._open_question()
 		await process_frame
 		var qt := _texts(game)
-		print("  examen ", track, ": ", qt.filter(func(s): return s.ends_with("?") or s.ends_with("test")), " | sigue en español (sin contar las opciones): ", _spanish_left(qt, game._problem["options"] + [game._problem["prompt"], "Ana"]))
+		print("  examen ", track, ": ", qt.filter(func(s): return s.ends_with("?") or s.ends_with("test")), " | sigue en español (sin contar las opciones): ", _spanish_left(qt.filter(func(s): return not s.ends_with("'s test")), game._problem["options"] + [game._problem["prompt"], "Ana"]))
 		game.queue_free()
 		await process_frame
 	Jobs.current = "math"

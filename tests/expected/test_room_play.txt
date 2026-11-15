@@ -1,0 +1,12 @@
+tienen actividad (tambien los especiales): true []
+comentario del piano: ¡*
+descansar: con sofa=true con cuna=true solo un cuadro=false
+comodidad tras 60 h: sin donde descansar=20.0 | con sofa=50.0
+la tienda ya no fuerza el rascador: true
+ya no dice 'Necesita': true
+furn_sofa: llego=true pose=sit | 'Mochi descansa en el sofá' | efectos=true | sumo ["comodidad"]
+furn_piano: llego=true pose=side | 'Mochi toca el piano' | efectos=true | sumo ["diversion"]
+deco_picture: llego=true pose=look | 'Mochi admira el cuadro' | efectos=true | sumo ["comodidad"]
+recien puesto para ver: ["furn_aquarium"]
+fue a verlo: true | dijo: * | quedo en el diario: true
+dejo la pecera para beber: true

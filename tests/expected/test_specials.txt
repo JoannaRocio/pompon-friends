@@ -1,0 +1,10 @@
+especiales: 21 | precios de 500 a 2500 | ordenados: true
+nunca en la tienda diaria (60 dias): true
+no aparecen en 'se desbloquea al subir de nivel': true
+dibujo de base: corona de diamantes -> hat_crown | cama de nube -> furn_bed_cloud | superficie del piano dorado: true | acuario de colores es chico: true
+camas para dormir: cama amplia=true cama de nube=true sofa=false
+comprar corona de diamantes: true monedas=3800 (5000 - 1200)
+puesta: hat_crown_diamond
+el Pompon se dibuja con toda la ropa especial (sin errores)
+pestaña Especial: 21 tarjetas (21)
+de noche elige la cama de nube: true | durmiendo: true

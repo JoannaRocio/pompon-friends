@@ -1,0 +1,15 @@
+cartelera de 4 semanas: [*] | 3 distintas y vuelve a empezar: true
+toda la semana la misma (de lunes a domingo): true | cambia el lunes siguiente: true | el dia antes del cambio es otra: true
+  Terror - La casa de la colina: 7 escenas | mensaje: 'A veces lo que nos asusta es alguien que nadie se animó a conocer.' | termina con FIN: true
+  Romántica - Cartas bajo la lluvia: 7 escenas | mensaje: 'Lo que sentimos vale más cuando nos animamos a decirlo.' | termina con FIN: true
+  Acción - Operación Tormenta: 7 escenas | mensaje: 'Nadie es un héroe solo.' | termina con FIN: true
+boleteria: true | hoy: true | proxima: true | con quien: 5 opciones
+sin monedas: lobby | aviso: true
+entrada: monedas=85 (100 - 15) | en la sala: watching | subtitulo: *
+  invitado en la butaca: true | pochoclos: true
+tocar la pantalla pasa de escena: [0, 1, 2, 3]
+sola pasa a la siguiente: escena 4
+saltar -> final: end | '¡Fin! | *
+vista: { * } | diversion *
+de vuelta en la boleteria dice que ya la vio: true
+escenas dibujadas: 21

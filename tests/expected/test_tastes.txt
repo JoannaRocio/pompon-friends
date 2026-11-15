@@ -1,0 +1,31 @@
+familias de color: todas bien
+gustos de nacimiento distintos: true
+misma ID, mismos gustos: true
+1ra vez: duda=true mult=0.7 corazones=0 | '¿Mmm…? (lo prueba con cuidado)'
+corazones de a poco (bebe): [0, 1, 2, 3, 4, 5, 5, 5]
+favorita: manzana
+corazones de a poco (adulto, aprende mas lento): [0, 0, 0, 0, 1, 1, 1, 1]
+bebe aprende mas rapido que el adulto: true
+le gusta mas lo que le cae bien: pizza=2 helado=4
+color favorito tras comprar cosas rosas: rosa | anuncio: 1 ¡Me encantan las cosas de color rosa! Creo que es mi color favorito
+comida favorita anunciada: 1 ¡Mi comida favorita es: banana!
+no se anuncia dos veces lo mismo: true
+juego favorito: simon
+habitacion favorita: 2 (esperado 2)
+bebe se vuelve curioso con tanta exploracion: Curioso | Siento que me estoy volviendo más curioso
+el adulto ya no cambia: Timido true
+habilidades: ["fisico", "creatividad", "musica", "matematicas", "logica"] | todas en nivel 0: true
+3 juegos de matematicas: matematicas nivel 1 xp=12.0 | avisos de nivel=1 | logica=0
+memoria entrena musica (3.0) y un poco de logica (1.0)
+jugar bien da mas experiencia que jugar mal: true
+comprar el piano suma musica: xp=5.0 | objeto sin habilidad no suma: true
+subir de nivel avisa: ¡Mejoré mi físico! Ahora estoy en nivel 1
+tope en nivel 10: 10 progreso=1.0
+practica: hace música con su piano | crea algo con sus cubos de juguete | solo entrenan: ["furn_piano", "toy_robot"]
+el huevo no entrena: true
+en el juego: logica nivel 2 fisico xp=2.0 | avisos pendientes=2
+trabajar no cambia las habilidades del Pompon: true
+reacciones al trabajo (del cuidador): true | ej: *
+tras recargar: color=rosa comida=banana juego=simon cuarto=2
+rasgos conservados: true
+partida vieja: gustos creados=true

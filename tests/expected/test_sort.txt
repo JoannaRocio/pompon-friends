@@ -1,0 +1,7 @@
+zona de objetos arriba de los 3 lugares: true
+aparecen objetos solos: true
+bien ordenado * resultados=[[true, * | en el lugar=1 | total=1
+lugar equivocado: avisa sin castigo=true | vuelve a su sitio=true | sigue sin ordenar=1
+soltar en el aire: se queda=true
+arrastre estable aunque cambie la lista: true
+en pausa no aparecen objetos: true | (antes * ahora *

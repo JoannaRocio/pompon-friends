@@ -1,0 +1,9 @@
+16 efectos cargan: true
+music_home duracion=27.4s
+music_play duracion=21.8s
+play() sin errores; music_on=true sfx_on=true
+musica sonando: true volumen=-9.0 loop=true
+cambio a pista play: music_play.ogg sonando=true
+musica apagada: sonando=false
+tema cozy aplicado: true
+boton nuevo conectado al click: true

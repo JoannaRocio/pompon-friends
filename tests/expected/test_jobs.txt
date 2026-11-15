@@ -1,0 +1,34 @@
+trabajos: ["math", "english", "geography"] | disponibles: ["math", "english", "geography"]
+  math -> f='Profesora de Matemáticas' m='Profesor de Matemáticas' n='Profesor/a de Matemáticas'
+  english -> f='Profesora de Inglés' m='Profesor de Inglés' n='Profesor/a de Inglés'
+  geography -> f='Profesora de Geografía' m='Profesor de Geografía' n='Profesor/a de Geografía'
+matematicas lleva a una escena que existe: true
+ingles y geografia llevan al aula: true
+sexo desconocido o vacio usa el neutro: 'Profesor/a de Matemáticas' / 'Profesor/a de Matemáticas'
+palabra: Profesora | Profesor | Profesor/a
+saludos: ¡Bienvenida a la escuela, profesora! | ¡Bienvenido a la escuela, profesor! | ¡Te damos la bienvenida a la escuela!
+con nombre: ¡Bienvenida a la escuela, profesora Ana! | ¡Bienvenido a la escuela, profesor Leo! | ¡Te damos la bienvenida a la escuela, Sol!
+puesto: Profesora Ana | Profesor Leo | Profesor/a
+sin perfil: has_profile=false
+menu: aparece el dialogo=true | listo desactivado=true
+  botones: ["Inventar un nombre", "Soy ella", "Soy él", "¡Listo!"]
+inventar nombre: * distintos=true | valido=true | todos validos=true
+  solo sexo, sin nombre: listo desactivado=true
+  nombre en blanco: listo desactivado=true
+  nombre y sexo: listo desactivado=false
+  guardado: nombre='Ana Maria De' (12 letras) titulo='f' has_profile=true
+con perfil: no vuelve a preguntar=true
+  ofertas: ["Profesora Ana", "Profesora de Matemáticas", "Profesora de Inglés", "Profesora de Geografía"]
+  encabezado: ["EL PERIÓDICO POMPON", "OFERTAS DE EMPLEO"]
+  botones: ["", "Cambiar", "Aplicar", "Aplicar", "Aplicar"]
+  'Aplicar' en los tres: true | bloqueados: 0
+  ninguno dice Proximamente: true | vacantes: true
+tocar un trabajo bloqueado: 'Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!'
+cambiar: precarga nombre='Ana'
+cambiar: se puede cancelar=true | ahora='m' 'Leo' | ["Profesor Leo", "Profesor de Matemáticas", "Profesor de Inglés", "Profesor de Geografía"]
+segunda vez: no pregunta=true
+partida vieja sin nombre: lo pide=true
+aula: ["Aula de Matemáticas", "Escuela Pompon · Profesora Ana"] | vuelve a las ofertas=false
+intro del trabajo: saludo=true | explicacion=true
+tras recargar: titulo='f' nombre='Ana'
+valor invalido se descarta: '' nombre='' perfil=false

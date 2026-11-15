@@ -1,0 +1,13 @@
+codigos validos: true | distintos: 300 de 300 | ejemplo: *
+lo que escribe el jugador: 'ABCDEFGHJKLM' | con letras de mas o de menos: '' ''
+sin servidor: off (esperado off)
+primera subida: ok=true * | en el servidor: true
+segunda subida (mismo codigo): ok=true mismo codigo=true monedas en la nube=90.0
+dispositivo nuevo: sin partida=true
+codigo mal escrito: code | codigo que no existe: not_found
+recuperar: ok=true pompon=Mochi monedas=90 nombre=Ana codigo guardado=true
+sigue jugando en el nuevo y sube: ok=true monedas en la nube=150.0
+dispositivo viejo: error=conflict conflicto=true la nube conserva=150.0
+elegir 'usar la de este dispositivo': ok=true nube=95.0 sin conflicto=true
+subida automatica con cambios: true monedas=200.0
+sin cambios no vuelve a subir: true

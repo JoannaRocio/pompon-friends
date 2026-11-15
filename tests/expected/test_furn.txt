@@ -1,0 +1,14 @@
+Reptil requiere: Lámpara de calor
+Canino requiere: Cama amplia
+Felino requiere: Rascador
+Conejo requiere: Túnel
+Raton requiere: Rueda de ejercicio
+Ave requiere: Columpio
+Dragon requiere: Cojín térmico
+sin mueble tras 10h: comodidad=100.0
+con mueble: comodidad=100.0
+tiene mueble antes: false
+tiene mueble despues: true
+home con mueble ok; * · * · *
+home sin mueble; * · * · *
+shop ok

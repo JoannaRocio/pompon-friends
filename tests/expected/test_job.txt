@@ -1,0 +1,26 @@
+primer turno: intro=true | explica con animacion=true | dice que hacer=true | poco texto=true
+leccion del nivel 1 (tabla del 2): true | trae la tabla=true
+tras la leccion juega: estado=1 | leccion marcada como vista=true
+turno terminado: estado=3 | aciertos=3 de 5 | errores guardados=2 | explicaciones=2 | con dibujo=2
+monedas: 70 (50 de paga + 20 extra por terminar el turno) | sin premio de nivel (primer turno): true
+primer turno: cartel del tutorial antes de la nota=true
+cartel: ¡Fin del turno! | Nota: 6 / 10 | ¡Bien! | Cuentas bien: 3 de 5 | Ordenados: 0 | +50 monedas | ¡Turno completo! +20 monedas extra | Multiplicaciones · Nivel 1 | Para subir: 8 seguidas bien y rápidas (llevas 1) | Para repasar | * × * = * | * × * = * |
+  nota=true paga=true nivel=true repaso=true
+  dice como subir (8 seguidas)=true
+  muestra la respuesta correcta de lo fallado=true
+repaso: 2 cuentas falladas quedan para repasar | historial=5 respuestas
+se midio el tiempo de las 5 respuestas: true
+turno 2: ya vio la leccion, juega directo: estado=1
+cartel de avance: ¡SUBISTE DE NIVEL! | Nivel 3 | Tabla del 3 | +30 monedas |
+  dice que subio=true premio fijo=true
+  nivel ahora: 3 (de 1 salta a 3 por responder rapidisimo)
+  monedas ganadas: 100 (50 de paga + 30 de premio + 20 extra): true
+tras 'Genial!': cartel de nota=true | recuerda el premio=true | nivel nuevo=true
+oficina: tres caminos=true | paga fija visible=true | poco texto (menos de 400 letras)=true | nivel 3 de multiplicaciones=true
+ver leccion: true
+reloj: empieza en 1:15 | el boton de cobrar empieza escondido: true
+no se puede cobrar antes del primer examen: true
+tras el primer examen aparece 'Terminar y cobrar': true | sigue jugando: estado=1
+el reloj corre mientras juega: true
+cobrar antes: monedas ganadas=50 (solo la paga de 50) | sin el extra=true | invita a terminar=true
+turno completo: monedas ganadas=70 | dice que fue completo=true

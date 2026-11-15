@@ -1,0 +1,10 @@
+antes: guardado existe=true monedas=321
+boton reiniciar visible con partida: true
+cartel 1: true
+cartel 2 (¿seguro?): true | nada borrado todavia: true
+cancelar no borra: monedas=321 pompon=true
+despues: guardado=false respaldo=false
+  pompon=<null> monedas=0 owned=[] trabajos=0 nombre=''
+  guias=[] diario=0 amistad={  } vecino npc={  }
+al recargar sigue vacio: pompon=<null> monedas=0
+sin partida no aparece el boton: true

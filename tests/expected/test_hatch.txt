@@ -1,0 +1,12 @@
+antes de comprar la cuna: pendiente=false
+cuna comprada: nacio=true | animacion pendiente=true
+esta por nacer: true | se ve el huevo: true | flecha al huevo: true | aviso: '¡Algo se mueve!\nTócalo para ayudarlo a salir.' | sin animacion todavia: true
+  toque 1: rajaduras=1
+  toque 2: rajaduras=2
+  toque 3: rajaduras=3
+la casa muestra la animacion: true | todavia no pide nombre: true | ya no esta pendiente: true
+el huevo se va rajando: grietas=1
+nace (se abre la cascara): true | aparece el bebe: true
+al principio no se puede saltar el final: true
+termina sola: capa cerrada=true
+despues pide el nombre: true | ya no esta por nacer: true | se ve el bebe: true

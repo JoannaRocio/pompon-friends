@@ -1,0 +1,12 @@
+aburrida (hembra): Tofu se siente un poco aburrida | nivel=1
+aburrido (macho): Tofu se siente un poco aburrido
+lo urgente va primero: Tofu tiene mucha hambre | stat=alimentacion
+rotacion: ["Tofu tiene mucha hambre", "Tofu se siente un poco aburrido", "Tofu está bien hidratado", "Tofu está limpito"]
+todo bien: 9 frases | todas positivas=true | ej: Tofu se siente amado
+frases con el nombre: true
+al abrir con amor muy bajo ya lo dice (1 mensaje): visible=true
+lo urgente se anota en el diario: entradas=1 | * visible=true
+no se repite enseguida: true
+la pildora se va sola: visible=false
+las reacciones no inundan el diario: nuevas=0 (maximo 1)
+el diario se abre: true

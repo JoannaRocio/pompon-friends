@@ -1,0 +1,26 @@
+sin activar: true
+Ana activa amigos: ok=true * (8 letras)
+Leo activa amigos: codigo distinto=true
+Leo pide a Ana: sent | otra vez: sent | a si mismo: self | codigo que no existe: not_found | mal escrito: code
+  Leo ve su solicitud esperando: 1 | sin ver la tarjeta de Ana hasta que acepte: true
+Ana recibe la solicitud: 1 de 'Luna (de Leo)'
+Ana acepta: amigos=1 solicitudes=0
+Leo aparece en sus vecinos: true | su Pompon: Luna Conejo | dice 'de Leo' | cuarto entero: 2.0
+Leo ya es amigo de Ana: true | avisos en su diario: ["Mochi (de Ana) vino a visitarme", "¡Mochi (de Ana) me dejó un regalo!"]
+  Social sube: true
+  los avisos no se repiten: true
+guardado: codigo=true amigos=1 en vecinos=true
+pantalla de vecinos: filas=8 (tarjeta de amigos + 7 vecinos)
+visita a Ana: cuarto de 2.0 pantallas | se llama 'Mochi'
+Leo quita a Ana: amigos=0 en vecinos=false
+limites: Ana con la lista llena: amigos=9 enviadas=1 lugares=0 llena=true
+  aceptar con la lista llena (lo frena el juego): full | sigue esperando: true
+  aceptar con la lista llena (lo frena el servidor): full ok=false | la solicitud sigue: pending | amigos=9
+  pedir con la lista llena (lo frena el servidor): full ok=false | no se mando: true
+  pantalla: aviso al aceptar=true
+  pantalla: aviso al pedir=true
+  quita uno y acepta: ok | amigos=9 lugares=0
+  dibujos al mismo amigo: ["ok", "ok", "ok", "limit"]
+  denuncias: 10 ok y despues limit
+  avisos (es): ["Tu lista ya está llena (10, contando las solicitudes que mandaste). Para aceptar a otro amigo, primero quita uno.", "Ya tienes 10 amigos (contando las solicitudes que mandaste). Para agregar otro, quita uno.", "Hoy ya le regalaste muchos dibujos a Bu. ¡Prueba mañana!", "Hoy ya nos avisaste muchas veces. Vamos a revisar todo. Si quieres, puedes bloquear a Bu."]
+  avisos (en): ["Your list is already full (10, counting the requests you sent). To accept another friend, remove one first.", "You already have 10 friends (counting the requests you sent). To add another, remove one.", "You\'ve already sent Bu lots of drawings today. Try tomorrow!", "You already told us many times today. We will check everything. If you want, you can block Bu."]

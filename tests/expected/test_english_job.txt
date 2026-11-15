@@ -1,0 +1,25 @@
+contenido: 202 palabras y 80 frases | opciones bien armadas: true | sin palabras repetidas en un nivel: true | dibujos que existen: true (60) | claves: true
+pregunta de palabras: rojo -> red ["white", "yellow", "red"] | ¿Cómo se dice en inglés?
+  si se falla: Rojo en inglés es red.
+pregunta de significado: hello -> hola ["¿cómo estás?", "hola", "por favor"]
+frase: I ___ happy. (Estoy feliz.) -> am ["are", "is", "am"] | completa: I am happy.
+  si se falla: Con I va am. Con he, she, it va is. Con you, we, they va are.
+leccion de colores: Aprende cómo se dicen en inglés. / red = rojo / blue = azul / yellow = amarillo
+leccion de frases: Antes de a, e, i, o, u se dice an: an apple. Si no, a: a dog. / This is an apple. / This is a dog.
+dominio: 8 rapidas -> jump | 8 lentas -> none
+materia de cada camino: english / math
+se dibujaron 60 dibujos
+ingles disponible: true | res://scenes/job_menu.tscn
+cartel nuevo puesto: true | misma carrera: true | materia elegida: english
+aula: true | tres caminos: true | niveles: true
+leccion: true
+turno de ingles: materia=english camino=en_words | leccion antes de jugar: true
+turno terminado: aciertos=3 de 5 | explicaciones=2 | con dibujo=5 | muestran pronunciacion=5
+  preguntas: *
+cartel: nota=true | 'Bien: 3 de 5'=true | repaso con la palabra=true
+  repaso: * = * = *
+palabras para repasar: [{ "key": * "streak": 0 }, { "key": * "streak": 0 }] | turnos=4 (era 3) | monedas=70
+ficha: Matemáticas e Inglés
+frase: '*.'
+tras cargar: nivel de palabras=1 | respondidas=5 | falladas=2 (sin la que no existe)
+matematicas: materia=math camino=addsub

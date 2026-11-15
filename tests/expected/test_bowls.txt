@@ -1,0 +1,9 @@
+tazones en el catalogo: 10 | comida=5 agua=5
+todos con nombre, precio y estilo de dibujo: true
+sin comprar: tazon de siempre=true
+comprar tazon de comida: true | se usa solo=true
+comprar tazon de agua: true | se usa solo=true | monedas=64
+tercer tazon (de comida) reemplaza al anterior: bowl_food_star
+tocar de nuevo lo quita (vuelve el de siempre): true
+se guardan: { "bowl_food": "bowl_food_pink", "bowl_water": "bowl_water_fish" }
+dibuja comer y beber con tazones lindos: ok

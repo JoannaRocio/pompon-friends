@@ -1,0 +1,10 @@
+generado: *
+recien creado: etapa=Huevo | huevo=true
+un huevo no crece solo (90 dias despues): Huevo
+al nacer: etapa=Bebé
+etapa +10min: Bebé
+etapa +8d: Niño
+etapa +40d: Adolescente
+etapa +100d: Adulto
+tras 10h: comida=60.0 inteligencia=0.0 se_va=false
+tras 30 dias mas: se_va=true

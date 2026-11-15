@@ -36,6 +36,15 @@ func _play_shift(job: Control, wrong_questions: Array) -> Dictionary:
 	return out
 
 
+## Toca el boton que dice `text` (dentro de `node`).
+func _press(node: Node, text: String) -> void:
+	for b in node.find_children("*", "Button", true, false):
+		if b.text == text:
+			b.pressed.emit()
+			return
+	print("FALLA: no encuentro el boton '", text, "'")
+
+
 func _labels(node: Node) -> String:
 	var texts := ""
 	for lbl in node.find_children("*", "Label", true, false):
@@ -78,10 +87,17 @@ func _initialize() -> void:
 
 	var played := await _play_shift(job, [1, 3])
 	print("turno terminado: estado=", job.state, " | aciertos=", job.correct, " de 5 | errores guardados=", job.mistakes.size(), " | explicaciones=", played["explanations"], " | con dibujo=", played["hints"])
-	print("monedas: ", gs.coins, " (40 de paga + 20 extra por terminar el turno) | sin premio de nivel (primer turno)")
+	var pay: int = load("res://scripts/jobs.gd").pay_for_level(1)
+	print("monedas: ", gs.coins, " (", pay, " de paga + 20 extra por terminar el turno) | sin premio de nivel (primer turno): ", gs.coins == pay + 20)
+	# el primer turno muestra antes el cartel del tutorial ("¡Perfecto!... compremos una cuna") y despues la nota
+	var first := _labels(job._layer)
+	print("primer turno: cartel del tutorial antes de la nota=", first.contains("¡Perfecto!") and not first.contains("Nota:"))
+	_press(job._layer, "Ver mi nota")
+	await process_frame
+	await process_frame
 	var texts := _labels(job._layer)
 	print("cartel: ", texts.substr(0, 600))
-	print("  nota=", texts.contains("Nota:"), " paga=", texts.contains("+40 monedas"), " nivel=", texts.contains("Nivel 1"), " repaso=", texts.contains("Para repasar"))
+	print("  nota=", texts.contains("Nota:"), " paga=", texts.contains("+%d monedas" % pay), " nivel=", texts.contains("Nivel 1"), " repaso=", texts.contains("Para repasar"))
 	print("  dice como subir (8 seguidas)=", texts.contains("8 seguidas"))
 	print("  muestra la respuesta correcta de lo fallado=", job.mistakes.all(func(m): return texts.contains("%s = %d" % [m["text"], m["answer"]])))
 	print("repaso: ", gs.weak_facts("mul").size(), " cuentas falladas quedan para repasar | historial=", gs.math_state("mul")["history"].size(), " respuestas")
@@ -106,7 +122,7 @@ func _initialize() -> void:
 	print("cartel de avance: ", level_up.substr(0, 400))
 	print("  dice que subio=", level_up.contains("SUBISTE"), " premio fijo=", level_up.contains("+30 monedas"))
 	print("  nivel ahora: ", gs.math_level("mul"), " (de 1 salta a 3 por responder rapidisimo)")
-	print("  monedas ganadas: ", gs.coins - before, " (40 de paga + 30 de premio + 20 extra = 90)")
+	print("  monedas ganadas: ", gs.coins - before, " (", pay, " de paga + 30 de premio + 20 extra): ", gs.coins - before == pay + 50)
 	# "Genial!" -> cartel con la nota
 	var box2: Node = job2._layer.get_child(1).get_child(0)
 	box2.get_child(box2.get_child_count() - 1).pressed.emit()
@@ -121,7 +137,7 @@ func _initialize() -> void:
 	root.add_child(office)
 	await create_timer(0.3).timeout
 	var office_text := _labels(office)
-	print("oficina: tres caminos=", office_text.contains("Sumas y restas") and office_text.contains("Multiplicaciones") and office_text.contains("Divisiones"), " | paga fija visible=", office_text.contains("+40"), " | poco texto (menos de 400 letras)=", office_text.length() < 400, " | nivel 3 de multiplicaciones=", office_text.contains("Nivel 3") and office_text.contains("Tabla del 3"))
+	print("oficina: tres caminos=", office_text.contains("Sumas y restas") and office_text.contains("Multiplicaciones") and office_text.contains("Divisiones"), " | paga fija visible=", office_text.contains("+%d" % pay), " | poco texto (menos de 400 letras)=", office_text.length() < 400, " | nivel 3 de multiplicaciones=", office_text.contains("Nivel 3") and office_text.contains("Tabla del 3"))
 	office._show_lesson("mul", 3)
 	await process_frame
 	print("ver leccion: ", _labels(office._layer).contains("Tabla del 3"))
@@ -157,7 +173,7 @@ func _initialize() -> void:
 	job3._on_finish_pressed()
 	await process_frame
 	var cash_text := _labels(job3._layer)
-	print("cobrar antes: monedas ganadas=", gs.coins - coins_before, " (solo la paga de 40) | extra=", cash_text.contains("Turno completo"), " | invita a terminar=", cash_text.contains("Termina el turno completo"))
+	print("cobrar antes: monedas ganadas=", gs.coins - coins_before, " (solo la paga de ", pay, ") | sin el extra=", not cash_text.contains("Turno completo"), " | invita a terminar=", cash_text.contains("Termina el turno completo"))
 	job3.queue_free()
 	await process_frame
 

@@ -1,0 +1,31 @@
+sellos esta semana: 3 (lunes, miercoles y sabado) | dias en total: 3 | para cobrar: true
+cobrar: [10, 10, 15, 0] (10, 10, 15 y ya no hay mas) | monedas=35
+el lunes siguiente empieza otra semana: sellos=1 cobrados=0 | dias en total=4
+logro Profe estrella: valor=12 medallas=1 | Da 50 clases | para cobrar: true
+logro Gran jugador: valor=3 medallas=0 | Juega 10 minijuegos | para cobrar: false
+logro Cinéfilo: valor=1 medallas=1 | Ve 5 películas en el cine | para cobrar: true
+logro Siempre presente: valor=4 medallas=1 | Entra 14 días distintos | para cobrar: true
+logro Creciendo juntos: valor=1 medallas=0 | Que tu Pompon llegue a niño | para cobrar: false
+cobrar Profe estrella (bronce): +25 | otra vez: +0 | monedas +25
+algo para cobrar (punto rojo): true
+misiones: semana=true | logros=true | cobrar sello visible=true
+aviso: dentro de * dias, a las 18 h
+  programado: 'Mochi te extraña' - 'Pasa a saludarlo cuando quieras. Tu sello de la semana te espera.'
+  al abrir el juego se cancela: true
+  con la campana apagada no se programa: true
+capitulo 1 (cuidar): aparece=true | '¡Hola! Te muestro en un ratito cómo cuidar a Mochi. Toca los botones q'
+  el tutorial tapa los avisos sueltos: true
+  paso 2 resalta: Caricia | modo=tap
+  paso 3 resalta: Comer
+  con el menu de comidas abierto, el tutorial espera: true
+  paso 4 resalta la tarjeta de necesidades: true
+  paso 5 resalta el Diario: Diario
+capitulo 1 terminado: capitulo=1 | el siguiente espera un ratito: true
+capitulo 2 (crecer): true | 'En 5 días Mochi va a ser niño. ¡Cuídalo mucho estos días: así aprende a hablar y confía en' | dibujo de etapas: true
+capitulo 3 (casa): true | resalta la solapa Casa: true
+  despues resalta la Tienda: Tienda
+capitulo 4 (amigos) espera a otro dia: true
+  resalta Vecinos: Vecinos
+  en Vecinos resalta la tarjeta de amigos: true | 'Cada jugador tiene un código (su ID). Comparte el tuyo y agr'
+  capitulo siguiente: jugar
+saltar tutorial: apagado=true | sin cartel: true

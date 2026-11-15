@@ -1,0 +1,5 @@
+al empezar el logo esta escondido: escala=true
+el logo ya esta a tamano completo: escala=1.0 | rotacion=0.0
+ancho del logo respecto a la pantalla: 0.87 | centrado en x=true
+textura del logo con transparencia: true
+tocar salta la intro: done=true

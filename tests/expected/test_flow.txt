@@ -1,0 +1,37 @@
+monedas al empezar: 0 (deben ser 0)
+especie y sexo elegidos se respetan (7 x 2): true
+sexo invalido -> al azar valido: true
+huevo tras 40 dias: etapa=Huevo se fue=false stats iguales=true
+partida vieja (sin 'hatched') ya habia nacido: true
+el huevo se guarda como huevo: true
+casa sin Pompon: boton='Adoptar Pompon' visible=true
+bienvenida: saluda a Ana=true | botones=["Adoptar Pompon"] | dice primer Pompon=true
+especies: tarjetas=8 (7 + sorpresa) | siluetas planas (sin revelar diseno)=7
+sexo: ["¿Hembra o macho?", "Hembra", "Macho"]
+cigüena: huevo en el nido=true | boton ir a casa activo=true | titulo=¡Tu huevo llegó!
+Pompon creado: Conejo Macho | huevo=true
+guia 1: ¡Tu huevo llegó!
+Necesita una cuna para nacer.
+  explica la cuna=true | no manda a Decorar=true
+guia 2: Una cuna cuesta 50 monedas.
+¡Gánalas en Trabajo!
+  cuenta que cuesta monedas=true manda a Trabajo=true corto=true
+  boton Trabajo late=true | Tienda no late=true
+sin mas guias mientras no alcance para la cuna: true
+flecha guia: visible=true | apunta a Trabajo=true
+fila de cuidados oculta en el huevo: true | titulo: Tu huevo de conejo
+detalle:
+tocar el huevo no lo hace nacer: true | dice: ¡Necesito una cuna para nacer!
+tienda: primer item = furn_crib (Cuna) | total=10 | mueble de la especie incluido=true
+comprar sin monedas: false (debe ser false) | sigue huevo=true
+guia 3 (alcanza): ¡Ya alcanza!
+Compra la cuna en la Tienda.
+  Tienda late=true | Trabajo ya no late=true
+compra de la cuna: true | monedas=5 | nacio=true | cuna colocada=true
+aviso de nacimiento: ¡Tu huevo eclosionó!
+antes de nacer golpea la cascara: true
+antes: animacion del nacimiento=true | todavia sin pedir nombre=true
+pide nombre: true | cuidados visibles=true
+nombre: Mochi | titulo: *  (Bebé)
+al cargar con cuna y huevo: nacio=true
+visitar vecino siendo huevo: Tu huevo todavía no nació. ¡Cómprale una cuna primero!

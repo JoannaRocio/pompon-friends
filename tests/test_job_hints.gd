@@ -9,6 +9,7 @@ func _initialize() -> void:
 	gs.new_pompon()
 	gs.player_name = "Ana"
 	gs.player_title = "f"
+	gs.age_group = "adult"
 	gs.jobs_done = 0
 	gs.coins = 0
 	gs.owned = []
@@ -16,6 +17,13 @@ func _initialize() -> void:
 
 	var board: Control = load("res://scenes/job_board.tscn").instantiate()
 	root.add_child(board)
+	await process_frame
+	await process_frame
+	# la primera vez sale el cartel "Para cuidar a tu Pompon necesitas monedas": mientras tanto no hay flecha
+	print("ofertas: cartel de la primera vez=", board._layer != null, " | sin flecha encima del cartel=", not board._arrow.visible)
+	for b in board._layer.find_children("*", "Button", true, false):
+		if b.text == "¡Vamos!":
+			b.pressed.emit()
 	await process_frame
 	await process_frame
 	print("ofertas: flecha visible=", board._arrow.visible, " apunta a Aplicar=", board._arrow.target in board._apply_buttons)

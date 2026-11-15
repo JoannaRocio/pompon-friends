@@ -1,0 +1,11 @@
+archivos: save=true respaldo=true tmp sobrante=false
+recarga: monedas=124 items=3 colocados=1 guias=["egg"] equipado={ "hat": "hat_bow", "wall": "wall_stars" }
+principal danado, desde respaldo: monedas=123 (respaldo guarda 123) items=3
+ambos danados: sin caida, monedas se mantienen=55
+filtrado: monedas=0 owned=["hat_bow", "furn_sofa"] equipado={ "hat": "hat_bow" } colocados=[{ "id": "furn_sofa", "x": 0.75, "y": 0.0, "room": 0 }]
+partida antigua: monedas=9 mueble colocado solo=true guias=[]
+guia 1 visible: true | es un aviso chico abajo (no tapa el juego): true
+guias vistas: ["growth"] | aviso cerrado: true
+solo una guia opcional por visita: false
+otra guia aparece en otra visita: true
+desaparece sola: false

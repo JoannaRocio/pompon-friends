@@ -1,0 +1,14 @@
+catalogo: 119 items, repetidos=0 categorias={ "hat": 15, "glasses": 8, "shirt": 17, "furniture": 39, "deco": 12, "wall": 10, "floor": 8, "bowl_food": 5, "bowl_water": 5 }
+colocados=51 de 51 posiciones validas=true
+sofa guardado: colocado=false
+sofa vuelto a colocar: colocado=true duplicado=false
+equip ignora muebles: true
+sin colocar el mueble clave: comodo=false
+colocado: comodo=true
+posicion tras recargar: 0.33, 0.74
+seleccionado:
+sofa arrastrado a: 0.33, 0.74 (esperado ~0.41, ~0.77)
+limites del piso respetados: y=0.74 x=0.33
+dibujados: 399 controles sin error
+tienda 40 dias: 10 items sin repetir=true
+tienda con todo comprado: 10 items

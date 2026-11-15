@@ -1,0 +1,41 @@
+cuentas generadas: 9000 | incorrectas o fuera de nivel: 0
+10 niveles por camino, con nombre, tiempo y leccion: true
+el nivel 1 de sumas es muy sencillo (todo <= 10): true
+  8 + 5 = 13 | Primero completamos la decena: 8 + 2 = 10, | luego 10 + 3 = 13.
+  14 − 6 = 8 | Primero bajamos hasta la decena: 14 − 4 = 10, | luego 10 − 2 = 8.
+  47 + 38 = 85 | Sumamos por partes: | 47 + 30 = 77 | 77 + 8 = 85
+  82 − 37 = 45 | Restamos por partes: | 82 − 30 = 52 | 52 − 7 = 45
+  234 + 156 = 390 | Sumamos por partes: | 234 + 100 = 334 | 334 + 50 = 384 | 384 + 6 = 390
+  12 × 3 = 36 | 3 veces 12: 12 + 12 + 12 = 36.
+  12 ÷ 3 = 4 | Porque 3 × 4 = 12. | Dividir es repartir 12 en grupos de 3: salen 4 grupos.
+sin historial: none(+0)
+un solo turno perfecto y rapido (5): none(+0) (debe ser none)
+8 perfectas y rapidas (mitad del tiempo = 2 s no: usa 4.0 s): up(+1) (up)
+8 perfectas y rapidisimas: jump(+2) (jump +2)
+rapidisimas en el nivel 9: up(+1) (+1 por el tope)
+rapidisimas en el nivel 10: complete(+0) (complete)
+8 correctas pero lentas: none(+0) (none)
+15 correctas lentas (constancia): up(+1) (up)
+14 correctas lentas: none(+0) (none)
+7 de 8 y rapidas (un error): none(+0) (none)
+el error viejo no estorba si las ultimas 8 son perfectas: up(+1) (up)
+4 de 8 en nivel 3: down(+1) (down)
+4 de 8 en nivel 1: none(+0) (none: no baja del 1)
+5 de 8: none(+0) (none)
+racha buena (bien y rapido seguidas): 3 (3)
+  experto (perfecto y rapidisimo) -> niveles por turno [1, 1, 3, 3, 5, 5, 7, 7, 9] | avances=4 bajadas=0 | monedas=535
+  fluido (casi perfecto y rapido) -> niveles por turno [1, 1, 2, 2, 3, 3, 4, 4, 5] | avances=4 bajadas=0 | monedas=584
+  adulto preciso pero lento -> niveles por turno [1, 1, 1, 2, 2, 2, 3, 3, 3] | avances=2 bajadas=0 | monedas=552
+  con dificultades -> niveles por turno [4, 4, 4, 3, 3, 2, 2, 1, 1] | avances=0 bajadas=3 | monedas=520
+  irregular -> niveles por turno [1, 1, 1, 1, 1, 1, 2, 2, 2] | avances=1 bajadas=0 | monedas=574
+la paga sale del nivel de profesor/a (no de la nota) y el premio de nivel es fijo (30): true
+primer turno perfecto y rapidisimo: accion=none (none: la evidencia necesita mas de un turno)
+segundo turno igual: accion=jump nivel 1 -> 3
+cuenta fallada guardada para repasar: 1 | clave mul:7:8
+de 400 cuentas, repasos de la fallada: 128 (~30%: true)
+no repite la misma enseguida (si es reciente): true
+1 acierto: sigue en repaso=true
+2 aciertos seguidos: aprendida, sale del repaso=true
+7x8 y 8x7 son la misma cuenta: true
+progreso recargado: nivel 6 | historial=8 | lecciones vistas=[1, 2] | repaso=1
+datos danados: nivel acotado=10 | historial valido=1 | repasos validos=1
