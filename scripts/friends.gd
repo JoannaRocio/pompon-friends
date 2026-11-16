@@ -89,7 +89,7 @@ func snapshot() -> Dictionary:
 			placed.append(e)
 	return {"v": 1, "player": "" if GameState.kids_mode() else GameState.shareable_player_name(), "title": GameState.player_title, "pompon": pompon, "equipped": wear,
 		"wall": GameState.equipped.get("wall", ""), "floor": GameState.equipped.get("floor", ""), "placed": placed,
-		"room": GameState.current_room}
+		"room": GameState.current_room, "layout": Rooms.LAYOUT}
 
 
 func publish() -> Dictionary:

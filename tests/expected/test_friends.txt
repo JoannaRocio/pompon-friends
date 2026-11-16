@@ -5,13 +5,13 @@ Leo pide a Ana: sent | otra vez: sent | a si mismo: self | codigo que no existe:
   Leo ve su solicitud esperando: 1 | sin ver la tarjeta de Ana hasta que acepte: true
 Ana recibe la solicitud: 1 de 'Luna (de Leo)'
 Ana acepta: amigos=1 solicitudes=0
-Leo aparece en sus vecinos: true | su Pompon: Luna Conejo | dice 'de Leo' | cuarto entero: 2.0
+Leo aparece en sus vecinos: true | su Pompon: Luna Conejo | dice 'de Leo' | cuarto entero: 3.0
 Leo ya es amigo de Ana: true | avisos en su diario: ["Mochi (de Ana) vino a visitarme", "¡Mochi (de Ana) me dejó un regalo!"]
   Social sube: true
   los avisos no se repiten: true
 guardado: codigo=true amigos=1 en vecinos=true
 pantalla de vecinos: filas=8 (tarjeta de amigos + 7 vecinos)
-visita a Ana: cuarto de 2.0 pantallas | se llama 'Mochi'
+visita a Ana: cuarto de 3.0 pantallas | se llama 'Mochi'
 Leo quita a Ana: amigos=0 en vecinos=false
 limites: Ana con la lista llena: amigos=9 enviadas=1 lugares=0 llena=true
   aceptar con la lista llena (lo frena el juego): full | sigue esperando: true

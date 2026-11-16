@@ -13,19 +13,19 @@ sofa en sala: room=0 | mesa en cocina: room=2
 florero apoyado en: furn_dresser | cubos apoyados en: furn_dresser (esperado furn_dresser los dos)
 no se pisan: ox florero=0.0 ox cubos=-55.0
 un mueble grande no se apoya: on=false
-al mover la comoda el florero se movio: 144.0 px (esperado 144)
+al mover la comoda el florero se movio: 216.0 px (esperado 216)
 el florero apoya en la tapa: diferencia=3.0 px (esperado ~3)
 arrastrado sobre la comoda: on=furn_dresser (esperado furn_dresser)
 al alejarlo se despega: on=false
-suelto en el aire cae al piso: y=0.68 >= 0.63999998569489
-ancho del cuarto: 1440.0 | max scroll=720.0 (esperado 1440 / 720)
-scroll limitado a la derecha: 720.0
+suelto en el aire cae al piso: y=0.7 >= 0.54000002145767
+ancho del cuarto: 2160.0 | max scroll=1440.0 (esperado 2160 / 1440)
+scroll limitado a la derecha: 1440.0
 scroll limitado a la izquierda: 0.0
 arrastrar el fondo mueve la camara: 100.0 (esperado 100)
 toco el sofa con la camara corrida: furn_sofa
 comoda guardada: colocada=false florero=false cubos=false (esperado todo false)
 tras recargar: habitacion=1 pared=wall_blue (esperado 1 y wall_blue)
 sala recargada: pared=wall_mint (esperado wall_mint) | florero apoyado=true en furn_dresser
-partida vieja: sofa x=0.25 (esperado 0.25) planta x=0.5 (esperado 0.5) sala=0 pared=wall_mint
+partida vieja: sofa x=0.33333333333333 (esperado 0.333) planta x=0.5 (esperado 0.5) sala=0 pared=wall_mint
 las 6 habitaciones se dibujan: 87 items en total
 items por habitacion: { 0: 15, 1: 15, 2: 15, 3: 14, 4: 14, 5: 14 }

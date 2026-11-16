@@ -3,7 +3,10 @@ extends RefCounted
 ## Las habitaciones de la casa. Cada una es ancha (WORLD_SCREENS pantallas) y se recorre
 ## deslizando a izquierda y derecha. Se abren al subir de nivel el Pompon (maximo 6).
 
-const WORLD_SCREENS := 2.0   # ancho de cada habitacion, en pantallas
+const WORLD_SCREENS := 3.0   # ancho de cada habitacion, en pantallas
+## Version del dibujo del cuarto (se guarda como `room_layout`): 1 = una pantalla; 2 = dos pantallas y la
+## pared hasta el 60 % del alto; 3 (16/11/2026) = tres pantallas y la pared hasta el 50 % (piso mas profundo).
+const LAYOUT := 3
 
 const LIST := [
 	{"id": "sala", "name": "Sala", "level": 1, "wall": "", "floor": "", "rug": "cfe8f3", "icon": "house"},
@@ -13,6 +16,26 @@ const LIST := [
 	{"id": "jardin", "name": "Jardín", "level": 38, "wall": "wall_blue", "floor": "floor_grass", "rug": "fff1c9", "icon": "drop"},
 	{"id": "terraza", "name": "Terraza estelar", "level": 52, "wall": "wall_space", "floor": "floor_carpet", "rug": "d9c8f5", "icon": "star"},
 ]
+
+
+## Pasa un item colocado ({"id","x","y"}) de un cuarto dibujado con la version `from` a la actual: lo que ya
+## estaba decorado queda en el medio del cuarto, a la misma distancia de la pared (los muebles quedan
+## atras, contra la pared, y adelante queda piso libre).
+static func migrate_entry(e: Dictionary, from: int) -> Dictionary:
+	var x := float(e.get("x", 0.5))
+	var y := float(e.get("y", 0.7))
+	if from < 2:
+		x = 0.25 + x * 0.5
+	if from < 3:
+		x = 1.0 / 6.0 + x * 2.0 / 3.0
+		if Catalog.get_item(str(e.get("id", ""))).get("category", "") == "deco":
+			y = 0.08 + (y - 0.09) * 0.32 / 0.41
+		else:
+			y -= 0.1
+	var out := e.duplicate()
+	out["x"] = clampf(x, 0.0, 1.0)
+	out["y"] = clampf(y, 0.0, 1.0)
+	return out
 
 
 static func count() -> int:

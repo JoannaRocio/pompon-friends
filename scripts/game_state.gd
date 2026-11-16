@@ -34,16 +34,17 @@ var equipped := {}           # categoria -> id (hat, glasses, shirt, floor, wall
 var placed: Array = []       # muebles/decoracion en el cuarto: {"id", "x", "y"} (x,y de 0 a 1)
 
 # Lugares por defecto (fraccion del cuarto) para lo que se compra.
+# Lugares para lo recien comprado (por pantalla): primero la fila de atras, contra la pared; despues adelante.
 const FLOOR_SPOTS := [
-	Vector2(0.16, 0.70), Vector2(0.84, 0.70), Vector2(0.16, 0.78), Vector2(0.84, 0.78),
-	Vector2(0.36, 0.67), Vector2(0.64, 0.67), Vector2(0.36, 0.78), Vector2(0.64, 0.78), Vector2(0.50, 0.66),
+	Vector2(0.18, 0.58), Vector2(0.82, 0.58), Vector2(0.38, 0.57), Vector2(0.62, 0.57), Vector2(0.50, 0.56),
+	Vector2(0.20, 0.70), Vector2(0.80, 0.70), Vector2(0.40, 0.72), Vector2(0.60, 0.72),
 ]
 const WALL_SPOTS := [
-	Vector2(0.22, 0.34), Vector2(0.78, 0.34), Vector2(0.50, 0.28), Vector2(0.30, 0.48), Vector2(0.70, 0.48),
-	Vector2(0.50, 0.46), Vector2(0.14, 0.20), Vector2(0.86, 0.20),
+	Vector2(0.22, 0.27), Vector2(0.78, 0.27), Vector2(0.50, 0.22), Vector2(0.30, 0.37), Vector2(0.70, 0.37),
+	Vector2(0.50, 0.36), Vector2(0.14, 0.16), Vector2(0.86, 0.16),
 ]
 const ROOM_REF_WIDTH := 720.0   # ancho de referencia para que los items anchos no se salgan
-const ROOM_REF_WORLD := Vector2(720.0 * 2.0, 1280.0)   # habitacion completa (2 pantallas) de referencia
+const ROOM_REF_WORLD := Vector2(720.0 * Rooms.WORLD_SCREENS, 1280.0)   # habitacion completa de referencia
 
 
 func _ready() -> void:
@@ -106,7 +107,10 @@ func place_item(item_id: String, at := Vector2(-1.0, -1.0), near_x := 0.5) -> vo
 		if current_room == 0:   # en la sala, lo nuevo no tapa la puerta al pueblo (a la izquierda de todo)
 			spots = spots.filter(func(sp): return sp.x * ROOM_REF_WORLD.x > 240.0)
 		# solo cuentan los items de la misma zona (pared o piso): no chocan entre si
-		var same_zone := in_room.filter(func(p): return (Catalog.get_item(p["id"])["category"] == "deco") == is_wall)
+		var same_zone := in_room.filter(func(p): return (Catalog.get_item(p["id"])["category"] == "deco") == is_wall and not Catalog.is_rug(p["id"]))
+		if Catalog.is_rug(item_id):   # las alfombras van adelante, en el medio del piso, y solo esquivan otras alfombras
+			spots = spots.filter(func(sp): return sp.y > 0.65).map(func(sp): return Vector2(sp.x, 0.74))
+			same_zone = in_room.filter(func(p): return Catalog.is_rug(p["id"]))
 		at = ItemArt.best_spot(item_id, spots, same_zone, ROOM_REF_WORLD)
 	var half := ItemArt.size_of(item_id).x * 0.5 / (ROOM_REF_WIDTH * Rooms.WORLD_SCREENS) + 0.02
 	entry["x"] = clampf(at.x, half, 1.0 - half)
@@ -869,7 +873,7 @@ func save_dict() -> Dictionary:
 		"week_visits": week_visits, "days_visited": days_visited, "last_visit_day": last_visit_day, "games_played": games_played,
 		"paintings_made": paintings_made, "achievements_claimed": achievements_claimed, "notify_on": notify_on, "tutorial": tutorial,
 		"age_group": age_group, "language": language, "blocked_codes": blocked_codes, "pending_art": pending_art,
-		"room_layout": 2, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
+		"room_layout": Rooms.LAYOUT, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
 		"farewell": farewell, "last_stage": last_stage, "tips_seen": tips_seen,
@@ -1438,15 +1442,13 @@ func apply_save(parsed: Dictionary) -> void:
 	if not room_styles.has("0"):  # partida anterior a las habitaciones: la sala conserva lo que tenia puesto
 		room_styles["0"] = {"wall": str(equipped.get("wall", "")), "floor": str(equipped.get("floor", ""))}
 	_apply_style()
-	# Partidas anteriores: el cuarto era de una sola pantalla; ahora esa pantalla queda en el centro de la sala.
-	var shift_old := int(parsed.get("room_layout", 1)) < 2
+	# Partidas anteriores: cuartos mas angostos o con la pared mas baja; lo decorado queda en el centro (Rooms.migrate_entry).
+	var layout := int(parsed.get("room_layout", 1))
 	for entry in parsed.get("placed", []):
 		if typeof(entry) == TYPE_DICTIONARY and owned.has(entry.get("id", "")) and entry.has("x") and entry.has("y") \
 				and Catalog.is_placeable(entry["id"]) and not is_placed(entry["id"]):
-			var ex := clampf(float(entry["x"]), 0.0, 1.0)
-			if shift_old:
-				ex = 0.25 + ex * 0.5
-			var loaded := {"id": entry["id"], "x": ex, "y": clampf(float(entry["y"]), 0.0, 1.0),
+			var moved := Rooms.migrate_entry({"id": entry["id"], "x": clampf(float(entry["x"]), 0.0, 1.0), "y": clampf(float(entry["y"]), 0.0, 1.0)}, layout)
+			var loaded := {"id": entry["id"], "x": float(moved["x"]), "y": float(moved["y"]),
 				"room": clampi(int(entry.get("room", 0)), 0, Rooms.count() - 1)}
 			if str(entry.get("on", "")) != "":
 				loaded["on"] = str(entry["on"])

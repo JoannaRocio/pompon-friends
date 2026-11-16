@@ -8,10 +8,10 @@ signal selection_changed(item_id: String)
 signal panned   # el jugador movio la camara con el dedo
 
 const OUTLINE := Color("5b3a4a")
-const FLOOR_START := 0.6  # fraccion de alto donde empieza el piso
-const FLOOR_Y_RANGE := Vector2(0.64, 0.81)  # donde pueden ir los muebles de piso (centro)
-const WALL_Y_RANGE := Vector2(0.09, 0.50)
-const BOTTOM_RESERVE := 360.0  # px de abajo ocupados por los botones o el panel de decorar
+const FLOOR_START := 0.5  # fraccion de alto donde empieza el piso (16/11/2026: era 0.6; mas piso para decorar)
+const FLOOR_Y_RANGE := Vector2(0.54, 0.86)  # donde pueden ir los muebles de piso (centro)
+const WALL_Y_RANGE := Vector2(0.10, 0.40)
+const BOTTOM_RESERVE := 250.0  # px de abajo ocupados por la barra de botones: los muebles llegan hasta ahi
 const EDGE_ZONE := 80.0       # al arrastrar un item cerca del borde, la camara avanza sola
 const SNAP_RANGE := 80.0      # que tan cerca de una superficie se pega un adorno
 
@@ -266,11 +266,11 @@ func _draw_world() -> void:
 	# una alfombra con flequitos y dibujo por cada pantalla de ancho
 	var rug := Rooms.rug_color(room_index) if room_index >= 0 else Rooms.rug_color(0)
 	if world_screens <= 1.0:
-		_rug(Vector2(ww * 0.5, h * 0.7), w, rug)
+		_rug(Vector2(ww * 0.5, h * 0.68), w, rug)
 	else:  # una alfombra grande en el centro (ahi arranca el Pompon) y dos chicas en los extremos
-		_rug(Vector2(ww * 0.5, h * 0.7), w, rug)
-		_rug(Vector2(w * 0.28, h * 0.72), w * 0.5, rug)
-		_rug(Vector2(ww - w * 0.28, h * 0.72), w * 0.5, rug)
+		_rug(Vector2(ww * 0.5, h * 0.68), w, rug)
+		_rug(Vector2(w * 0.28, h * 0.7), w * 0.5, rug)
+		_rug(Vector2(ww - w * 0.28, h * 0.7), w * 0.5, rug)
 
 	# decoracion de pared primero, despues muebles de atras hacia adelante
 	var walls := []

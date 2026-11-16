@@ -65,6 +65,8 @@ var _tray: HBoxContainer
 var _store_button: Button
 var _flip_button: Button
 var _edit_hint: Label             # cartelito de arriba al decorar (que hacer ahora)
+var _edit_top: VBoxContainer      # arriba al decorar: ‹ habitacion › y el cartelito
+const EDIT_LIFT := 44.0           # al decorar el cuarto sube un poco: el piso de adelante queda sobre el panel
 var _tray_tab := ""               # solapa de la bandeja: "floor", "wall", "small" o "style" ("" = la primera con algo)
 var _tray_tabs := {}              # solapa -> boton
 var _follow_pause := 0.0           # la camara no sigue al Pompon hasta que pase este tiempo
@@ -199,7 +201,7 @@ func _process(delta: float) -> void:
 func _floor_bounds() -> Rect2:
 	# x: centro del Pompon en toda la habitacion (varias pantallas); y: donde pisa (los pies)
 	var ww := room.world_w()
-	return Rect2(ww * 0.08, size.y * 0.655, ww * 0.84, size.y * 0.075)
+	return Rect2(ww * 0.06, size.y * 0.58, ww * 0.88, size.y * 0.16)
 
 
 func _world_center() -> Vector2:
@@ -439,7 +441,7 @@ func _place_door() -> void:
 	if _door == null:
 		return
 	_door.visible = GameState.current_room == 0 and not _edit and GameState.pompon != null and _hatch_layer == null
-	_door.position = Vector2(18.0 - room.scroll, size.y * 0.61 - DOOR_H)
+	_door.position = Vector2(18.0 - room.scroll, size.y * (room.FLOOR_START + 0.01) - DOOR_H)
 
 
 func _go_town() -> void:
@@ -462,7 +464,7 @@ func _place_pet(bounds: Rect2) -> void:
 	var depth := clampf(inverse_lerp(bounds.position.y, bounds.end.y, _pet_pos.y), 0.0, 1.0)
 	pet.scale = Vector2.ONE * lerpf(0.9, 1.06, depth)  # mas cerca = un poco mas grande
 	var sx := _pet_pos.x - room.scroll   # posicion en la pantalla (la habitacion se desliza)
-	pet.position = Vector2(sx - PET_SIZE * 0.5, _pet_pos.y - PET_SIZE + 6.0)
+	pet.position = Vector2(sx - PET_SIZE * 0.5, _pet_pos.y - PET_SIZE + 6.0 + room.position.y)   # (al decorar el cuarto sube un poco)
 	_bubble.size = _bubble.get_combined_minimum_size()   # el globo se achica solo al cambiar el texto
 	var mid_w := _bubble.size.x
 	var top_limit := 8.0
@@ -1793,7 +1795,7 @@ func _build_edit_panel() -> void:
 	_edit_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	_edit_panel.offset_left = 12
 	_edit_panel.offset_right = -12
-	_edit_panel.offset_top = -334
+	_edit_panel.offset_top = -280
 	_edit_panel.offset_bottom = -12
 	_edit_panel.visible = false
 	_edit_panel.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.96), 36, Color.WHITE, 3, 12))
@@ -1801,10 +1803,22 @@ func _build_edit_panel() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
 	_edit_panel.add_child(box)
-	# habitacion: ‹ Sala ›
+	# arriba: ‹ Sala › y el cartelito de que hacer (asi el panel de abajo es mas bajito y se ve mas piso)
+	_edit_top = VBoxContainer.new()
+	_edit_top.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_edit_top.offset_left = 16
+	_edit_top.offset_right = -16
+	_edit_top.offset_top = 16
+	_edit_top.add_theme_constant_override("separation", 8)
+	_edit_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_edit_top.visible = false
+	add_child(_edit_top)
+	var room_card := PanelContainer.new()
+	room_card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.94), 32, Color.WHITE, 3, 6))
+	_edit_top.add_child(room_card)
 	var room_row := HBoxContainer.new()
 	room_row.add_theme_constant_override("separation", 10)
-	box.add_child(room_row)
+	room_card.add_child(room_row)
 	var prev_room := Button.new()
 	prev_room.text = "‹"
 	prev_room.custom_minimum_size = Vector2(80, 48)
@@ -1900,18 +1914,13 @@ func _build_edit_panel() -> void:
 	buttons.add_child(done)
 	# cartelito de arriba: que hacer
 	_edit_hint = Label.new()
-	_edit_hint.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	_edit_hint.offset_left = 24
-	_edit_hint.offset_right = -24
-	_edit_hint.offset_top = 24
 	_edit_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_edit_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_edit_hint.add_theme_font_size_override("font_size", 24)
 	_edit_hint.add_theme_color_override("font_color", Color("a0527a"))
 	_edit_hint.add_theme_stylebox_override("normal", Hud.card(Color(1, 1, 1, 0.9), 26, Color("ffc2d9"), 3, 10))
 	_edit_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_edit_hint.visible = false
-	add_child(_edit_hint)
+	_edit_top.add_child(_edit_hint)
 
 
 # ------------------------------------------------------------ habitaciones
@@ -1967,7 +1976,9 @@ func _set_edit(on: bool) -> void:
 	_edit = on
 	room.edit_mode = on
 	_edit_panel.visible = on
-	_edit_hint.visible = on
+	_edit_top.visible = on
+	var lift := room.create_tween()
+	lift.tween_property(room, "position:y", -EDIT_LIFT if on else 0.0, 0.25).set_trans(Tween.TRANS_SINE)
 	pet.mouse_filter = Control.MOUSE_FILTER_IGNORE if on else Control.MOUSE_FILTER_STOP
 	pet.modulate.a = 0.35 if on else 1.0   # se corre "a un costado": se ve lo que se decora
 	if on:

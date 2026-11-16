@@ -94,7 +94,7 @@ func _initialize() -> void:
 	var c_before: Vector2 = room._item_center(vase)
 	gs.move_item("furn_dresser", dresser["x"] + 0.1, dresser["y"])
 	var c_after: Vector2 = room._item_center(vase)
-	print("al mover la comoda el florero se movio: ", snappedf(c_after.x - c_before.x, 1.0), " px (esperado 144)")
+	print("al mover la comoda el florero se movio: ", snappedf(c_after.x - c_before.x, 1.0), " px (esperado 216)")
 	var surf: Dictionary = Catalog.surface_of("furn_dresser")
 	var foot: float = c_after.y + ItemArt.size_of("toy_vase").y * 0.5
 	var top: float = room._item_center(dresser).y + float(surf["dy"])
@@ -121,7 +121,7 @@ func _initialize() -> void:
 	print("suelto en el aire cae al piso: y=", snappedf(float(landed["y"]), 0.01), " >= ", room.FLOOR_Y_RANGE.x)
 
 	# --- deslizar la camara
-	print("ancho del cuarto: ", room.world_w(), " | max scroll=", room.max_scroll(), " (esperado 1440 / 720)")
+	print("ancho del cuarto: ", room.world_w(), " | max scroll=", room.max_scroll(), " (esperado 2160 / 1440)")
 	room.scroll = 99999.0
 	print("scroll limitado a la derecha: ", room.scroll)
 	room.scroll = -50.0
@@ -176,7 +176,7 @@ func _initialize() -> void:
 	gs.room_styles = {}
 	gs.current_room = 0
 	gs.load_game()
-	print("partida vieja: sofa x=", _item(gs, "furn_sofa").get("x"), " (esperado 0.25) planta x=", _item(gs, "furn_plant").get("x"), " (esperado 0.5) sala=", _item(gs, "furn_sofa").get("room"), " pared=", gs.equipped.get("wall"))
+	print("partida vieja: sofa x=", _item(gs, "furn_sofa").get("x"), " (esperado 0.333) planta x=", _item(gs, "furn_plant").get("x"), " (esperado 0.5) sala=", _item(gs, "furn_sofa").get("room"), " pared=", gs.equipped.get("wall"))
 
 	# --- todas las habitaciones se dibujan sin errores
 	gs.owned = Catalog.ITEMS.map(func(x): return x["id"])

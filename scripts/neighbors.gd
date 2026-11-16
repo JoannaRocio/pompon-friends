@@ -34,10 +34,10 @@ const DAILY_KEYS := ["visit", "pet", "play", "gift"]
 const LEVELS := [[0, "Conocidos"], [25, "Compañeros"], [50, "Amigos"], [75, "Mejores amigos"]]
 
 const FLOOR_SPOTS := [
-	Vector2(0.16, 0.70), Vector2(0.84, 0.70), Vector2(0.16, 0.78), Vector2(0.84, 0.78),
-	Vector2(0.36, 0.67), Vector2(0.64, 0.67), Vector2(0.36, 0.78), Vector2(0.64, 0.78),
+	Vector2(0.16, 0.60), Vector2(0.84, 0.60), Vector2(0.16, 0.68), Vector2(0.84, 0.68),
+	Vector2(0.36, 0.57), Vector2(0.64, 0.57), Vector2(0.36, 0.68), Vector2(0.64, 0.68),
 ]
-const WALL_SPOTS := [Vector2(0.22, 0.34), Vector2(0.78, 0.34), Vector2(0.50, 0.28), Vector2(0.50, 0.46)]
+const WALL_SPOTS := [Vector2(0.22, 0.27), Vector2(0.78, 0.27), Vector2(0.50, 0.22), Vector2(0.50, 0.36)]
 
 static var current := ""   # vecino que se esta visitando
 static var buddy := {}     # el vecino que se crea solo, de la misma edad que tu Pompon (NPC)
@@ -143,10 +143,11 @@ static func _build_real(entry: Dictionary) -> Dictionary:
 	var floor_item := str(snap.get("floor", ""))
 	var placed := []
 	var items = snap.get("placed", [])
+	var layout := clampi(int(snap.get("layout", 2)), 1, Rooms.LAYOUT)   # tarjetas viejas: cuarto de 2 pantallas
 	if typeof(items) == TYPE_ARRAY:
 		for it in items.slice(0, 60):
 			if typeof(it) == TYPE_DICTIONARY and Catalog.is_placeable(str(it.get("id", ""))):
-				var e := {"id": str(it["id"]), "x": clampf(float(it.get("x", 0.5)), 0.0, 1.0), "y": clampf(float(it.get("y", 0.7)), 0.0, 1.0)}
+				var e := Rooms.migrate_entry({"id": str(it["id"]), "x": clampf(float(it.get("x", 0.5)), 0.0, 1.0), "y": clampf(float(it.get("y", 0.7)), 0.0, 1.0)}, layout)
 				if str(it.get("on", "")) != "":
 					e["on"] = str(it["on"])
 					e["ox"] = float(it.get("ox", 0.0))
