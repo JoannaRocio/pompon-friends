@@ -58,5 +58,30 @@ func _initialize() -> void:
 	print("lugares nuevos: ", ys)
 	if ys["rug_round"] < 0.7 or ys["furn_sofa"] > 0.6:
 		print("FALLA: lugares de lo recien comprado")
+	# contra la pared: la biblioteca recien comprada va atras con el pie sobre la linea del piso, y al
+	# arrastrarla cerca de la pared se pega
+	gs.placed = []
+	gs.owned = ["furn_bookshelf"]
+	gs.place_item("furn_bookshelf")
+	var shelf: Dictionary = gs.placed[0]
+	var foot: float = float(shelf["y"]) * 1280.0 + ItemArt.size_of("furn_bookshelf").y * 0.5
+	print("biblioteca nueva contra la pared: pie a ", snappedf(foot - Rooms.FLOOR_START * 1280.0, 0.1), " px de la linea del piso")
+	var room: Control = load("res://scripts/room_view.gd").new()
+	room.custom_minimum_size = Vector2(720, 1280)
+	room.size = Vector2(720, 1280)
+	root.add_child(room)
+	await process_frame
+	room.set_state("", "", gs.placed, 0)
+	room.edit_mode = true
+	shelf["y"] = 0.7
+	room.selected = "furn_bookshelf"
+	room._dragging = true
+	room._drag_offset = Vector2.ZERO
+	room._pointer = Vector2(360, Rooms.wall_y("furn_bookshelf") * 1280.0 + 20.0)   # 20 px delante de la pared
+	room._apply_drag()
+	print("arrastrada cerca de la pared se pega: ", absf(float(shelf["y"]) - Rooms.wall_y("furn_bookshelf")) < 0.0001, " linea rosa=", room._at_wall)
+	room._pointer = Vector2(360, 1000)
+	room._apply_drag()
+	print("lejos de la pared queda donde se suelta: ", float(shelf["y"]) > 0.7, " linea rosa=", room._at_wall)
 	gs.reset_game()
 	quit()

@@ -3,4 +3,7 @@ partida vieja: { "furn_sofa": (0.5, 0.56), "furn_plant": (0.233, 0.56), "deco_pi
 lo decorado queda en el medio y contra la pared: true
 piso desde=0.5 sofa sobre la linea del piso=0.06
 amigo viejo: x=0.5 y=0.56 | amigo nuevo: x=0.2 y=0.7 flip=true
-lugares nuevos: { "rug_round": 0.74, "furn_sofa": 0.58, "furn_table": 0.58 }
+lugares nuevos: { "rug_round": 0.74, "furn_sofa": 0.46, "furn_table": 0.46 }
+biblioteca nueva contra la pared: pie a 12.0 px de la linea del piso
+arrastrada cerca de la pared se pega: true linea rosa=true
+lejos de la pared queda donde se suelta: true linea rosa=false

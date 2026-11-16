@@ -8,7 +8,8 @@ signal selection_changed(item_id: String)
 signal panned   # el jugador movio la camara con el dedo
 
 const OUTLINE := Color("5b3a4a")
-const FLOOR_START := 0.5  # fraccion de alto donde empieza el piso (16/11/2026: era 0.6; mas piso para decorar)
+const FLOOR_START := Rooms.FLOOR_START  # fraccion de alto donde empieza el piso (16/11/2026: era 0.6; mas piso para decorar)
+const WALL_SNAP := 34.0       # px: un mueble arrastrado cerca de la pared se pega contra ella
 const FLOOR_Y_RANGE := Vector2(0.54, 0.86)  # donde pueden ir los muebles de piso (centro)
 const WALL_Y_RANGE := Vector2(0.10, 0.40)
 const BOTTOM_RESERVE := 250.0  # px de abajo ocupados por la barra de botones: los muebles llegan hasta ahi
@@ -53,6 +54,7 @@ var _panning := false
 var _drag_offset := Vector2.ZERO
 var _pointer := Vector2.ZERO
 var _snap_support := ""
+var _at_wall := false   # el mueble que se arrastra quedo pegado contra la pared
 var _hour_bucket := -1
 var _check := 0.0
 var _scroll_tween: Tween
@@ -203,7 +205,13 @@ func _items() -> Array:
 ## Los muebles de piso no pueden bajar hasta los botones de abajo (ni el panel de decorar).
 func _floor_y_max(id: String) -> float:
 	var half := ItemArt.size_of(id).y * 0.5
-	return maxf(FLOOR_Y_RANGE.x, (size.y - BOTTOM_RESERVE - half) / size.y)
+	return maxf(_floor_y_min(id), (size.y - BOTTOM_RESERVE - half) / size.y)
+
+
+## Lo mas atras que puede ir un mueble de piso: contra la pared (los altos, como la biblioteca o el armario,
+## quedan apoyados en ella).
+func _floor_y_min(id: String) -> float:
+	return Rooms.wall_y(id, size.y)
 
 
 ## Centro del item en px del mundo. Los adornos apoyados siguen a su mueble.
@@ -217,7 +225,7 @@ func _item_center(p: Dictionary) -> Vector2:
 			return _item_center(support) + Vector2(float(p.get("ox", 0.0)), float(surf["dy"]) - half_h + 3.0)
 	var y: float = p["y"]
 	if not _is_wall_item(p["id"]):
-		y = minf(y, _floor_y_max(p["id"]))
+		y = clampf(y, _floor_y_min(p["id"]), _floor_y_max(p["id"]))
 	return Vector2(p["x"] * world_w(), y * size.y)
 
 
@@ -371,6 +379,10 @@ func _gradient(r: Rect2, from: Color, to: Color, horizontal := false) -> void:
 
 
 func _draw_edit_marks() -> void:
+	if _dragging and _at_wall and selected != "":   # linea rosa al pie de la pared: "queda contra la pared"
+		var wr := _item_rect(_find(selected))
+		var fy := size.y * FLOOR_START
+		_canvas.draw_line(Vector2(wr.position.x - 20.0, fy), Vector2(wr.end.x + 20.0, fy), Color("ff7aa0"), 8.0, true)
 	var dragging_small := _dragging and Catalog.is_small(selected)
 	if dragging_small:  # lineas rosas donde se puede apoyar el adorno
 		for p in _items():
@@ -451,6 +463,7 @@ func _on_release() -> void:
 	_dragging = false
 	_panning = false
 	_snap_support = ""
+	_at_wall = false
 	redraw()
 
 
@@ -471,10 +484,15 @@ func _apply_drag() -> void:
 			return
 		_snap_support = ""
 		GameState.detach_item(id)
-	var y_range := WALL_Y_RANGE if wall else Vector2(FLOOR_Y_RANGE.x, _floor_y_max(id))
+	var y_range := WALL_Y_RANGE if wall else Vector2(_floor_y_min(id), _floor_y_max(id))
 	if Catalog.is_small(id):
 		y_range = Vector2(WALL_Y_RANGE.x, _floor_y_max(id))
-	GameState.move_item(id, nx, clampf(pos.y / size.y, y_range.x, y_range.y))
+	var ny := clampf(pos.y / size.y, y_range.x, y_range.y)
+	_at_wall = false
+	if not wall and not Catalog.is_small(id) and not Catalog.is_rug(id) and (ny - y_range.x) * size.y < WALL_SNAP:
+		ny = y_range.x   # cerca de la pared: se pega contra ella
+		_at_wall = true
+	GameState.move_item(id, nx, ny)
 	redraw()
 
 
@@ -485,7 +503,7 @@ func _drop_selected() -> void:
 	var p := _find(selected)
 	if p.is_empty() or str(p.get("on", "")) != "":
 		return
-	GameState.move_item(selected, p["x"], clampf(p["y"], FLOOR_Y_RANGE.x, _floor_y_max(selected)))
+	GameState.move_item(selected, p["x"], clampf(p["y"], _floor_y_min(selected), _floor_y_max(selected)))
 
 
 ## La superficie (de un mueble o estante) donde se apoyaria `id` si estuviera con el centro en `center`.

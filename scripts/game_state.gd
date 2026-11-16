@@ -111,6 +111,9 @@ func place_item(item_id: String, at := Vector2(-1.0, -1.0), near_x := 0.5) -> vo
 		if Catalog.is_rug(item_id):   # las alfombras van adelante, en el medio del piso, y solo esquivan otras alfombras
 			spots = spots.filter(func(sp): return sp.y > 0.65).map(func(sp): return Vector2(sp.x, 0.74))
 			same_zone = in_room.filter(func(p): return Catalog.is_rug(p["id"]))
+		elif not is_wall:   # la fila de atras queda contra la pared (la biblioteca, la cuna, el armario...)
+			var wy := Rooms.wall_y(item_id)
+			spots = spots.map(func(sp): return Vector2(sp.x, wy) if sp.y < 0.65 else sp)
 		at = ItemArt.best_spot(item_id, spots, same_zone, ROOM_REF_WORLD)
 	var half := ItemArt.size_of(item_id).x * 0.5 / (ROOM_REF_WIDTH * Rooms.WORLD_SCREENS) + 0.02
 	entry["x"] = clampf(at.x, half, 1.0 - half)

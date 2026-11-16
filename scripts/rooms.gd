@@ -7,6 +7,17 @@ const WORLD_SCREENS := 3.0   # ancho de cada habitacion, en pantallas
 ## Version del dibujo del cuarto (se guarda como `room_layout`): 1 = una pantalla; 2 = dos pantallas y la
 ## pared hasta el 60 % del alto; 3 (16/11/2026) = tres pantallas y la pared hasta el 50 % (piso mas profundo).
 const LAYOUT := 3
+const FLOOR_START := 0.5   # fraccion del alto donde termina la pared y empieza el piso
+const WALL_GAP := 12.0     # px que el pie de un mueble "contra la pared" queda por debajo de esa linea
+
+
+## Altura (fraccion, centro del item) mas atras donde puede ir un mueble de piso: contra la pared, con el pie
+## apoyado justo sobre la linea del piso. Las alfombras, en cambio, quedan enteras sobre el piso.
+static func wall_y(id: String, h := 1280.0) -> float:
+	var half := ItemArt.size_of(id).y * 0.5
+	if Catalog.is_rug(id):
+		return (FLOOR_START * h + half + 6.0) / h
+	return (FLOOR_START * h + WALL_GAP - half) / h
 
 const LIST := [
 	{"id": "sala", "name": "Sala", "level": 1, "wall": "", "floor": "", "rug": "cfe8f3", "icon": "house"},
@@ -30,6 +41,8 @@ static func migrate_entry(e: Dictionary, from: int) -> Dictionary:
 		x = 1.0 / 6.0 + x * 2.0 / 3.0
 		if Catalog.get_item(str(e.get("id", ""))).get("category", "") == "deco":
 			y = 0.08 + (y - 0.09) * 0.32 / 0.41
+		elif y - 0.1 <= 0.545:   # estaba lo mas atras posible: ahora queda contra la pared
+			y = wall_y(str(e.get("id", "")))
 		else:
 			y -= 0.1
 	var out := e.duplicate()
