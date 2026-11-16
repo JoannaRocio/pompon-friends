@@ -29,23 +29,28 @@ func _initialize() -> void:
 	print("aviso al crecer: '", gs.stage_news, "'")
 	gs.stage_news = ""
 
-	# 3) Abandono: la nota se conserva en el guardado y se muestra en la casa.
+	# 3) Muchos dias sin cuidados: ya no se va; vuelve de lo de su abuela y la casa lo festeja.
 	gs.coins = 77
 	gs.pompon.neglect_seconds = 30.0 * 86400.0 - 0.05
 	gs.pompon.stats["alimentacion"] = 0.0
 	await create_timer(0.5).timeout
-	print("pompon se fue: ", gs.pompon == null, " coins conserva=", gs.coins)
-	print("nota guardada: ", gs.farewell.left(46).replace("\n", " "))
+	print("pompon sigue: ", gs.pompon != null, " coins conserva=", gs.coins, " vuelve=", gs.welcome_back,
+		" comida>=34: ", gs.pompon.stats["alimentacion"] >= 34.0, " descuido=", gs.pompon.neglect_seconds)
+	gs.save_game()
 	gs.last_stage = -1
 	gs.load_game()
-	print("nota tras recargar: ", gs.farewell != "")
+	print("aviso tras recargar: ", gs.welcome_back, " nota de despedida: ", gs.farewell == "")
 	var h: Control = load("res://scenes/home.tscn").instantiate()
 	root.add_child(h)
 	await create_timer(0.4).timeout
-	print("modal de despedida visible: ", h._note_panel != null)
-	h._note_panel.get_child(0).get_child(2).pressed.emit()  # "Mas tarde"
+	var shown := h._night_notice is BigNotice
+	print("cartel de bienvenida visible: ", shown)
+	if not shown:
+		print("FALLA: no se ve el cartel de bienvenida")
+	else:
+		h._night_notice.box.get_child(h._night_notice.box.get_child_count() - 1).pressed.emit()   # "¡Un abrazo!"
 	await process_frame
-	print("tras 'Mas tarde': nota=", gs.farewell == "", " sin pompon=", gs.pompon == null)
+	print("tras el abrazo: aviso=", gs.welcome_back, " sigue el pompon=", gs.pompon != null)
 
 	# 4) Boton atras de Android.
 	var ok := true

@@ -19,13 +19,8 @@ func _initialize() -> void:
 	root.add_child(board)
 	await process_frame
 	await process_frame
-	# la primera vez sale el cartel "Para cuidar a tu Pompon necesitas monedas": mientras tanto no hay flecha
-	print("ofertas: cartel de la primera vez=", board._layer != null, " | sin flecha encima del cartel=", not board._arrow.visible)
-	for b in board._layer.find_children("*", "Button", true, false):
-		if b.text == "¡Vamos!":
-			b.pressed.emit()
-	await process_frame
-	await process_frame
+	# ya no hay cartel al entrar ("Para cuidar a tu Pompon necesitas monedas" se junto con el de "primer trabajo")
+	print("ofertas: sin cartel al entrar=", board._layer == null)
 	print("ofertas: flecha visible=", board._arrow.visible, " apunta a Aplicar=", board._arrow.target in board._apply_buttons)
 	board.queue_free()
 

@@ -172,6 +172,7 @@ func _initialize() -> void:
 		var level_ups := 0
 		var downs := 0
 		for s in 8:
+			gs.paid_shifts_day = -1   # (cada turno como en un dia distinto: aca se prueba la paga, no el tope diario)
 			var before: int = gs.coins
 			var pay: int = gs.job_pay()   # depende del nivel de profesor/a al empezar el turno
 			var res := _shift(gs, "mul", rng, prof[0], prof[1])

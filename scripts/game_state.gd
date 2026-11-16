@@ -378,6 +378,12 @@ func claim_pass_tier(tier: int) -> bool:
 
 # --- Trabajo en el periodico (profesor/a de matematicas e ingles) ---
 var jobs_done := 0
+# Turnos con paga completa por dia: despues se puede seguir practicando, pero paga poco (asi las monedas
+# siguen valiendo y hay motivo para volver al otro dia). Cuenta por dia del jugador (Missions.today).
+const PAID_SHIFTS_PER_DAY := 3
+const PRACTICE_PAY := 5        # paga de un turno de practica (cuando ya se cobraron los del dia)
+var paid_shifts_day := -1      # dia de los turnos pagos contados en paid_shifts
+var paid_shifts := 0
 var player_title := ""     # sexo / como quiere que lo llamen: "f", "m" o "n" (vacio = todavia no eligio)
 var player_name := ""      # nombre del jugador (se pregunta la primera vez que juega)
 const PLAYER_NAME_MAX := 14
@@ -510,7 +516,14 @@ func finish_job(camino: String, correct: int, total: int, full := false) -> Dict
 		st["history"] = []  # en el nivel nuevo se junta evidencia nueva
 	var career_before := career_level()
 	var pay := job_pay()   # la paga depende del nivel de profesor/a, no de la nota
-	var extra: int = problems.FULL_SHIFT_BONUS if full else 0
+	var paid := paid_shifts_left() > 0
+	var extra: int = problems.FULL_SHIFT_BONUS if full and paid else 0
+	if paid:
+		var today := Missions.today(int(Time.get_unix_time_from_system()))
+		if paid_shifts_day != today:
+			paid_shifts_day = today
+			paid_shifts = 0
+		paid_shifts += 1
 	coins += pay + bonus + extra
 	jobs_done += 1
 	var career_after := career_level()
@@ -518,7 +531,7 @@ func finish_job(camino: String, correct: int, total: int, full := false) -> Dict
 	Audio.play("success" if bonus > 0 or extra > 0 else "coin")
 	var grade: Dictionary = problems.grade(correct, total)
 	save_game()
-	return {"pay": pay, "bonus": bonus, "extra": extra, "full": full, "note": grade["note"], "title": grade["title"], "message": grade["message"],
+	return {"pay": pay, "bonus": bonus, "extra": extra, "full": full, "paid": paid, "paid_left": paid_shifts_left(), "note": grade["note"], "title": grade["title"], "message": grade["message"],
 		"action": action, "reason": decision["reason"], "level_before": before, "level_after": after, "history": snapshot,
 		"career_before": career_before, "career_after": career_after, "promoted": career_after > career_before}
 
@@ -528,8 +541,18 @@ func career_level() -> int:
 	return Jobs.career_level(jobs_done)
 
 
+## Lo que paga el proximo turno: la paga del nivel de profesor/a, o la de practica si hoy ya se cobraron
+## los PAID_SHIFTS_PER_DAY turnos.
 func job_pay() -> int:
-	return Jobs.pay_for_level(career_level())
+	return Jobs.pay_for_level(career_level()) if paid_shifts_left() > 0 else PRACTICE_PAY
+
+
+## Turnos con paga completa que quedan hoy. Mientras el huevo espera su cuna no hay tope (nunca se traba).
+func paid_shifts_left() -> int:
+	if egg_waiting() and not owns_crib():
+		return PAID_SHIFTS_PER_DAY
+	var used := paid_shifts if paid_shifts_day == Missions.today(int(Time.get_unix_time_from_system())) else 0
+	return maxi(0, PAID_SHIFTS_PER_DAY - used)
 
 
 # --- Vecinos y regalo diario ---
@@ -742,7 +765,8 @@ func new_pompon(species := "", sex := "") -> Pompon:
 
 
 # Avisos pendientes para la pantalla de la casa (se consumen al mostrarse).
-var farewell := ""      # nota de despedida cuando el Pompon se va
+var farewell := ""      # nota de despedida de partidas viejas (antes el Pompon se iba tras 30 dias sin cuidados)
+var welcome_back := false   # el Pompon volvio de lo de su abuela: la casa lo festeja una vez
 var level_seen := 0   # ultimo nivel del Pompon que ya se festejo (para avisar los items nuevos)
 
 
@@ -767,7 +791,7 @@ func _process(delta: float) -> void:
 	if pompon == null:
 		return
 	if pompon.advance(delta, PomponPlay.cozy(placed_ids())):
-		_pompon_abandons()
+		_pompon_comes_back()
 		return
 	_check_stage(delta)
 	_autosave -= delta  # la app puede cerrarse en cualquier momento en el celular
@@ -790,6 +814,16 @@ func _check_stage(delta: float) -> void:
 	last_stage = idx
 
 
+## Tras muchos dias sin cuidados (Pompon.ABANDON_SECONDS) el Pompon ya no se va para siempre: estuvo unos
+## dias en lo de su abuela y vuelve cuando el jugador vuelve, con hambre pero bien. La casa lo festeja.
+func _pompon_comes_back() -> void:
+	pompon.neglect_seconds = 0.0
+	for s in ["alimentacion", "hidratacion", "aseo"]:
+		pompon.stats[s] = maxf(float(pompon.stats[s]), 35.0)
+	welcome_back = true   # (se guarda con el autoguardado: aca puede estar a mitad de cargar la partida)
+
+
+## (Ya no se usa: era cuando el Pompon se iba de casa. Queda por si hiciera falta de nuevo.)
 func _pompon_abandons() -> void:
 	var name := pompon.display_name()
 	var species := pompon.species
@@ -879,10 +913,10 @@ func save_dict() -> Dictionary:
 		"room_layout": Rooms.LAYOUT, "current_room": current_room, "room_styles": room_styles, "journal": journal, "events": events, "buddy": buddy,
 		"missions_day": missions_day, "mission_progress": mission_progress,
 		"missions_claimed": missions_claimed, "pass_xp": pass_xp, "pass_claimed": pass_claimed,
-		"farewell": farewell, "last_stage": last_stage, "tips_seen": tips_seen,
+		"farewell": farewell, "welcome_back": welcome_back, "last_stage": last_stage, "tips_seen": tips_seen,
 		"friend_points": friend_points, "friend_actions": friend_actions, "neighbors_met": neighbors_met,
 		"daily_gift_day": daily_gift_day, "gift_streak": gift_streak,
-		"jobs_done": jobs_done, "level_seen": level_seen, "player_title": player_title, "player_name": player_name, "math_progress": math_progress, "math_weak": math_weak,
+		"jobs_done": jobs_done, "paid_shifts_day": paid_shifts_day, "paid_shifts": paid_shifts, "level_seen": level_seen, "player_title": player_title, "player_name": player_name, "math_progress": math_progress, "math_weak": math_weak,
 		"cloud_code": cloud_code, "cloud_synced_at": cloud_synced_at,
 		"friend_code": friend_code, "friend_secret": friend_secret, "friends": friends,
 		"friend_requests": friend_requests, "friend_sent": friend_sent,
@@ -1474,6 +1508,7 @@ func apply_save(parsed: Dictionary) -> void:
 	missions_claimed = parsed.get("missions_claimed", [])
 	pass_xp = int(parsed.get("pass_xp", 0))
 	farewell = str(parsed.get("farewell", ""))
+	welcome_back = bool(parsed.get("welcome_back", false))
 	last_stage = int(parsed.get("last_stage", -1))
 	tips_seen = parsed.get("tips_seen", [])
 	friend_points = parsed.get("friend_points", {})
@@ -1486,6 +1521,8 @@ func apply_save(parsed: Dictionary) -> void:
 	daily_gift_day = int(parsed.get("daily_gift_day", 0))
 	gift_streak = int(parsed.get("gift_streak", 0))
 	jobs_done = int(parsed.get("jobs_done", 0))
+	paid_shifts_day = int(parsed.get("paid_shifts_day", -1))
+	paid_shifts = int(parsed.get("paid_shifts", 0))
 	level_seen = int(parsed.get("level_seen", 0))
 	var saved_title := str(parsed.get("player_title", ""))
 	player_title = saved_title if saved_title in ["f", "m", "n"] else ""
@@ -1510,7 +1547,7 @@ func apply_save(parsed: Dictionary) -> void:
 		var away := float(int(Time.get_unix_time_from_system()) - last_saved)
 		offline_seconds = int(maxf(away, 0.0))
 		if pompon.advance(away, PomponPlay.cozy(placed_ids())):
-			_pompon_abandons()
+			_pompon_comes_back()
 		elif not pompon.hatched and owns_crib():
 			hatch_now()
 	buddy = {}
@@ -1585,7 +1622,7 @@ func _catch_up_after_pause() -> void:
 	var away := float(int(Time.get_unix_time_from_system()) - _paused_at)
 	_paused_at = 0
 	if pompon.advance(away, PomponPlay.cozy(placed_ids())):
-		_pompon_abandons()
+		_pompon_comes_back()
 
 
 func _on_back() -> void:

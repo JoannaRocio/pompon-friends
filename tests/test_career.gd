@@ -35,22 +35,22 @@ func _initialize() -> void:
 		" | ahora paga ", gs.job_pay())
 	gs.coins = before
 
-	# ofertas la primera vez: cartel 1, y al aplicar cartel 2 con la ficha
+	# ofertas la primera vez: sin cartel al entrar; al aplicar, el cartel con la ficha y para que son las monedas
 	gs.jobs_done = 0
 	var board: Control = load("res://scenes/job_board.tscn").instantiate()
 	root.add_child(board)
 	await process_frame
 	await process_frame
-	print("cartel 1 en las ofertas: ", board._layer is BigNotice, " | flecha escondida mientras: ", not board._arrow.visible)
-	board._layer.box.get_child(board._layer.box.get_child_count() - 1).pressed.emit()
-	await process_frame
-	print("cartel 1 visto: ", gs.tips_seen.has("job_intro"), " | sin ficha todavia: ", not _is_card(board._slot.get_child(0)))
+	print("ofertas sin cartel al entrar: ", board._layer == null, " | sin ficha todavia: ", not _is_card(board._slot.get_child(0)))
 	board._open("math")
 	await process_frame
 	var has_card := false
 	for c in board._layer.box.get_children():
 		has_card = has_card or _is_card(c)
-	print("cartel 2 al aplicar: ", board._layer is BigNotice, " con ficha: ", has_card)
+	var says_coins := false
+	for l in board._layer.find_children("*", "Label", true, false):
+		says_coins = says_coins or l.text.contains("Con las monedas")
+	print("cartel 2 al aplicar: ", board._layer is BigNotice, " con ficha: ", has_card, " | dice para que son las monedas: ", says_coins)
 	board.queue_free()
 
 	# fin del primer turno: cartel 3 antes del resultado

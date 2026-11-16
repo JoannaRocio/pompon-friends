@@ -16,6 +16,8 @@ config/quit_on_go_back=false
 config/features=PackedStringArray("4.7", "Mobile")
 run/max_fps=60
 config/icon="res://assets/icon.png"
+boot_splash/bg_color=Color(1, 0.91, 0.93, 1)
+boot_splash/image="res://assets/icon_fg.png"
 
 [audio]
 

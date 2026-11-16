@@ -93,7 +93,7 @@ func _initialize() -> void:
 
 	# --- regalo + tutorial de ninos
 	await create_timer(0.5).timeout
-	h._gift_panel.get_child(0).get_child(1).pressed.emit()
+	print("regalo del dia: espera a que nazca=", h._gift_panel == null)
 	await create_timer(2.4).timeout
 	var tip1: String = h._tip_panel.get_child(0).get_child(1).text
 	print("guia 1: ", tip1)

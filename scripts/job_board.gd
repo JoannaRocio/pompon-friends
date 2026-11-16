@@ -127,9 +127,7 @@ func _ready() -> void:
 	_arrow.prefer_below = true  # arriba de T.s("Aplicar") esta T.s("Cambiar"): la flecha va debajo
 	add_child(_arrow)
 	_rebuild()
-	if not GameState.tips_seen.has(TIP_INTRO) and GameState.jobs_done == 0:
-		_show_intro.call_deferred()
-	elif not GameState.has_profile():  # por si se llega sin haber pasado por el menu
+	if not GameState.has_profile():  # por si se llega sin haber pasado por el menu
 		_ask_profile.call_deferred(false)
 
 
@@ -176,32 +174,19 @@ func _name_row() -> Control:
 	return who
 
 
-## Cartel 1 (la primera vez): trabajar da monedas, y con monedas se cuida al Pompon.
-func _show_intro() -> void:
-	var notice := BigNotice.new()
-	_layer = notice
-	add_child(notice)
-	notice.add(BigNotice.icon_strip([["case", Color("ff9b54")], ["coin", Color("ffcf3f")], ["heart", Color("ff7aa8")]]))
-	notice.title(T.s("Para cuidar a tu Pompon necesitas monedas"))
-	notice.text_line(T.s("¡Consíguelas trabajando!"), 30, Color("a0527a"))
-	notice.button(T.s("¡Vamos!"), func():
-		GameState.tips_seen.append(TIP_INTRO)
-		GameState.save_game()
-		notice.close()
-		_layer = null
-		if not GameState.has_profile():
-			_ask_profile(false))
-
-
-## Cartel 2 (al aplicar la primera vez): ¡primer trabajo! y aparece la ficha de profesor/a.
+## Cartel al aplicar la primera vez: ¡primer trabajo!, la ficha de profesor/a y para que sirven las monedas.
+## (Antes habia otro cartel al entrar, "Para cuidar a tu Pompon necesitas monedas": se junto con este
+## para que haya menos carteles antes de que nazca el Pompon.)
 func _show_hired(job: Dictionary) -> void:
 	var notice := BigNotice.new(660.0)
 	_layer = notice
 	add_child(notice)
 	notice.title(T.s("¡Conseguiste tu primer trabajo!"))
 	notice.add(TeacherCard.new().setup(1))
-	notice.text_line(T.s("Sube de nivel trabajando y gana más monedas."), 26, Color("a0527a"))
+	notice.text_line(T.s("Con las monedas cuidas a tu Pompon."), 26, Color("a0527a"))
 	notice.button(T.s("¡A trabajar!"), func():
+		if not GameState.tips_seen.has(TIP_INTRO):
+			GameState.tips_seen.append(TIP_INTRO)
 		GameState.tips_seen.append(TIP_HIRED)
 		GameState.save_game()
 		get_tree().change_scene_to_file(job["scene"]))

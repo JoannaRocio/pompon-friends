@@ -173,7 +173,7 @@ func _advance_sleep(seconds: float, cozy: bool) -> void:
 	stats["sueno"] = v
 
 
-## Aplica el paso del tiempo. Devuelve true si el Pompon se va por abandono.
+## Aplica el paso del tiempo. Devuelve true tras ABANDON_SECONDS sin cuidados (GameState lo hace volver de lo de su abuela).
 ## Comodidad: baja con el tiempo y sube cuando usa los muebles de su cuarto (sentarse, acostarse,
 ## calentarse junto al fuego... ver PomponPlay). `cozy` = tiene donde descansar: no baja de COZY_FLOOR.
 func advance(seconds: float, cozy := false) -> bool:

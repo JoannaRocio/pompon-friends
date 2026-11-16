@@ -16,6 +16,8 @@ const SIGNAL_GAP := Vector2(11.0, 15.0)
 const EXAM_HINT := 4.0     # segundos con la mano levantada antes de que la flecha señale el examen
 const TIP_FIRST_SHIFT := "job_first_shift"   # cartel "¡Perfecto! ya sabes lo basico" (ya visto)
 const OPTION_HINT := 8.0   # segundos sin responder antes de que la flecha recorra las respuestas
+const FIRST_SHIFT_QUESTIONS := 3     # el primer turno es corto: el huevo espera la cuna
+const FIRST_SHIFT_SECONDS := 45.0
 
 var camino := "addsub"
 var subject := "math"          # "math", "english" o "geography" (ver Jobs.current)
@@ -31,6 +33,7 @@ var answer_times: Array = []   # segundos que tardo en cada respuesta
 var exam_ready := false        # un alumno tiene la mano levantada
 var time_left := MathProblems.SHIFT_SECONDS
 var full_shift := false         # el turno llego a su fin (todos los examenes o se acabo el tiempo)
+var shift_questions := MathProblems.QUESTIONS_PER_SHIFT   # examenes de este turno (menos en el primero)
 
 var classroom: ClassroomView
 var sorter: SortField
@@ -104,6 +107,9 @@ func _ready() -> void:
 	problems = Jobs.problems(subject)
 	camino = Jobs.current_track(subject)
 	level = GameState.math_level(camino)
+	if GameState.jobs_done == 0:
+		shift_questions = FIRST_SHIFT_QUESTIONS
+		time_left = FIRST_SHIFT_SECONDS
 	_build_ui()
 	if GameState.jobs_done == 0:
 		_show_intro()
@@ -168,6 +174,7 @@ func _build_ui() -> void:
 	dots_card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.94), 30, Color.WHITE, 3, 6))
 	top.add_child(dots_card)
 	_dots = QuestionDots.new()
+	_dots.total = shift_questions
 	_dots.custom_minimum_size = Vector2(170, 34)
 	dots_card.add_child(_dots)
 	_timer_chip = PanelContainer.new()
@@ -280,7 +287,9 @@ func _show_intro() -> void:
 	Hud.style_primary(go, 40)
 	go.pressed.connect(func():
 		_close_layer()
-		_show_lesson_or_play())
+		# primer turno: sin el cartel de la leccion (el nivel 1 es facil y ya hubo un cartel)
+		GameState.mark_lesson_seen(camino, level)
+		_start_play())
 	box.add_child(go)
 
 
@@ -627,7 +636,7 @@ func _end_question() -> void:
 	questions_done += 1
 	if _dots.results.size() > 0 and _dots.results[_dots.results.size() - 1]:
 		classroom.cheer(5)
-	if questions_done >= MathProblems.QUESTIONS_PER_SHIFT:
+	if questions_done >= shift_questions:
 		full_shift = true
 		_finish(true)
 	else:
@@ -764,6 +773,10 @@ func _show_result(res: Dictionary) -> void:
 	pay_text.autowrap_mode = TextServer.AUTOWRAP_OFF
 	pay.add_child(pay_text)
 	box.add_child(pay)
+	if not res.get("paid", true):
+		box.add_child(_label(T.s("Hoy ya cobraste tus %d turnos: este fue de práctica. ¡Mañana vuelve la paga completa!") % GameState.PAID_SHIFTS_PER_DAY, 26, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
+	elif int(res.get("paid_left", 1)) == 0:
+		box.add_child(_label(T.s("Fue tu último turno con paga de hoy. ¡Mañana hay más!"), 26, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 	if res["extra"] > 0:
 		var extra_row := HBoxContainer.new()
 		extra_row.alignment = BoxContainer.ALIGNMENT_CENTER

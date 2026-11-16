@@ -1,5 +1,5 @@
 guia con 0 trabajos: true (esperado true)
-ofertas: cartel de la primera vez=true | sin flecha encima del cartel=true
+ofertas: sin cartel al entrar=true
 ofertas: flecha visible=true apunta a Aplicar=true
 aula: flecha recorre 3 botones Trabajar (esperado 3) visible=true
 aula con monedas: señala tienda=true

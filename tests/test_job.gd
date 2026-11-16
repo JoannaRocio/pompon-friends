@@ -77,16 +77,12 @@ func _initialize() -> void:
 	intro_box.get_child(intro_box.get_child_count() - 1).pressed.emit()  # "A ensenar!"
 	await process_frame
 	await process_frame
-	var lesson_text := _labels(job._layer)
-	print("leccion del nivel 1 (tabla del 2): ", lesson_text.contains("Nivel 1") and lesson_text.contains("Tabla del 2"), " | trae la tabla=", lesson_text.contains("2 × 5 = 10"))
-	var lesson: Node = job._layer.get_child(1).get_child(0)
-	var lesson_box: Node = lesson.get_child(0)
-	lesson_box.get_child(lesson_box.get_child_count() - 1).pressed.emit()  # "Entendido!" (ultimo hijo del VBox)
-	await process_frame
-	print("tras la leccion juega: estado=", job.state, " | leccion marcada como vista=", gs.lesson_seen("mul", 1))
+	# el primer turno es corto y sin el cartel de la leccion (menos carteles antes de que nazca el Pompon)
+	print("primer turno corto, sin leccion: juega directo=", job.state == 1 and job._layer == null, " | leccion marcada como vista=", gs.lesson_seen("mul", 1),
+		" | examenes=", job.shift_questions, " | reloj=", job._timer_label.text)
 
-	var played := await _play_shift(job, [1, 3])
-	print("turno terminado: estado=", job.state, " | aciertos=", job.correct, " de 5 | errores guardados=", job.mistakes.size(), " | explicaciones=", played["explanations"], " | con dibujo=", played["hints"])
+	var played := await _play_shift(job, [1])
+	print("turno terminado: estado=", job.state, " | aciertos=", job.correct, " de 3 | errores guardados=", job.mistakes.size(), " | explicaciones=", played["explanations"], " | con dibujo=", played["hints"])
 	var pay: int = load("res://scripts/jobs.gd").pay_for_level(1)
 	print("monedas: ", gs.coins, " (", pay, " de paga + 20 extra por terminar el turno) | sin premio de nivel (primer turno): ", gs.coins == pay + 20)
 	# el primer turno muestra antes el cartel del tutorial ("¡Perfecto!... compremos una cuna") y despues la nota
@@ -101,8 +97,8 @@ func _initialize() -> void:
 	print("  dice como subir (de 8)=", texts.contains("Para subir: ") and texts.contains(" / 8"))
 	print("  muestra la respuesta correcta de lo fallado=", job.mistakes.all(func(m): return texts.contains("%s = %d" % [m["text"], m["answer"]])))
 	print("repaso: ", gs.weak_facts("mul").size(), " cuentas falladas quedan para repasar | historial=", gs.math_state("mul")["history"].size(), " respuestas")
-	var times_ok: bool = job.answer_times.size() == 5 and job.answer_times.all(func(t): return t >= 0.0)
-	print("se midio el tiempo de las 5 respuestas: ", times_ok)
+	var times_ok: bool = job.answer_times.size() == 3 and job.answer_times.all(func(t): return t >= 0.0)
+	print("se midio el tiempo de las 3 respuestas: ", times_ok)
 	job.queue_free()
 	Engine.time_scale = 1.0
 	await process_frame
@@ -178,6 +174,7 @@ func _initialize() -> void:
 	await process_frame
 
 	# ---------- terminar el turno completo da monedas extra
+	gs.paid_shifts_day = -1   # (es otro dia: vuelven los turnos con paga)
 	var coins_before2: int = gs.coins
 	var job4: Control = load("res://scenes/job_game.tscn").instantiate()
 	root.add_child(job4)
@@ -188,5 +185,39 @@ func _initialize() -> void:
 	await _play_shift(job4, [])
 	var full_text := _labels(job4._layer)
 	print("turno completo: monedas ganadas=", gs.coins - coins_before2, " | dice que fue completo=", full_text.contains("Turno completo! +20"))
+	job4.queue_free()
+	await process_frame
+
+	# ---------- tope diario: despues de 3 turnos con paga, los demas son de practica (paga chica, sin extra)
+	gs.paid_shifts_day = -1
+	print("turnos con paga al empezar el dia: ", gs.paid_shifts_left(), " | paga=", gs.job_pay())
+	for i in 3:
+		gs.finish_job("mul", 5, 5, true)
+	var office2: Control = load("res://scenes/job_menu.tscn").instantiate()
+	root.add_child(office2)
+	await create_timer(0.3).timeout
+	var office2_text := _labels(office2)
+	print("tras 3 turnos: quedan=", gs.paid_shifts_left(), " | paga=", gs.job_pay(), " | el aula lo dice=", office2_text.contains("Hoy ya cobraste."), " | muestra +", gs.PRACTICE_PAY, "=", office2_text.contains("+%d" % gs.PRACTICE_PAY))
+	office2.queue_free()
+	var coins_before3: int = gs.coins
+	var job5: Control = load("res://scenes/job_game.tscn").instantiate()
+	root.add_child(job5)
+	await create_timer(0.3).timeout
+	if job5.state == 0:
+		job5._close_layer()
+		job5._start_play()
+	await _play_shift(job5, [])
+	var practice_text := _labels(job5._layer)
+	while not practice_text.contains("Nota:") and job5._layer != null:   # (puede haber un cartel de avance antes)
+		var b5: Node = job5._layer.get_child(1).get_child(0)
+		b5.get_child(b5.get_child_count() - 1).pressed.emit()
+		await process_frame
+		await process_frame
+		practice_text = _labels(job5._layer)
+	var gained: int = gs.coins - coins_before3
+	print("turno de practica: paga ", gs.PRACTICE_PAY, " (+30 si sube de nivel)=", gained == gs.PRACTICE_PAY or gained == gs.PRACTICE_PAY + 30,
+		" | sin el extra=", not practice_text.contains("Turno completo"), " | lo explica=", practice_text.contains("este fue de práctica"))
+	gs.paid_shifts_day = -1
+	print("otro dia: vuelven los turnos con paga=", gs.paid_shifts_left(), " | paga=", gs.job_pay())
 	Engine.time_scale = 1.0
 	quit()

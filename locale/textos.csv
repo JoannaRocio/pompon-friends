@@ -704,6 +704,7 @@ s:¡Consíguelas trabajando!,¡Consíguelas trabajando!,Earn them by working!
 s:¡Vamos!,¡Vamos!,Let's go!
 s:¡Conseguiste tu primer trabajo!,¡Conseguiste tu primer trabajo!,You got your first job!
 s:Sube de nivel trabajando y gana más monedas.,Sube de nivel trabajando y gana más monedas.,Level up by working and earn more coins.
+s:Con las monedas cuidas a tu Pompon.,Con las monedas cuidas a tu Pompon.,Coins help you take care of your Pompon.
 s:¡A trabajar!,¡A trabajar!,Let's work!
 s:Próximamente,Próximamente,Coming soon
 s:Aplicar,Aplicar,Apply
@@ -1878,3 +1879,10 @@ s:Álbum  %d/%d,Álbum  %d/%d,Album  %d/%d
 ¡Un sello por cada día que entras!,¡Un sello por cada día que entras!,A stamp for every day you play!
 s:¡Turno completo! +%d,¡Turno completo! +%d,Full shift! +%d
 s:Para subir: %d / %d,Para subir: %d / %d,Next level: %d / %d
+s:Hoy ya cobraste tus %d turnos: este fue de práctica. ¡Mañana vuelve la paga completa!,Hoy ya cobraste tus %d turnos: este fue de práctica. ¡Mañana vuelve la paga completa!,You already got paid for %d shifts today: this one was practice. Full pay is back tomorrow!
+s:Fue tu último turno con paga de hoy. ¡Mañana hay más!,Fue tu último turno con paga de hoy. ¡Mañana hay más!,That was your last paid shift today. More tomorrow!
+s:Turnos con paga hoy: %d de %d,Turnos con paga hoy: %d de %d,Paid shifts today: %d of %d
+s:Hoy ya cobraste. ¡Mañana hay más!,Hoy ya cobraste. ¡Mañana hay más!,Paid for today. More tomorrow!
+s:%s pasó unos días en lo de su abuela y te extrañó mucho. ¡Dale de comer y un mimo!,%s pasó unos días en lo de su abuela y te extrañó mucho. ¡Dale de comer y un mimo!,%s spent a few days at Grandma's house and missed you a lot. Give them a snack and a hug!
+s:¡Un abrazo!,¡Un abrazo!,A big hug!
+s:¡Volviste!,¡Volviste!,You came back!

@@ -2,9 +2,8 @@ tras 10h pausado: comida=60.0 (esperado ~60)
 huevo sin cuna: sigue huevo=true | sin aviso=''
 aviso al eclosionar: '¡Tu huevo eclosionó!'
 aviso al crecer: '¡Tu Pompon ahora es niño!'
-pompon se fue: true coins conserva=77
-nota guardada: *se fue de casa.*
-nota tras recargar: true
-modal de despedida visible: true
-tras 'Mas tarde': nota=true sin pompon=true
+pompon sigue: true coins conserva=77 vuelve=true comida>=34: true descuido=0.0
+aviso tras recargar: true nota de despedida: true
+cartel de bienvenida visible: true
+tras el abrazo: aviso=false sigue el pompon=true
 autosave listo, atras manejado (no se puede quitar desde headless)

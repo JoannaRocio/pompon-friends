@@ -10,6 +10,7 @@ especies: tarjetas=8 (7 + sorpresa) | siluetas planas (sin revelar diseno)=7
 sexo: ["¿Hembra o macho?", "Hembra", "Macho"]
 cigüena: huevo en el nido=true | boton ir a casa activo=true | titulo=¡Tu huevo llegó!
 Pompon creado: Conejo Macho | huevo=true
+regalo del dia: espera a que nazca=true
 guia 1: ¡Tu huevo llegó!
 Necesita una cuna para nacer.
   explica la cuna=true | no manda a Decorar=true

@@ -74,6 +74,13 @@ func _ready() -> void:
 	pick.add_theme_font_size_override("font_size", 34)
 	pick.add_theme_color_override("font_color", Color("a0527a"))
 	root.add_child(pick)
+	# turnos con paga completa que quedan hoy (despues se practica con paga chica)
+	var left := GameState.paid_shifts_left()
+	var paid_text := T.s("Turnos con paga hoy: %d de %d") % [left, GameState.PAID_SHIFTS_PER_DAY] if left > 0 \
+		else T.s("Hoy ya cobraste. ¡Mañana hay más!")
+	var paid_row := HBoxContainer.new()
+	paid_row.add_child(Hud.chip(paid_text, Color("fff0cf") if left > 0 else Color("f1e6f7"), Color("8a6d3b") if left > 0 else Color("7a56c4"), 24))
+	root.add_child(paid_row)
 
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL

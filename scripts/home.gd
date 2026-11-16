@@ -809,7 +809,9 @@ func _check_news() -> void:
 			_start_prehatch()
 	elif GameState.farewell != "" and _note_panel == null:
 		_show_farewell()
-	elif GameState.daily_gift_available() and not _any_modal() and not _edit:
+	elif GameState.welcome_back and _is_born(GameState.pompon) and not _any_modal() and not _edit:
+		_show_welcome_back()
+	elif GameState.daily_gift_available() and not _any_modal() and not _edit and _gift_ready():
 		_show_daily_gift()
 	elif _needs_name() and not _any_modal() and not _edit:
 		_show_name_dialog()
@@ -1059,6 +1061,13 @@ func _place_tip() -> void:
 
 
 ## Regalo diario de monedas (sin presion: si faltas un dia solo vuelve a empezar en 10).
+## El regalo del dia espera a que el Pompon haya nacido y tenga nombre: el primer dia, antes de nacer, ya hay
+## bastantes carteles (y el primer turno de trabajo alcanza para la cuna).
+func _gift_ready() -> bool:
+	return GameState.pompon != null and GameState.pompon.hatched and not GameState.hatch_anim_pending \
+		and not _prehatch and not _needs_name()
+
+
 func _show_daily_gift() -> void:
 	_gift_panel = PanelContainer.new()
 	_gift_panel.set_anchors_preset(Control.PRESET_CENTER)
@@ -1090,6 +1099,24 @@ func _show_daily_gift() -> void:
 		_gift_panel.queue_free()
 		_gift_panel = null)
 	box.add_child(ok)
+
+
+## Volvio despues de muchos dias: el Pompon estuvo en lo de su abuela y lo festeja (antes se iba para siempre).
+func _show_welcome_back() -> void:
+	var notice := BigNotice.new(640.0)
+	_night_notice = notice   # (cuenta como ventana abierta mientras esta)
+	add_child(notice)
+	notice.add(BigNotice.icon_strip([["heart", Color("ff7aa8")], ["smile", Color("ffcf3f")]]))
+	notice.title(T.s("¡Volviste!"))
+	notice.text_line(T.s("%s pasó unos días en lo de su abuela y te extrañó mucho. ¡Dale de comer y un mimo!") % GameState.pompon.display_name(), 28)
+	notice.button(T.s("¡Un abrazo!"), func():
+		GameState.welcome_back = false
+		GameState.save_game()
+		notice.close()
+		_night_notice = null
+		pet.celebrate(10)
+		Audio.play("success"))
+	Audio.play("ding")
 
 
 func _show_farewell() -> void:
