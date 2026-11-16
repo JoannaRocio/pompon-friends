@@ -479,8 +479,10 @@ func _area_rest(t: GDScript) -> void:
 	# textos que arma el juego
 	var Notifier: GDScript = load("res://scripts/notifier.gd")
 	var made := []
+	# Fecha fija (una semana que empieza en "te extraña") para que el orden no dependa del dia en que corre el test.
+	var fixed_now := 1794225600
 	for d in range(0, 21, 7):
-		var m: Dictionary = Notifier.message(now + d * 86400, "Mochi", true)
+		var m: Dictionary = Notifier.message(fixed_now + d * 86400, "Mochi", true)
 		made.append(m["title"])
 		made.append(m["text"])
 	made.append(Notifier.message(now, "Mochi", false)["text"])

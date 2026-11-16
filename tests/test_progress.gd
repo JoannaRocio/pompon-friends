@@ -79,7 +79,8 @@ func _initialize() -> void:
 	var local_hour := posmod(at + int(Time.get_time_zone_from_system().get("bias", 0)) * 60, 86400) / 3600
 	print("aviso: dentro de ", snappedf((at - now) / 86400.0, 0.1), " dias, a las ", local_hour, " h")
 	gs.notify_on = true
-	notifier.schedule(now)
+	# Fecha fija para el texto: el aviso rota cada semana y el test no debe depender del dia en que corre.
+	notifier.schedule(1794225600)
 	print("  programado: '", notifier.planned.get("title", ""), "' - '", notifier.planned.get("text", ""), "'")
 	notifier.cancel()
 	print("  al abrir el juego se cancela: ", notifier.planned.is_empty())
