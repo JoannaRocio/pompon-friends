@@ -17,6 +17,7 @@ const BLUE := Color("74b9ff")
 const HOME_SCENE := "res://scenes/home.tscn"
 
 var _step: Control
+var _back_target := Callable()   # a donde lleva el boton de volver del paso actual (y el "atras" de Android)
 var _species := ""
 var _sex := ""
 var _sil_material: ShaderMaterial
@@ -105,6 +106,7 @@ func _ready() -> void:
 func _new_step() -> Control:
 	if _step != null:
 		_step.queue_free()
+	_back_target = Callable()
 	_step = Control.new()
 	_step.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_step.modulate.a = 0.0
@@ -188,13 +190,30 @@ func _back_button(target: Callable) -> Button:
 		var c := b.size * 0.5
 		b.draw_polyline(PackedVector2Array([c + Vector2(8, -20), c + Vector2(-10, 0), c + Vector2(8, 20)]), Color("5b3a4a"), 7.0, true))
 	b.pressed.connect(target)
+	_back_target = target
 	return b
+
+
+## Boton "atras" de Android: vuelve un paso, como la flechita (mientras llega la cigueña no hace nada).
+func handle_back() -> bool:
+	if _back_target.is_valid():
+		Audio.play("click")
+		_back_target.call()
+	return true
+
+
+## Del primer paso se vuelve al menu; la primera vez, con el "¿Cómo te llamas?" abierto para poder cambiarlo.
+func _back_to_menu() -> void:
+	if _first:
+		GameState.set_meta("back_to_name", true)
+	get_tree().change_scene_to_file("res://scenes/menu.tscn")
 
 
 # ----------------------------------------------------------- paso 1: bienvenida
 
 func _welcome() -> void:
 	var s := _new_step()
+	s.add_child(_back_button(_back_to_menu))
 	var who := GameState.player_name if GameState.player_name != "" else T.g("welcome.friend", GameState.player_title)
 	var size_px := 104 if who.length() <= 6 else (86 if who.length() <= 9 else 68)
 	var title := RichTextLabel.new()

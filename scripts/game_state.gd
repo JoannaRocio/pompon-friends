@@ -1574,6 +1574,8 @@ func _on_back() -> void:
 	var scene := get_tree().current_scene
 	if scene == null:
 		return
+	if scene.has_method("handle_back") and scene.handle_back():   # (la pantalla vuelve un paso por su cuenta)
+		return
 	match scene.scene_file_path.get_file().get_basename():
 		"menu":
 			save_game()   # (salir con "atras" no manda el aviso de cerrar)

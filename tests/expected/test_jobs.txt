@@ -11,7 +11,7 @@ con nombre: ¡Bienvenida a la escuela, profesora Ana! | ¡Bienvenido a la escuel
 puesto: Profesora Ana | Profesor Leo | Profesor/a
 sin perfil: has_profile=false
 menu: aparece el dialogo=true | listo desactivado=true
-  botones: ["Inventar un nombre", "Soy ella", "Soy él", "¡Listo!"]
+  botones: ["Inventar un nombre", "Soy ella", "Soy él", "¡Listo!", "Volver"]
 inventar nombre: * distintos=true | valido=true | todos validos=true
   solo sexo, sin nombre: listo desactivado=true
   nombre en blanco: listo desactivado=true

@@ -23,7 +23,8 @@ var _buttons := {}
 var _last_idea := ""
 
 
-func setup(can_cancel: bool) -> void:
+## `cancel_text` cambia el texto del boton de abajo (por ejemplo "Volver" en la partida nueva).
+func setup(can_cancel: bool, cancel_text := "") -> void:
 	anchor_right = 1.0
 	anchor_bottom = 1.0
 	offset_left = 0.0
@@ -113,9 +114,10 @@ func setup(can_cancel: bool) -> void:
 	box.add_child(_ok)
 	if can_cancel:
 		var cancel := Button.new()
-		cancel.text = T.t("common.cancel")
-		cancel.custom_minimum_size = Vector2(0, 56)
-		cancel.add_theme_font_size_override("font_size", 24)
+		cancel.text = cancel_text if cancel_text != "" else T.t("common.cancel")
+		cancel.custom_minimum_size = Vector2(0, 64)
+		cancel.focus_mode = Control.FOCUS_NONE
+		Hud.style_soft(cancel, 26)
 		cancel.pressed.connect(func(): cancelled.emit())
 		box.add_child(cancel)
 	_refresh()

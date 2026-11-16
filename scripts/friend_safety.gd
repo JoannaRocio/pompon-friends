@@ -20,7 +20,8 @@ static func _notice(parent: Node, width := 620.0) -> BigNotice:
 
 
 ## Pregunta de edad neutral. `done` recibe el grupo elegido.
-static func ask_age(parent: Node, done: Callable) -> BigNotice:
+## Con `back`, abajo aparece "Volver" (lo llama sin elegir edad).
+static func ask_age(parent: Node, done: Callable, back := Callable()) -> BigNotice:
 	var n := _notice(parent, 660.0)
 	n.title(T.t("age.title"), Color("7a56c4"))
 	n.text_line(T.t("age.why"), 24, Color("a0527a"))
@@ -49,6 +50,8 @@ static func ask_age(parent: Node, done: Callable) -> BigNotice:
 			done.call(GameState.age_group))
 		grid.add_child(b)
 	n.add(grid)
+	if back.is_valid():
+		n.button(T.t("common.back"), back, false)
 	return n
 
 

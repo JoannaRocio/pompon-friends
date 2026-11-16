@@ -5,7 +5,7 @@ huevo tras 40 dias: etapa=Huevo se fue=false stats iguales=true
 partida vieja (sin 'hatched') ya habia nacido: true
 el huevo se guarda como huevo: true
 casa sin Pompon: boton='Adoptar Pompon' visible=true
-bienvenida: saluda a Ana=true | botones=["Adoptar Pompon"] | dice primer Pompon=true
+bienvenida: saluda a Ana=true | botones=["", "Adoptar Pompon"] | dice primer Pompon=true
 especies: tarjetas=8 (7 + sorpresa) | siluetas planas (sin revelar diseno)=7
 sexo: ["¿Hembra o macho?", "Hembra", "Macho"]
 cigüena: huevo en el nido=true | boton ir a casa activo=true | titulo=¡Tu huevo llegó!

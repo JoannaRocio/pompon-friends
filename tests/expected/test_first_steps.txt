@@ -1,0 +1,22 @@
+idioma del celular (en la prueba): es
+ok: aparece el cartel de idioma
+ok: hay botones Español y English
+ok: viene marcado el idioma del celular (Español)
+ok: boton ¡Listo! en español
+ok: al tocar English el boton dice Done!
+ok: todavia no se guardo (falta tocar Done!)
+ok: eligio English y quedo guardado: en
+ok: se cerro el cartel de idioma
+ok: la pregunta de edad tiene Volver
+ok: Volver en la edad cierra la pregunta
+ok: sin elegir edad no se guarda nada
+ok: eligio 18 o más y aparece ¿Cómo te llamas?
+ok: el nombre tiene Volver
+ok: Volver en el nombre vuelve a la edad
+ok: se pudo corregir la edad (9 -> child) y sigue al nombre
+ok: atras en el nombre -> edad
+ok: atras en la edad -> menu
+ok: atras en el menu sin preguntas -> sale (como antes)
+ok: bienvenida: el primer paso tiene volver
+ok: bienvenida: atras en la especie vuelve
+fin

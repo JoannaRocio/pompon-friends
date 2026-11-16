@@ -22,6 +22,7 @@ var _reset_button: IconButton
 var _cloud_button: IconButton
 var _bell_button: IconButton
 var _notice: BigNotice
+var _lang: BigNotice   # "Elige tu idioma" (la primera vez)
 
 
 ## Boton redondo con un icono dibujado ("music", "sound" o "reset"); se tacha cuando esta apagado.
@@ -224,6 +225,19 @@ func _ready() -> void:
 	add_child(foot)
 
 	_animate_in.call_deferred(friends)
+	_first_steps.call_deferred()
+
+
+## La primera vez que se abre el juego: elegir el idioma (el del celular ya viene marcado). Y si se volvio
+## con "atras" desde la bienvenida, se reabre el "¿Cómo te llamas?" para poder cambiarlo.
+func _first_steps() -> void:
+	if not is_inside_tree() or get_tree().current_scene != self:   # (en las pruebas el menu no es la escena actual)
+		return
+	if GameState.has_meta("back_to_name"):
+		GameState.remove_meta("back_to_name")
+		_ask_name()
+	elif GameState.language == "":
+		ask_language()
 
 
 ## Entrada animada: el logo cae, los amigos saltan uno por uno y "Jugar" late suavemente.
@@ -283,17 +297,114 @@ func _on_play() -> void:
 	if GameState.has_profile():
 		_enter_game()
 		return
-	if _profile != null or _age != null:
+	if _profile != null or _age != null or _lang != null:
 		return
 	if GameState.age_group == "":
-		_age = FriendSafety.ask_age(self, func(_g):
-			_age = null
-			_on_play())
+		_ask_age()
+		return
+	_ask_name()
+
+
+## Paso 1 de la partida nueva: la edad. "Volver" cierra la pregunta y deja el menu como estaba.
+func _ask_age() -> void:
+	_age = FriendSafety.ask_age(self, func(_g):
+		_age = null
+		_ask_name(), _close_age)
+
+
+func _close_age() -> void:
+	if _age != null:
+		_age.close()
+		_age = null
+
+
+## Paso 2: el nombre. "Volver" regresa a la pregunta de edad (para corregirla).
+func _ask_name() -> void:
+	if _profile != null:
 		return
 	_profile = ProfileDialog.new()
 	add_child(_profile)
-	_profile.setup(false)
+	_profile.setup(true, T.t("common.back"))
 	_profile.accepted.connect(_enter_game)
+	_profile.cancelled.connect(_name_back)
+
+
+func _name_back() -> void:
+	if _profile != null:
+		_profile.queue_free()
+		_profile = null
+	_ask_age()
+
+
+## Boton "atras" de Android en el menu: si hay una pregunta abierta, vuelve un paso (en vez de salir del juego).
+func handle_back() -> bool:
+	if _lang != null:
+		_choose_language(T.lang())
+		return true
+	if _profile != null:
+		_name_back()
+		return true
+	if _age != null:
+		_close_age()
+		return true
+	if _notice != null:
+		_close_notice()
+		return true
+	return false
+
+
+# ------------------------------------------------------------------ idioma
+
+## "Elige tu idioma": dos botones grandes, con el idioma del celular ya marcado. Tocar uno cambia los textos
+## del cartel al momento; "¡Listo!" lo guarda. Se muestra la primera vez y se puede cambiar despues con ES/EN.
+func ask_language() -> void:
+	if _lang != null:
+		return
+	var picked := [T.lang()]
+	_lang = BigNotice.new(620.0)
+	add_child(_lang)
+	var head := _lang.title(T.t("lang.title"), Color("7a56c4"))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 16)
+	_lang.add(row)
+	var group := ButtonGroup.new()
+	var ok := []   # (el boton se crea despues: las lambdas lo leen de aca)
+	for code in T.LANGS:
+		var b := Button.new()
+		b.toggle_mode = true
+		b.button_group = group
+		b.text = T.LANG_NAMES[code]
+		b.focus_mode = Control.FOCUS_NONE
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size = Vector2(0, 110)
+		Hud.style_soft(b, 36)
+		var on := Hud.pill(Color("ff8fb8"), Color.WHITE, 36, 4)
+		b.add_theme_stylebox_override("pressed", on)
+		b.add_theme_stylebox_override("hover_pressed", on)
+		for state in ["font_pressed_color", "font_hover_pressed_color"]:
+			b.add_theme_color_override(state, Color.WHITE)
+		b.button_pressed = code == picked[0]
+		b.pressed.connect(func():
+			picked[0] = code
+			Audio.play("click")
+			TranslationServer.set_locale(code)   # (vista previa: se guarda recien con "¡Listo!")
+			head.text = T.t("lang.title")
+			ok[0].text = T.t("common.ready"))
+		b.set_meta("lang", code)
+		row.add_child(b)
+	ok.append(_lang.button(T.t("common.ready"), func(): _choose_language(picked[0]), true, Color("5fc77f")))
+
+
+func _choose_language(code: String) -> void:
+	if _lang != null:
+		_lang.close()
+		_lang = null
+	GameState.set_language(code)
+	GameState.save_game()
+	if is_inside_tree() and get_tree().current_scene == self:
+		get_tree().reload_current_scene()
+	else:
+		_relabel()
 
 
 ## Sin Pompon todavia (o tras una despedida): primero la adopcion; si ya tiene uno, directo a la casa.
