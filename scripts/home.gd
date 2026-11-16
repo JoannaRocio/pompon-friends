@@ -2126,6 +2126,7 @@ func _show_food_menu() -> void:
 	grid.add_theme_constant_override("h_separation", 12)
 	grid.add_theme_constant_override("v_separation", 12)
 	scroll.add_child(grid)
+	grid.add_child(_water_card())   # el agua va aca (ya no hay boton Beber aparte: un boton menos abajo)
 	for food in PomponTastes.FOODS:
 		grid.add_child(_food_card(food, p))
 	var close := Button.new()
@@ -2136,6 +2137,54 @@ func _show_food_menu() -> void:
 		_food_panel.queue_free()
 		_food_panel = null)
 	box.add_child(close)
+
+
+## Tarjeta del agua (primera del menu de comer): gratis, hace lo mismo que el antiguo boton Beber.
+func _water_card() -> Button:
+	var b := Button.new()
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.custom_minimum_size = Vector2(0, 112)
+	Hud.style_soft(b, 24)
+	b.pressed.connect(func():
+		if _food_panel != null:
+			_food_panel.queue_free()
+			_food_panel = null
+		_on_action("Beber"))
+	var row := HBoxContainer.new()
+	row.set_anchors_preset(Control.PRESET_FULL_RECT)
+	row.offset_left = 10
+	row.offset_right = -10
+	row.add_theme_constant_override("separation", 10)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(row)
+	var badge := Control.new()
+	badge.custom_minimum_size = Vector2(72, 72)
+	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.draw.connect(func():
+		var c := badge.size * 0.5
+		badge.draw_circle(c, 35.0, Color.WHITE)
+		badge.draw_circle(c, 31.0, Color("5bb8f5"))
+		Hud.draw_icon(badge, "drop", c, 40.0, Color.WHITE, Color("3d8fcc")))
+	row.add_child(badge)
+	var texts := VBoxContainer.new()
+	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	texts.alignment = BoxContainer.ALIGNMENT_CENTER
+	texts.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(texts)
+	var name_label := Label.new()
+	name_label.text = T.label("Agua")
+	name_label.add_theme_font_size_override("font_size", 24)
+	name_label.add_theme_color_override("font_color", Hud.INK)
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texts.add_child(name_label)
+	var price := Label.new()
+	price.text = T.s("gratis")
+	price.add_theme_font_size_override("font_size", 22)
+	price.add_theme_color_override("font_color", Color("2f9e5b"))
+	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texts.add_child(price)
+	return b
 
 
 ## Tarjeta de una comida: nombre, precio y como la ve el Pompon (nueva, duda o corazones).

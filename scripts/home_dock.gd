@@ -1,7 +1,7 @@
 class_name HomeDock
 extends PanelContainer
 ## Barra de abajo de la casa, en dos solapas:
-##  - "Pompon": lo que se hace con el Pompon (comer, beber, bañar, caricia y juegos).
+##  - "Pompon": lo que se hace con el Pompon (comer y beber en un solo boton, bañar, caricia y juegos).
 ##  - "Casa": tienda, vestidor, decorar y las habitaciones (con candado hasta abrirlas).
 ## Mientras el Pompon es un huevo no hay solapas: solo la Tienda. Lo del cuidador (Trabajo, Diario,
 ## Misiones, Vecinos) esta arriba en la casa.
@@ -14,7 +14,7 @@ signal wardrobe_pressed
 signal decorate_pressed
 signal room_pressed(index: int)
 
-const CARE_ICONS := {"Beber": ["drop", Color("5bb8f5")], "Bañar": ["bubbles", Color("3cc9b0")], "Caricia": ["heart", Color("ff7aa8")]}
+const CARE_ICONS := {"Bañar": ["bubbles", Color("3cc9b0")], "Caricia": ["heart", Color("ff7aa8")]}
 const PAGE_HEIGHT := 232.0        # solapa Casa (dos filas)
 const POMPON_PAGE_HEIGHT := 120.0  # solapa Pompon (una fila, solo iconos)
 const LOCKED_TINT := Color("b9b1bd")

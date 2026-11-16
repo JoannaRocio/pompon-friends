@@ -16,17 +16,17 @@ bienvenida (en): ["Hi, Ana!", "Today is the day you adopt your very first Pompon
   especie: ["Pick a kind", "Its colors will be a surprise", "Kitty", "Bunny", "Dragon", "Surprise"]
   sexo: ["Girl or boy?", "Girl", "Boy"] | claves sueltas: []
 casa con huevo (en): ["Your bunny egg", "Crib  0 / 50", "Menu", "Missions", "Neighbors", "Work", "Diary", "Shop", "Your egg is here!\nIt needs a crib to hatch."] | claves sueltas: []
-casa con Pompon (en): ["Mochi", "Growth  5%", "Day 1 of 7 · Kid in 7 days", "Food", "Water", "Clean", "Fun", "Comfort", "Sleep", "Trust", "Social", "Pompon", "Home", "Eat", "Drink", "Bath", "Cuddle", "Games"]
+casa con Pompon (en): ["Mochi", "Growth  5%", "Day 1 of 7 · Kid in 7 days", "Food", "Water", "Clean", "Fun", "Comfort", "Sleep", "Trust", "Social", "Pompon", "Home", "Eat", "Bath", "Cuddle", "Games"]
   tutorial (en): ["Hi! Let me show you how to care for Mochi.", "Skip tutorial", "Got it!"] | claves sueltas: []
 casa con Pompon (es): ["Mochi", "Día 1 de 7 · Será Niño en 7 días", "Comida", "Sueño", "Casa", "Comer", "Caricia"] | tutorial: ["¡Hola! Te enseño a cuidar a Mochi.", "Saltar tutorial"]
-codigo: 531 textos con T.s/T.t/T.label | sin ingles: []
+codigo: 533 textos con T.s/T.t/T.label | sin ingles: []
 catalogo: 165 objetos | sin ingles: [] | comidas sin ingles: [] | ej: Pink bow, Strawberry cake, Bedroom
 tienda (en, all): ["Shop", "All", "Clothes", "Furniture", "Bowls", "Special", *]
   sigue en español: [] | claves sueltas: []
 tienda (en, special): ["Shop", "All", "Clothes", "Furniture", "Bowls", "Special", *]
   sigue en español: [] | claves sueltas: []
 vestidor (en): ["Closet", "Clothes", "Room", "Bowls", "Pink bow", "Pink dress"] | sigue en español: []
-comida (en): ["What should we give Mochi?", "Baby mush", "free", "Toast", "free", "free"] | sigue en español: []
+comida (en): ["What should we give Mochi?", "free", "Baby mush", "free", "Toast", "free"] | sigue en español: []
 geografia (es): 459 preguntas | con pista y opciones que NO empiezan igual: [] | sin pista (no hay 3 con esa letra): ["Quito", "Ottawa"] | ej: '¿Cuál es la capital de Brasil?' ["Bagdad", "Brazzaville", "Brasilia"] pista B…
 geografia (en): 459 preguntas | con pista y opciones que NO empiezan igual: [] | sin pista (no hay 3 con esa letra): ["Quito", "Jakarta"] | ej: 'What is the capital of Brazil?' ["Buenos Aires", "Brasilia", "Bratislava"] pista B…
 matematicas (en): Multiplying | Crossing ten | Times 2 is double. / 2 × 6 = 12

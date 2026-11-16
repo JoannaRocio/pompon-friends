@@ -3,7 +3,7 @@ extends Control
 ## El pueblo: se sale por la puerta de la casa. Una calle que se desliza de costado con la casa de tu
 ## Pompon, la tienda, el cine, el supermercado, el museo y la casa de cada vecino (los del barrio y
 ## tus amigos de verdad). Tocar un edificio entra: tu casa, la tienda, el cine y las casas de los vecinos
-## ya se pueden visitar; el supermercado y el museo abren pronto.
+## ya se pueden visitar (el supermercado y el museo estan escondidos hasta que abran).
 
 const INK := Color("5b3a4a")
 const GAP := 26.0
@@ -89,8 +89,8 @@ func _build() -> void:
 	_add("home", home_name, p.color_primary if p != null else Color("ffb3cc"), {})
 	_add("shop", "Tienda", Color("ff7aa8"), {})
 	_add("cinema", "Cine", Color("7b5ea7"), {})
-	_add("market", "Supermercado", Color("5fc77f"), {}, true)
-	_add("museum", "Museo", Color("c9a86a"), {}, true)
+	# el supermercado ("market") y el museo ("museum") no se muestran hasta que abran: un cartel de
+	# "Proximamente" hace que el juego se vea sin terminar. Para abrirlos: _add(...) aca y su caso en _enter.
 	for entry in Neighbors.all():
 		var data := Neighbors.build(entry)
 		var pom: Pompon = data["pompon"]

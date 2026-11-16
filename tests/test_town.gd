@@ -51,13 +51,10 @@ func _initialize() -> void:
 	await create_timer(0.3).timeout
 	var kinds: Array = town.buildings.map(func(b): return b["kind"])
 	var houses := kinds.count("house")
-	print("edificios: ", kinds.slice(0, 5), " + ", houses, " casas de vecinos (vecinos: ", Neighbors.all().size(), ")")
-	print("carteles: ", town.buildings.map(func(b): return b["node"].title).slice(0, 7))
-	print("abren pronto: ", town.buildings.filter(func(b): return b["node"].locked).map(func(b): return b["kind"]))
+	print("edificios: ", kinds.slice(0, 3), " + ", houses, " casas de vecinos (vecinos: ", Neighbors.all().size(), ")")
+	print("carteles: ", town.buildings.map(func(b): return b["node"].title).slice(0, 5))
+	print("sin lugares cerrados a la vista: ", town.buildings.filter(func(b): return b["node"].locked).is_empty(), " | sin super ni museo: ", not kinds.has("market") and not kinds.has("museum"))
 	print("la calle se desliza: ancho=", town._street.custom_minimum_size.x, " > pantalla=", town.size.x)
-	town._enter("museum", {}, town.buildings[4]["node"])
-	await process_frame
-	print("tocar el museo: '", _labels(town._toast) if town._toast != null else "", "'")
 
 	# amigo de verdad: visitar o dejar de ser amigos
 	var entry := {"id": "f:ABCDEFGH", "name": "Kiwi", "real": true, "code": "ABCDEFGH"}
