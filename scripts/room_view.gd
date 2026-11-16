@@ -62,7 +62,8 @@ const DAY_KEYS := [
 	[0.0, 1.0, 0.0], [5.5, 1.0, 0.0], [7.0, 0.5, 1.0], [8.5, 0.0, 0.4], [10.0, 0.0, 0.0],
 	[16.5, 0.0, 0.0], [18.0, 0.3, 1.0], [20.0, 0.8, 0.5], [21.5, 1.0, 0.0], [24.0, 1.0, 0.0],
 ]
-const LIGHT_SOURCES := {"furn_lamp": Vector2(0, -50), "furn_fireplace": Vector2(0, 40), "furn_heat": Vector2(20, -20)}
+const LIGHT_SOURCES := {"furn_lamp": Vector2(0, -50), "furn_fireplace": Vector2(0, 40), "furn_heat": Vector2(20, -20),
+	"toy_lamp": Vector2(0, -20), "toy_candles": Vector2(0, -24), "deco_stars": Vector2.ZERO}
 
 
 func world_w() -> float:
@@ -229,8 +230,11 @@ func _is_wall_item(id: String) -> bool:
 	return Catalog.get_item(id).get("category", "") == "deco"
 
 
-## Orden de dibujo (de atras hacia adelante): por altura; lo apoyado va justo despues de su mueble.
+## Orden de dibujo (de atras hacia adelante): las alfombras primero; despues por altura y lo apoyado
+## va justo despues de su mueble.
 func _order_key(p: Dictionary) -> float:
+	if Catalog.is_rug(p["id"]):
+		return float(p["y"]) - 10.0
 	var on := str(p.get("on", ""))
 	if on != "":
 		var support := _find(on)
@@ -285,9 +289,11 @@ func _draw_world() -> void:
 	ItemArt.night_amount = night
 	ItemArt.sky = Color("bfe3f5").lerp(Color("f6b38a"), warm * 0.8).lerp(Color("1f2a5c"), night)
 	for p in walls:
-		ItemArt.draw_item(_canvas, p["id"], _item_center(p))
+		_draw_placed(p)
 	for p in floors:
-		ItemArt.draw_item(_canvas, p["id"], _item_center(p))
+		if str(p.get("on", "")) == "" and not Catalog.is_rug(p["id"]):
+			_draw_floor_shadow(p)
+		_draw_placed(p)
 	ItemArt.night_amount = 0.0
 	ItemArt.sky = Color("bfe3f5")
 
@@ -310,6 +316,29 @@ func _draw_world() -> void:
 
 	if edit_mode:
 		_draw_edit_marks()
+
+
+## Un item del cuarto (dado vuelta si `flip`).
+func _draw_placed(p: Dictionary) -> void:
+	var c := _item_center(p)
+	if bool(p.get("flip", false)) and Catalog.can_flip(p["id"]):
+		_canvas.draw_set_transform(c, 0.0, Vector2(-1.0, 1.0))
+		ItemArt.draw_item(_canvas, p["id"], Vector2.ZERO)
+		_canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:
+		ItemArt.draw_item(_canvas, p["id"], c)
+
+
+## Sombrita suave en el piso, debajo de cada mueble: lo "apoya" en el cuarto.
+func _draw_floor_shadow(p: Dictionary) -> void:
+	var r := _item_rect(p)
+	var w := r.size.x * 0.46
+	var base := Vector2(r.get_center().x, r.end.y - 6.0)
+	var pts := PackedVector2Array()
+	for i in 28:
+		var a := TAU * i / 28.0
+		pts.append(base + Vector2(cos(a) * w, sin(a) * 13.0))
+	_canvas.draw_colored_polygon(pts, Color(0.35, 0.15, 0.25, 0.13))
 
 
 func _draw_vignette() -> void:
@@ -510,6 +539,9 @@ func _item_at(point: Vector2) -> String:
 		var bw := _is_wall_item(b["id"])
 		if aw != bw:
 			return aw  # pared primero (queda debajo)
+		var ar := Catalog.is_rug(a["id"])
+		if ar != Catalog.is_rug(b["id"]):
+			return ar  # despues las alfombras: se agarra primero el mueble que tienen encima
 		return _order_key(a) < _order_key(b))
 	for i in range(order.size() - 1, -1, -1):
 		if _item_rect(order[i]).grow(6.0).has_point(wp):

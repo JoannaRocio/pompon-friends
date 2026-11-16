@@ -22,7 +22,7 @@ flecha guia: visible=true | apunta a Trabajo=true
 fila de cuidados oculta en el huevo: true | titulo: Tu huevo de conejo
 detalle:
 tocar el huevo no lo hace nacer: true | dice: ¡Necesito una cuna para nacer!
-tienda: primer item = furn_crib (Cuna) | total=10 | mueble de la especie incluido=true
+tienda: primer item = furn_crib (Cuna) | total=18 | mueble de la especie incluido=*
 comprar sin monedas: false (debe ser false) | sigue huevo=true
 guia 3 (alcanza): ¡Ya alcanza!
 Compra la cuna en la Tienda.

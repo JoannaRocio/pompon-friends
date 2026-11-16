@@ -1,4 +1,4 @@
-tienda: 10 items; estable=true cambia_manana=true
+tienda: 18 items; estable=true cambia_manana=true
 sin repetidos=true
 compra caro sin monedas: true monedas=10
 compra gorro: true monedas=0

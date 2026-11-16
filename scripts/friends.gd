@@ -84,6 +84,8 @@ func snapshot() -> Dictionary:
 			if item.has("on"):
 				e["on"] = item["on"]
 				e["ox"] = snappedf(float(item.get("ox", 0.0)), 0.1)
+			if item.get("flip", false):
+				e["flip"] = true
 			placed.append(e)
 	return {"v": 1, "player": "" if GameState.kids_mode() else GameState.shareable_player_name(), "title": GameState.player_title, "pompon": pompon, "equipped": wear,
 		"wall": GameState.equipped.get("wall", ""), "floor": GameState.equipped.get("floor", ""), "placed": placed,

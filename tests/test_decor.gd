@@ -125,9 +125,9 @@ func _initialize() -> void:
 		var seen := {}
 		for x in shop:
 			seen[x["id"]] = true
-		if shop.size() != 10 or seen.size() != 10:
+		if shop.size() != Catalog.SHOP_SIZE or seen.size() != Catalog.SHOP_SIZE:
 			okshop = false
-	print("tienda 40 dias: 10 items sin repetir=", okshop)
+	print("tienda 40 dias: ", Catalog.SHOP_SIZE, " items sin repetir=", okshop)
 	var owned_all: Array = Catalog.ITEMS.map(func(x): return x["id"])
 	print("tienda con todo comprado: ", Catalog.daily_shop(now, sp, owned_all).size(), " items")
 	quit()

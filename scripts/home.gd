@@ -63,6 +63,10 @@ var _edit_panel: PanelContainer
 var _edit_room_label: Label
 var _tray: HBoxContainer
 var _store_button: Button
+var _flip_button: Button
+var _edit_hint: Label             # cartelito de arriba al decorar (que hacer ahora)
+var _tray_tab := ""               # solapa de la bandeja: "floor", "wall", "small" o "style" ("" = la primera con algo)
+var _tray_tabs := {}              # solapa -> boton
 var _follow_pause := 0.0           # la camara no sigue al Pompon hasta que pase este tiempo
 var _nav_left: Button
 var _nav_right: Button
@@ -142,7 +146,7 @@ func _ready() -> void:
 	pet.size = Vector2(PET_SIZE, PET_SIZE)
 	pet.pivot_offset = Vector2(PET_SIZE * 0.5, PET_SIZE - 6.0)
 	room.mouse_filter = Control.MOUSE_FILTER_STOP   # deslizar el cuarto: lo demas (Pompon, botones) va encima
-	room.selection_changed.connect(func(id: String): _store_button.disabled = id == "")
+	room.selection_changed.connect(_on_edit_selection)
 	room.panned.connect(func(): _follow_pause = 4.0)
 	var fx := AmbientFx.new()
 	add_child(fx)
@@ -950,7 +954,7 @@ func _check_tips() -> void:
 	var delta := get_process_delta_time()
 	_visit_time += delta
 	_tip_timer -= delta
-	if _tip_timer > 0.0 or GameState.pompon == null or _tip_panel != null:
+	if _tip_timer > 0.0 or GameState.pompon == null or _tip_panel != null or _edit:
 		return
 	_tip_timer = 1.0
 	if _check_level_up():
@@ -1771,26 +1775,35 @@ func _place_arrows() -> void:
 
 # ------------------------------------------------------------ modo decorar
 
+const TRAY_TABS := [
+	{"key": "floor", "label": "Muebles"},
+	{"key": "wall", "label": "Para colgar"},
+	{"key": "small", "label": "Adornos"},
+	{"key": "style", "label": "Pared y piso"},
+]
+
+
 func _build_edit_panel() -> void:
 	_edit_panel = PanelContainer.new()
 	_edit_panel.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	_edit_panel.offset_left = 12
 	_edit_panel.offset_right = -12
-	_edit_panel.offset_top = -310
+	_edit_panel.offset_top = -334
 	_edit_panel.offset_bottom = -12
 	_edit_panel.visible = false
-	_edit_panel.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.95), 36, Color.WHITE, 3, 12))
+	_edit_panel.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.96), 36, Color.WHITE, 3, 12))
 	add_child(_edit_panel)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 8)
+	box.add_theme_constant_override("separation", 6)
 	_edit_panel.add_child(box)
+	# habitacion: ‹ Sala ›
 	var room_row := HBoxContainer.new()
 	room_row.add_theme_constant_override("separation", 10)
 	box.add_child(room_row)
 	var prev_room := Button.new()
 	prev_room.text = "‹"
-	prev_room.custom_minimum_size = Vector2(80, 56)
-	Hud.style_soft(prev_room, 34)
+	prev_room.custom_minimum_size = Vector2(80, 48)
+	Hud.style_soft(prev_room, 32)
 	prev_room.pressed.connect(_step_room.bind(-1))
 	room_row.add_child(prev_room)
 	_edit_room_label = Label.new()
@@ -1801,44 +1814,99 @@ func _build_edit_panel() -> void:
 	room_row.add_child(_edit_room_label)
 	var next_room := Button.new()
 	next_room.text = "›"
-	next_room.custom_minimum_size = Vector2(80, 56)
-	Hud.style_soft(next_room, 34)
+	next_room.custom_minimum_size = Vector2(80, 48)
+	Hud.style_soft(next_room, 32)
 	next_room.pressed.connect(_step_room.bind(1))
 	room_row.add_child(next_room)
-	var hint := Label.new()
-	hint.text = T.s("Arrastra para mover. Los adornos se apoyan en mesas y estantes.")
-	hint.add_theme_font_size_override("font_size", 20)
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(hint)
+	# solapas de la bandeja
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 6)
+	box.add_child(tabs)
+	var group := ButtonGroup.new()
+	for t in TRAY_TABS:
+		var b := Button.new()
+		b.text = T.s(t["label"])
+		b.toggle_mode = true
+		b.button_group = group
+		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		b.custom_minimum_size = Vector2(0, 48)
+		b.focus_mode = Control.FOCUS_NONE
+		b.clip_text = true
+		b.add_theme_font_size_override("font_size", 19)
+		b.add_theme_stylebox_override("normal", Hud.pill(Color("fff1f6"), Color("ffc2d9"), 24, 3))
+		b.add_theme_stylebox_override("hover", Hud.pill(Color("ffe4ee"), Color("ffb3d1"), 24, 3))
+		b.add_theme_stylebox_override("pressed", Hud.pill(Color("ff8fb8"), Color.WHITE, 24, 0))
+		b.add_theme_stylebox_override("hover_pressed", Hud.pill(Color("ff8fb8"), Color.WHITE, 24, 0))
+		for state in ["font_color", "font_hover_color"]:
+			b.add_theme_color_override(state, Hud.INK)
+		for state in ["font_pressed_color", "font_hover_pressed_color"]:
+			b.add_theme_color_override(state, Color.WHITE)
+		var key: String = t["key"]
+		b.pressed.connect(func():
+			_tray_tab = key
+			room.select("")
+			_rebuild_tray())
+		tabs.add_child(b)
+		_tray_tabs[key] = b
+	# bandeja: lo guardado (o las paredes y pisos)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(0, 112)
+	scroll.custom_minimum_size = Vector2(0, 128)
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	box.add_child(scroll)
 	_tray = HBoxContainer.new()
 	_tray.add_theme_constant_override("separation", 8)
 	scroll.add_child(_tray)
+	# dar vuelta, guardar y listo
 	var buttons := HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 10)
+	buttons.add_theme_constant_override("separation", 8)
 	box.add_child(buttons)
+	_flip_button = Button.new()
+	_flip_button.text = T.s("Dar vuelta")
+	_flip_button.disabled = true
+	_flip_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_flip_button.custom_minimum_size = Vector2(0, 60)
+	Hud.style_soft(_flip_button, 22)
+	_flip_button.pressed.connect(func():
+		if room.selected != "":
+			GameState.flip_item(room.selected)
+			Audio.play("pet")
+			room.redraw())
+	buttons.add_child(_flip_button)
 	_store_button = Button.new()
-	_store_button.text = T.s("Guardar mueble")
+	_store_button.text = T.s("Guardar")
 	_store_button.disabled = true
 	_store_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_store_button.custom_minimum_size = Vector2(0, 64)
-	Hud.style_soft(_store_button, 24)
+	_store_button.custom_minimum_size = Vector2(0, 60)
+	Hud.style_soft(_store_button, 22)
 	_store_button.pressed.connect(func():
 		if room.selected != "":
-			GameState.store_item(room.selected)
+			var id := room.selected
+			GameState.store_item(id)
 			room.select("")
+			_tray_tab = _tray_tab_of(id)
 			_rebuild_tray())
 	buttons.add_child(_store_button)
 	var done := Button.new()
 	done.text = T.s("Listo")
 	done.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	done.custom_minimum_size = Vector2(0, 64)
-	Hud.style_primary(done, 28)
+	done.custom_minimum_size = Vector2(0, 60)
+	Hud.style_primary(done, 26)
 	done.pressed.connect(func(): _set_edit(false))
 	buttons.add_child(done)
+	# cartelito de arriba: que hacer
+	_edit_hint = Label.new()
+	_edit_hint.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_edit_hint.offset_left = 24
+	_edit_hint.offset_right = -24
+	_edit_hint.offset_top = 24
+	_edit_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_edit_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_edit_hint.add_theme_font_size_override("font_size", 24)
+	_edit_hint.add_theme_color_override("font_color", Color("a0527a"))
+	_edit_hint.add_theme_stylebox_override("normal", Hud.card(Color(1, 1, 1, 0.9), 26, Color("ffc2d9"), 3, 10))
+	_edit_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_edit_hint.visible = false
+	add_child(_edit_hint)
 
 
 # ------------------------------------------------------------ habitaciones
@@ -1894,9 +1962,14 @@ func _set_edit(on: bool) -> void:
 	_edit = on
 	room.edit_mode = on
 	_edit_panel.visible = on
+	_edit_hint.visible = on
 	pet.mouse_filter = Control.MOUSE_FILTER_IGNORE if on else Control.MOUSE_FILTER_STOP
+	pet.modulate.a = 0.35 if on else 1.0   # se corre "a un costado": se ve lo que se decora
 	if on:
+		if _tip_panel != null:
+			_dismiss_tip()   # los avisos no tapan el panel de decorar
 		_edit_before = GameState.placed_ids()
+		_tray_tab = ""
 		_rebuild_tray()
 	else:
 		GameState.save_game()
@@ -1908,32 +1981,113 @@ func _set_edit(on: bool) -> void:
 			_wander_wait = minf(_wander_wait, 0.4)
 
 
-## Bandeja con los muebles comprados que todavia no estan en el cuarto.
+## En que solapa de la bandeja va un item ("floor", "wall", "small" o "style").
+func _tray_tab_of(id: String) -> String:
+	var cat: String = Catalog.get_item(id).get("category", "")
+	if cat in ["wall", "floor"]:
+		return "style"
+	if cat == "deco":
+		return "wall"
+	return "small" if Catalog.is_small(id) else "floor"
+
+
+## Lo que se muestra en una solapa: los muebles guardados (lo ultimo comprado primero) o las paredes y pisos.
+func _tray_items(tab: String) -> Array:
+	var out := []
+	for i in range(GameState.owned.size() - 1, -1, -1):
+		var id: String = GameState.owned[i]
+		if Catalog.get_item(id).is_empty() or _tray_tab_of(id) != tab:
+			continue
+		if tab == "style" or (Catalog.is_placeable(id) and not GameState.is_placed(id)):
+			out.append(id)
+	return out
+
+
+func _on_edit_selection(id: String) -> void:
+	_store_button.disabled = id == ""
+	_flip_button.disabled = id == "" or not Catalog.can_flip(id)
+	_update_edit_hint()
+
+
+func _update_edit_hint() -> void:
+	if _edit_hint == null:
+		return
+	if room.selected != "":
+		_edit_hint.text = Catalog.item_name(room.selected) + "\n" + T.s("Arrástralo para moverlo. Los adornos se apoyan en mesas y estantes.")
+	elif _tray_tab == "style":
+		_edit_hint.text = T.s("Toca una pared o un piso para probarlo.")
+	else:
+		_edit_hint.text = T.s("Toca algo de abajo para ponerlo en tu cuarto.")
+
+
+## Bandeja con los muebles comprados que todavia no estan en el cuarto (por solapa), o las paredes y pisos.
 func _rebuild_tray() -> void:
 	for c in _tray.get_children():
 		c.queue_free()
-	var count := 0
-	for id in GameState.owned:
-		if Catalog.is_placeable(id) and not GameState.is_placed(id):
-			count += 1
-			var b := Button.new()
-			Hud.style_soft(b, 20)
-			b.custom_minimum_size = Vector2(100, 100)
-			b.tooltip_text = Catalog.item_name(id)
-			var icon := ItemIcon.new()
-			icon.set_item(id, 84.0)
-			icon.position = Vector2(8, 8)
-			b.add_child(icon)
-			b.pressed.connect(func():
-				GameState.place_item(id, Vector2(-1.0, -1.0), (room.scroll + room.size.x * 0.5) / room.world_w())
-				room.select(id)
-				_rebuild_tray())
-			_tray.add_child(b)
-	if count == 0:
+	if _tray_tab == "":   # al abrir: la primera solapa que tenga algo guardado
+		_tray_tab = "floor"
+		for t in TRAY_TABS:
+			if not _tray_items(t["key"]).is_empty():
+				_tray_tab = t["key"]
+				break
+	if _tray_tabs.has(_tray_tab):
+		_tray_tabs[_tray_tab].button_pressed = true
+	var items := _tray_items(_tray_tab)
+	for id in items:
+		_tray.add_child(_tray_tile(id))
+	if items.is_empty():
 		var empty := Label.new()
-		empty.text = T.s("No te quedan muebles por colocar. ¡Compra más en la tienda!")
-		empty.add_theme_font_size_override("font_size", 20)
+		empty.text = T.s("No tienes nada de esto guardado. ¡Busca más en la tienda!")
+		empty.custom_minimum_size = Vector2(620, 110)
+		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		empty.add_theme_font_size_override("font_size", 21)
+		empty.add_theme_color_override("font_color", Color(Hud.INK, 0.7))
 		_tray.add_child(empty)
+	_update_edit_hint()
+
+
+## Un item de la bandeja: dibujo y nombre. Los muebles se ponen en el cuarto; las paredes y pisos se prueban.
+func _tray_tile(id: String) -> Button:
+	var b := Button.new()
+	b.custom_minimum_size = Vector2(112, 122)
+	b.focus_mode = Control.FOCUS_NONE
+	var cat: String = Catalog.get_item(id).get("category", "")
+	var on: bool = cat in ["wall", "floor"] and GameState.equipped.get(cat, "") == id
+	if on:   # la pared o el piso que se esta usando: borde rosa
+		for st in ["normal", "hover", "pressed"]:
+			b.add_theme_stylebox_override(st, Hud.card(Color("fff1f6"), 20, Color("ff7aa0"), 4, 4))
+	else:
+		Hud.style_soft(b, 20)
+	var icon := ItemIcon.new()
+	icon.set_item(id, 80.0)
+	icon.position = Vector2(16, 6)
+	b.add_child(icon)
+	var lbl := Label.new()
+	lbl.text = Catalog.item_name(id)
+	lbl.position = Vector2(2, 88)
+	lbl.size = Vector2(108, 30)
+	lbl.clip_text = true
+	lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	lbl.add_theme_font_size_override("font_size", 15)
+	lbl.add_theme_color_override("font_color", Color("ff4f8b") if on else Hud.INK)
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	b.add_child(lbl)
+	b.pressed.connect(func():
+		if cat in ["wall", "floor"]:
+			if not on:
+				GameState.equip(id)
+				Audio.play("pet")
+				_refresh()
+				_rebuild_tray()
+			return
+		GameState.place_item(id, Vector2(-1.0, -1.0), (room.scroll + room.size.x * 0.5) / room.world_w())
+		Audio.play("pet")
+		room.select(id)
+		_rebuild_tray())
+	return b
 
 
 func _show_food_menu() -> void:

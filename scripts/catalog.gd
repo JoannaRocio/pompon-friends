@@ -10,7 +10,7 @@ const CATEGORY_LABELS := {
 const BOWLS := ["bowl_food", "bowl_water"]   # se usan al comer y beber (reemplazan a los feos de siempre)
 const WEARABLE := ["hat", "glasses", "shirt"]
 const PLACEABLE := ["furniture", "deco"]   # se colocan y mueven en el cuarto
-const SHOP_SIZE := 10
+const SHOP_SIZE := 18   # 8 muebles y adornos, 5 de ropa, 3 paredes o pisos y 2 tazones (SHOP_GROUPS)
 
 # Nivel (dia de vida del Pompon) en el que se desbloquea cada item. Lo que no aparece aqui ya esta
 # disponible desde el nivel 1. Las etapas empiezan en los niveles 1, 8, 22 y 52.
@@ -41,6 +41,16 @@ const UNLOCK := {
 	"toy_blocks": 3, "toy_books": 4, "furn_stool": 5, "toy_vase": 6, "furn_dresser": 7, "deco_shelf_long": 8,
 	"toy_cactus": 9, "toy_cake": 11, "toy_frame": 13, "furn_desk": 15, "toy_musicbox": 17, "toy_robot": 21,
 	"furn_wardrobe": 23, "deco_shelf_cloud": 27, "toy_trophy": 33,
+	# decoracion nueva (16/11/2026): muebles por habitacion, alfombras, cosas para colgar y adornos chicos
+	"furn_cushions": 1, "rug_round": 1, "toy_alarm": 1, "furn_chair": 2, "furn_nightstand": 2, "toy_lamp": 2,
+	"deco_stars": 2, "wall_yellow": 2, "furn_flowers": 3, "deco_mirror": 3, "toy_duck": 3, "floor_lilac": 3,
+	"furn_armchair": 4, "deco_plant_hanging": 4, "wall_flowers": 4, "rug_stripes": 5, "toy_teacup": 5,
+	"furn_tree": 6, "deco_cloud": 6, "floor_dark": 6, "toy_dino": 7, "deco_board": 8, "toy_fruit": 8,
+	"furn_sofa_mint": 8, "furn_tent": 9, "wall_brick": 9, "floor_tiles": 9, "furn_bench": 10, "toy_candles": 10,
+	"furn_beanbag_blue": 10, "rug_star": 11, "wall_wood": 11, "furn_easel": 12, "furn_toybox_pink": 13,
+	"furn_stove": 14, "furn_fridge": 14, "wall_tiles": 14, "toy_snowglobe": 14, "furn_slide": 16,
+	"furn_dresser_mint": 16, "rug_cloud": 17, "deco_map": 19, "furn_fountain": 20, "floor_stones": 20,
+	"furn_telescope": 24, "floor_starry": 30,
 	# especiales (caros, para ahorrar; siempre a la vista en "Especial")
 	"deco_garland_lights": 9, "furn_lamp_stars": 12, "deco_window_magic": 15, "floor_cloud": 18, "furn_sofa_royal": 20,
 	"wall_rainbow": 20, "glasses_star_gold": 22, "furn_bed_cloud": 22, "furn_fireplace_crystal": 24,
@@ -51,7 +61,11 @@ const UNLOCK := {
 
 # Adornos chicos: se pueden apoyar sobre una superficie (mesa, estante, comoda...).
 const SMALL := ["furn_plant", "furn_teddy", "furn_globe", "furn_aquarium", "toy_blocks", "toy_books", "toy_vase",
-	"toy_cactus", "toy_cake", "toy_frame", "toy_musicbox", "toy_robot", "toy_trophy"]
+	"toy_cactus", "toy_cake", "toy_frame", "toy_musicbox", "toy_robot", "toy_trophy", "toy_lamp", "toy_alarm",
+	"toy_teacup", "toy_dino", "toy_candles", "toy_duck", "toy_snowglobe", "toy_fruit"]
+
+# Alfombras: van en el piso, debajo de todo (se dibujan primero y no tapan los muebles).
+const RUGS := ["rug_round", "rug_stripes", "rug_star", "rug_cloud"]
 
 # Superficies donde apoyar cosas: "dy" = altura de la tapa respecto del centro del mueble (px, negativo = arriba)
 # y "hw" = mitad del ancho util.
@@ -65,6 +79,8 @@ const SURFACES := {
 	"furn_desk": {"dy": -25.0, "hw": 96.0},
 	"furn_wardrobe": {"dy": -105.0, "hw": 56.0},
 	"furn_stool": {"dy": -20.0, "hw": 30.0},
+	"furn_nightstand": {"dy": -26.0, "hw": 42.0},
+	"furn_stove": {"dy": -40.0, "hw": 70.0},
 	"deco_shelf": {"dy": 3.0, "hw": 70.0},
 	"deco_shelf_long": {"dy": 5.0, "hw": 116.0},
 	"deco_shelf_cloud": {"dy": 2.0, "hw": 86.0},
@@ -180,6 +196,53 @@ const ITEMS := [
 	{"id": "toy_musicbox", "name": "Caja musical", "category": "furniture", "price": 20, "color": "d2b8f0"},
 	{"id": "toy_robot", "name": "Robot de juguete", "category": "furniture", "price": 22, "color": "9fb4c9"},
 	{"id": "toy_trophy", "name": "Copa", "category": "furniture", "price": 26, "color": "ffd34d"},
+	# --- decoracion nueva (16/11/2026)
+	{"id": "furn_chair", "name": "Silla", "category": "furniture", "price": 14, "color": "f7a8b8"},
+	{"id": "furn_armchair", "name": "Sillón", "category": "furniture", "price": 32, "color": "f4a261"},
+	{"id": "furn_cushions", "name": "Almohadones", "category": "furniture", "price": 16, "color": "b388f5"},
+	{"id": "furn_nightstand", "name": "Mesita de luz", "category": "furniture", "price": 18, "color": "f2c58f"},
+	{"id": "furn_tent", "name": "Tipi", "category": "furniture", "price": 42, "color": "fff1d6"},
+	{"id": "furn_stove", "name": "Cocinita", "category": "furniture", "price": 46, "color": "9be3d0"},
+	{"id": "furn_fridge", "name": "Heladera", "category": "furniture", "price": 40, "color": "ffd1e3"},
+	{"id": "furn_telescope", "name": "Telescopio", "category": "furniture", "price": 48, "color": "5b8def"},
+	{"id": "furn_fountain", "name": "Fuente", "category": "furniture", "price": 55, "color": "d8d2e8"},
+	{"id": "furn_bench", "name": "Banco de plaza", "category": "furniture", "price": 30, "color": "7bc98a"},
+	{"id": "furn_tree", "name": "Arbolito", "category": "furniture", "price": 34, "color": "6bbf7a"},
+	{"id": "furn_flowers", "name": "Cantero de flores", "category": "furniture", "price": 22, "color": "c9985f"},
+	{"id": "furn_easel", "name": "Atril de pintura", "category": "furniture", "price": 30, "color": "d8a56f"},
+	{"id": "furn_slide", "name": "Tobogán", "category": "furniture", "price": 50, "color": "ff9ecb"},
+	{"id": "furn_sofa_mint", "name": "Sofá menta", "category": "furniture", "price": 45, "color": "9fd8c4", "base": "furn_sofa"},
+	{"id": "furn_beanbag_blue", "name": "Puff celeste", "category": "furniture", "price": 24, "color": "8ecae6", "base": "furn_beanbag"},
+	{"id": "furn_toybox_pink", "name": "Baúl rosa", "category": "furniture", "price": 28, "color": "ffadc9", "base": "furn_toybox"},
+	{"id": "furn_dresser_mint", "name": "Cómoda menta", "category": "furniture", "price": 38, "color": "a8dfc9", "base": "furn_dresser"},
+	{"id": "rug_round", "name": "Alfombra redonda", "category": "furniture", "price": 18, "color": "ffc2d9", "rug": true},
+	{"id": "rug_stripes", "name": "Alfombra a rayas", "category": "furniture", "price": 22, "color": "8ecae6", "rug": true},
+	{"id": "rug_star", "name": "Alfombra estrella", "category": "furniture", "price": 28, "color": "ffd966", "rug": true},
+	{"id": "rug_cloud", "name": "Alfombra nube", "category": "furniture", "price": 26, "color": "eaf4ff", "rug": true},
+	{"id": "deco_mirror", "name": "Espejo", "category": "deco", "price": 22, "color": "f5c26b"},
+	{"id": "deco_plant_hanging", "name": "Maceta colgante", "category": "deco", "price": 20, "color": "e0885c"},
+	{"id": "deco_stars", "name": "Estrellas brillantes", "category": "deco", "price": 18, "color": "ffe066"},
+	{"id": "deco_board", "name": "Pizarrón", "category": "deco", "price": 26, "color": "3f6b5a"},
+	{"id": "deco_map", "name": "Mapa del mundo", "category": "deco", "price": 28, "color": "bfe3f5"},
+	{"id": "deco_cloud", "name": "Nube colgante", "category": "deco", "price": 20, "color": "ffffff"},
+	{"id": "toy_lamp", "name": "Velador", "category": "furniture", "price": 16, "color": "ffd1a8"},
+	{"id": "toy_alarm", "name": "Despertador", "category": "furniture", "price": 12, "color": "ff7aa8"},
+	{"id": "toy_teacup", "name": "Juego de té", "category": "furniture", "price": 14, "color": "fff6f9"},
+	{"id": "toy_dino", "name": "Dinosaurio de juguete", "category": "furniture", "price": 18, "color": "7bd389"},
+	{"id": "toy_candles", "name": "Velas", "category": "furniture", "price": 12, "color": "fff1d6"},
+	{"id": "toy_duck", "name": "Patito de goma", "category": "furniture", "price": 10, "color": "ffd93d"},
+	{"id": "toy_snowglobe", "name": "Bola de nieve", "category": "furniture", "price": 20, "color": "cfefff"},
+	{"id": "toy_fruit", "name": "Frutero", "category": "furniture", "price": 12, "color": "e6b88a"},
+	{"id": "wall_yellow", "name": "Pared amarilla", "category": "wall", "price": 20, "color": "fff4c2", "pattern": "dots"},
+	{"id": "wall_flowers", "name": "Pared de flores", "category": "wall", "price": 24, "color": "fff0f4", "pattern": "flowers"},
+	{"id": "wall_brick", "name": "Pared de ladrillos", "category": "wall", "price": 24, "color": "f2c4a8", "pattern": "brick"},
+	{"id": "wall_wood", "name": "Pared de madera", "category": "wall", "price": 26, "color": "ecd2ac", "pattern": "panels"},
+	{"id": "wall_tiles", "name": "Pared de azulejos", "category": "wall", "price": 24, "color": "e6f4fb", "pattern": "tiles"},
+	{"id": "floor_lilac", "name": "Piso lila", "category": "floor", "price": 20, "color": "e3d4f5", "pattern": "planks"},
+	{"id": "floor_dark", "name": "Piso de madera oscura", "category": "floor", "price": 22, "color": "b98a62", "pattern": "planks"},
+	{"id": "floor_tiles", "name": "Piso de baldosas", "category": "floor", "price": 24, "color": "eef3f7", "pattern": "tiles"},
+	{"id": "floor_stones", "name": "Piso de piedras", "category": "floor", "price": 24, "color": "cfe6b8", "pattern": "stones"},
+	{"id": "floor_starry", "name": "Alfombrado de estrellas", "category": "floor", "price": 28, "color": "3b3d78", "pattern": "starry"},
 	# --- especiales: caros y con brillo. "base" = usa el dibujo de ese item con su propio color.
 	{"id": "hat_crown_diamond", "name": "Corona de diamantes", "category": "hat", "price": 1200, "color": "bfe9ff", "base": "hat_crown", "special": true},
 	{"id": "hat_halo_gold", "name": "Aureola dorada", "category": "hat", "price": 900, "color": "ffcc33", "base": "hat_halo", "special": true},
@@ -270,6 +333,16 @@ static func surface_of(id: String) -> Dictionary:
 	return SURFACES.get(id, SURFACES.get(shape_of(id), {}))
 
 
+## Alfombra: va en el piso, debajo de los muebles.
+static func is_rug(id: String) -> bool:
+	return RUGS.has(id) or RUGS.has(shape_of(id))
+
+
+## Se puede dar vuelta en el cuarto (lo que tiene letras o numeros quedaria al reves).
+static func can_flip(id: String) -> bool:
+	return is_placeable(id) and not shape_of(id) in ["deco_board", "deco_clock"] and not PixelArt.is_art(id)
+
+
 static func is_placeable(id: String) -> bool:
 	return get_item(id).get("category", "") in PLACEABLE
 
@@ -307,7 +380,17 @@ static func color_of(id: String) -> Color:
 	return Color.html(it["color"]) if not it.is_empty() else Color.WHITE
 
 
-## Los 10 items de hoy: cambian cada 24 h. Prefiere items que aun no tienes.
+## Cuantos items de cada grupo trae la tienda del dia (asi cada solapa tiene opciones para elegir).
+const SHOP_GROUPS := [
+	{"cats": ["furniture", "deco"], "n": 8},
+	{"cats": ["hat", "glasses", "shirt"], "n": 5},
+	{"cats": ["wall", "floor"], "n": 3},
+	{"cats": ["bowl_food", "bowl_water"], "n": 2},
+]
+
+
+## Los items de hoy (SHOP_SIZE): cambian cada 24 h, repartidos por grupo (SHOP_GROUPS). Prefiere items
+## que aun no tienes; si a un grupo le faltan, se completa con los de otros.
 ## (`_species` ya no se usa: antes forzaba el mueble clave de la especie.)
 static func daily_shop(unix_time: int, _species := "", owned: Array = [], must_include: Array = [], level := 9999) -> Array:
 	var day := unix_time / 86400
@@ -322,6 +405,14 @@ static func daily_shop(unix_time: int, _species := "", owned: Array = [], must_i
 			if owned.has(it["id"]) and is_unlocked(it["id"], level) and pool.size() < SHOP_SIZE and not it.get("special", false):
 				pool.append(it)
 	var picked := []
+	for g in SHOP_GROUPS:
+		var group_pool := pool.filter(func(it): return it["category"] in g["cats"])
+		var n := 0
+		while n < int(g["n"]) and not group_pool.is_empty():
+			var it: Dictionary = group_pool.pop_at(rng.randi() % group_pool.size())
+			picked.append(it)
+			pool.erase(it)
+			n += 1
 	while picked.size() < SHOP_SIZE and not pool.is_empty():
 		picked.append(pool.pop_at(rng.randi() % pool.size()))
 	# lo imprescindible (por ejemplo la cuna del huevo) va siempre primero en la lista
@@ -333,9 +424,11 @@ static func daily_shop(unix_time: int, _species := "", owned: Array = [], must_i
 			picked.erase(pinned)
 		else:
 			for j in range(picked.size() - 1, -1, -1):
-				if not must_include.has(picked[j]["id"]):
+				if not must_include.has(picked[j]["id"]) and picked[j]["category"] == pinned["category"]:
 					picked.remove_at(j)
 					break
+			if picked.size() >= SHOP_SIZE:
+				picked.remove_at(picked.size() - 1)
 		picked.insert(0, pinned)
 	return picked
 

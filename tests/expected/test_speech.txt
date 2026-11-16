@@ -3,5 +3,5 @@ bebe feliz: :) | bebe con hambre: :(
 nino con sed: Tengo sed
 nino normal *
 nino listo, frases distintas: 5
-tienda: la cuna va primero y trae 10 sin repetir: true
+tienda: la cuna va primero y trae 18 sin repetir: true
 home ok: true

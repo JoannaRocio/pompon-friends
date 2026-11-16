@@ -150,6 +150,8 @@ static func _build_real(entry: Dictionary) -> Dictionary:
 				if str(it.get("on", "")) != "":
 					e["on"] = str(it["on"])
 					e["ox"] = float(it.get("ox", 0.0))
+				if bool(it.get("flip", false)):
+					e["flip"] = true
 				placed.append(e)
 	return {"name": entry["name"], "pompon": p, "equipped": equipped,
 		"wall": wall if Catalog.get_item(wall).get("category", "") == "wall" else "",

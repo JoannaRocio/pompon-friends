@@ -27,5 +27,5 @@ comoda guardada: colocada=false florero=false cubos=false (esperado todo false)
 tras recargar: habitacion=1 pared=wall_blue (esperado 1 y wall_blue)
 sala recargada: pared=wall_mint (esperado wall_mint) | florero apoyado=true en furn_dresser
 partida vieja: sofa x=0.25 (esperado 0.25) planta x=0.5 (esperado 0.5) sala=0 pared=wall_mint
-las 6 habitaciones se dibujan: 51 items en total
-items por habitacion: { 0: 9, 1: 9, 2: 9, 3: 8, 4: 8, 5: 8 }
+las 6 habitaciones se dibujan: 87 items en total
+items por habitacion: { 0: 15, 1: 15, 2: 15, 3: 14, 4: 14, 5: 14 }

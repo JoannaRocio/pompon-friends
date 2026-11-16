@@ -56,7 +56,7 @@ especie, personalidad, barras, crecimiento, cuna), botones de arriba y de abajo,
 primera vez (`TIPS`, huevo que se mueve), regalo del día, nombre del Pompon al nacer, "¿Te avisamos?",
 cartel de nombres nuevos, la despedida (solo los botones) y el tutorial guiado completo
 (`TutorialSteps`, `TutorialOverlay`).
-- Tienda, vestidor, decorar, menú de comida, nombres de los 119 objetos (`Catalog.item_name`, claves
+- Tienda, vestidor, decorar, menú de comida, nombres de todos los objetos (`Catalog.item_name`, claves
   `item.<id>`), comidas (`PomponTastes.food_name`, `food.<id>`), habitaciones (`Rooms.room_name`) y el
   aviso de nivel nuevo.
 - Trabajo: periódico, ficha de profe, aula, lecciones, turno y carteles finales; Matemáticas (nombres de

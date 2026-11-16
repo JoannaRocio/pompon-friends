@@ -8,13 +8,13 @@ dia 51: nivel=52 etapa=Adulto | proxima etapa en el nivel -1
 dia 120: nivel=121 etapa=Adulto | proxima etapa en el nivel -1
 nivel de desbloqueo: sombrero de bruja=26 corona=52 cuna=1 (sin dato = 1)
 el mueble de cada especie y la cuna estan desde el nivel 1: true
-tienda del nivel 1: 10 items | todos desbloqueados=true
-tienda del nivel 60: 10 items | hay de todos los niveles=true
-bloqueados (nivel 1): 6 ordenados por nivel=true | primero=Reloj nivel 2
+tienda del nivel 1: 16 items | todos desbloqueados=true
+tienda del nivel 60: 18 items | hay de todos los niveles=true
+bloqueados (nivel 1): 6 ordenados por nivel=true | primero=Tazón rosa de lunares nivel 2
 con nivel 99 no queda nada bloqueado: true
-items nuevos con dibujo y precio: 119 en total
-tienda en nivel 3: tarjetas hoy=10 | bloqueadas=6 | titulo='Nivel 3 · Bebé'
+items nuevos con dibujo y precio: 165 en total
+tienda en nivel 3: tarjetas hoy=18 | bloqueadas=6 | titulo='Nivel 3 · Bebé'
 todo lo que se ofrece esta desbloqueado: true
-filtro Ropa: 2 tarjetas, todas de ropa=true
+filtro Ropa: 5 tarjetas, todas de ropa=true
 aviso de nivel nuevo: '¡Nivel 7! | ¡Nueva habitación: Dormitorio!' | nivel visto=7
 la estrella del nivel muestra: 7

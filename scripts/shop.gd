@@ -124,10 +124,10 @@ func _ready() -> void:
 
 func _new_grid() -> GridContainer:
 	var g := GridContainer.new()
-	g.columns = 2
+	g.columns = 3
 	g.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	g.add_theme_constant_override("h_separation", 14)
-	g.add_theme_constant_override("v_separation", 14)
+	g.add_theme_constant_override("h_separation", 10)
+	g.add_theme_constant_override("v_separation", 10)
 	return g
 
 
@@ -237,7 +237,7 @@ func _rebuild() -> void:
 		if cats.is_empty() or item["category"] in cats:   # la cuna es un mueble: sale en Todo y en Muebles
 			_grid.add_child(_make_card(item))
 	# lo que todavia no se puede comprar
-	var locked_items: Array = Catalog.locked_items(level, 12).filter(func(i): return cats.is_empty() or i["category"] in cats).slice(0, 6)
+	var locked_items: Array = Catalog.locked_items(level, 40).filter(func(i): return cats.is_empty() or i["category"] in cats).slice(0, 6)
 	_locked_title.visible = not locked_items.is_empty() and not _locked
 	_locked_grid.visible = _locked_title.visible
 	for item in locked_items:
@@ -272,40 +272,41 @@ func _make_card(item: Dictionary) -> Control:
 		needed = true
 	var card := PanelContainer.new()
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.96), 34, Color("ff8fb8") if needed else Color.WHITE, 5 if needed else 3, 8))
+	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.96), 28, Color("ff8fb8") if needed else Color.WHITE, 5 if needed else 3, 6))
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", 4)
 	card.add_child(box)
 
 	var holder := CenterContainer.new()
 	box.add_child(holder)
 	var icon := ItemIcon.new()
-	icon.set_item(item["id"], 128.0)
+	icon.set_item(item["id"], 112.0)
 	holder.add_child(icon)
 
 	var name_label := Label.new()
 	name_label.text = Catalog.item_name(item["id"])
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_label.custom_minimum_size = Vector2(0, 64)
+	name_label.custom_minimum_size = Vector2(0, 54)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 25)
+	name_label.add_theme_font_size_override("font_size", 20)
+	name_label.add_theme_constant_override("line_spacing", -4)
 	box.add_child(name_label)
 
 	var tag := HBoxContainer.new()
 	tag.alignment = BoxContainer.ALIGNMENT_CENTER
-	tag.custom_minimum_size = Vector2(0, 34)
+	tag.custom_minimum_size = Vector2(0, 30)
 	box.add_child(tag)
 	var kind: String = Catalog.category_name(item["category"])
 	if item["id"] == GameState.CRIB_ID and GameState.egg_waiting():
-		tag.add_child(Hud.chip(T.s("¡Para que nazca!"), Color("ffe6ef"), Color("d6336c"), 20))
+		tag.add_child(Hud.chip(T.s("¡Para que nazca!"), Color("ffe6ef"), Color("d6336c"), 16))
 	elif needed:   # pensado para su especie (ya no es obligatorio: no decir "lo necesita")
-		tag.add_child(Hud.chip(T.s("Para %s") % Pompon.species_label(item["species"]), Color("ffe6ef"), Color("d6336c"), 20))
+		tag.add_child(Hud.chip(T.s("Para %s") % Pompon.species_label(item["species"]), Color("ffe6ef"), Color("d6336c"), 16))
 	else:   # lo de otra especie también lo puede usar: se muestra como cualquier mueble
-		tag.add_child(Hud.chip(kind, Color("f3eefc"), Color("7a56c4"), 20))
+		tag.add_child(Hud.chip(kind, Color("f3eefc"), Color("7a56c4"), 16))
 
 	var buy := Button.new()
-	buy.custom_minimum_size = Vector2(0, 72)
+	buy.custom_minimum_size = Vector2(0, 60)
 	buy.focus_mode = Control.FOCUS_NONE
 	card.set_meta("buy", buy)
 	card.set_meta("id", item["id"])
@@ -317,22 +318,22 @@ func _make_card(item: Dictionary) -> Control:
 	buy.add_child(price_row)
 	var price_label := Label.new()
 	price_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	price_label.add_theme_font_size_override("font_size", 30)
+	price_label.add_theme_font_size_override("font_size", 26)
 	if owned:
-		Hud.style_soft(buy, 26)
+		Hud.style_soft(buy, 22)
 		buy.disabled = true
 		var done := Control.new()
-		done.custom_minimum_size = Vector2(34, 34)
+		done.custom_minimum_size = Vector2(28, 28)
 		done.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		done.draw.connect(func(): Hud.draw_icon(done, "check", done.size * 0.5, 34.0, Color("2f9e6e")))
+		done.draw.connect(func(): Hud.draw_icon(done, "check", done.size * 0.5, 28.0, Color("2f9e6e")))
 		price_row.add_child(done)
 		price_label.text = T.s("Tuyo")
 		price_label.add_theme_color_override("font_color", Color("2f9e6e"))
 	else:
 		var affordable: bool = GameState.coins >= item["price"]
-		Hud.style_primary(buy, 30, Color("5fc77f"))
+		Hud.style_primary(buy, 26, Color("5fc77f"))
 		buy.disabled = not affordable
-		price_row.add_child(Hud.coin_icon(34.0))
+		price_row.add_child(Hud.coin_icon(28.0))
 		price_label.text = str(item["price"])
 		if affordable:
 			price_label.add_theme_color_override("font_color", Color.WHITE)
@@ -345,7 +346,7 @@ func _make_card(item: Dictionary) -> Control:
 			var missing := Label.new()
 			missing.text = T.s("Te faltan %d") % (int(item["price"]) - GameState.coins)
 			missing.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			missing.add_theme_font_size_override("font_size", 19)
+			missing.add_theme_font_size_override("font_size", 16)
 			missing.add_theme_color_override("font_color", Color("e0295f"))
 			missing.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			card.set_meta("missing", missing)
@@ -354,7 +355,11 @@ func _make_card(item: Dictionary) -> Control:
 				if item["id"] == GameState.CRIB_ID and GameState.pompon != null:
 					_celebrate_crib()
 				else:
-					_rebuild())
+					var cat: String = item["category"]
+					if cat in ["wall", "floor"] and GameState.equipped.get(cat, "") != item["id"]:
+						GameState.equip(item["id"])   # la pared o el piso nuevo se ve enseguida en esta habitacion
+					_rebuild()
+					_bought_toast(item["id"]))
 	price_row.add_child(price_label)
 	box.add_child(buy)
 	if card.has_meta("missing") and (not _locked or item["id"] == GameState.CRIB_ID):
@@ -363,7 +368,7 @@ func _make_card(item: Dictionary) -> Control:
 	if _locked:  # la primera vez solo se puede comprar la cuna: lo demas espera
 		if item["id"] == GameState.CRIB_ID:
 			_crib_button = buy
-			buy.pivot_offset = Vector2(150, 36)
+			buy.pivot_offset = Vector2(96, 30)
 			var pulse := buy.create_tween().set_loops()
 			pulse.tween_property(buy, "scale", Vector2(1.06, 1.06), 0.6).set_trans(Tween.TRANS_SINE)
 			pulse.tween_property(buy, "scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_SINE)
@@ -373,11 +378,54 @@ func _make_card(item: Dictionary) -> Control:
 	return card
 
 
+## Cartelito despues de comprar: donde quedo lo que se compro (o donde se usa).
+func _bought_toast(id: String) -> void:
+	var cat: String = Catalog.get_item(id).get("category", "")
+	var place := Rooms.place_name(GameState.current_room)
+	var text := ""
+	if Catalog.is_placeable(id):
+		text = T.s("¡Ya está {place}!", {"place": place}) + "\n" + T.s("Muévelo con Decorar")
+	elif cat in ["wall", "floor"]:
+		text = T.s("¡Ya se ve {place}!", {"place": place})
+	elif cat in Catalog.WEARABLE:
+		text = T.s("Póntelo en el Vestidor")
+	if text == "":
+		return
+	var toast := PanelContainer.new()
+	toast.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	toast.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	toast.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	toast.offset_bottom = -40
+	toast.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toast.add_theme_stylebox_override("panel", Hud.card(Color("fffafc"), 30, Color("ffb3d1"), 5, 14))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	toast.add_child(row)
+	var icon := ItemIcon.new()
+	icon.set_item(id, 72.0)
+	row.add_child(icon)
+	var label := Label.new()
+	label.text = text
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color("a0527a"))
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(label)
+	add_child(toast)
+	toast.modulate.a = 0.0
+	var tw := toast.create_tween()
+	tw.tween_property(toast, "modulate:a", 1.0, 0.2)
+	tw.tween_interval(2.2)
+	tw.tween_property(toast, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(toast.queue_free)
+
+
 ## Tarjeta con candado: se desbloquea cuando el Pompon llega a ese nivel.
 func _make_locked_card(item: Dictionary) -> Control:
 	var card := PanelContainer.new()
 	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	card.add_theme_stylebox_override("panel", Hud.card(Color(0.96, 0.93, 0.95, 0.9), 34, Color("e6d3dc"), 3, 2))
+	card.add_theme_stylebox_override("panel", Hud.card(Color(0.96, 0.93, 0.95, 0.9), 28, Color("e6d3dc"), 3, 2))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 6)
 	card.add_child(box)
@@ -404,19 +452,20 @@ func _make_locked_card(item: Dictionary) -> Control:
 	name_label.text = Catalog.item_name(item["id"])
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_label.custom_minimum_size = Vector2(0, 60)
+	name_label.custom_minimum_size = Vector2(0, 54)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 19)
+	name_label.add_theme_constant_override("line_spacing", -4)
 	name_label.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
 	box.add_child(name_label)
 	var tag := HBoxContainer.new()
 	tag.alignment = BoxContainer.ALIGNMENT_CENTER
 	box.add_child(tag)
-	tag.add_child(Hud.chip(T.s("Nivel %d") % lvl, Color("ece6f7"), Color("6b4ba6"), 22))
+	tag.add_child(Hud.chip(T.s("Nivel %d") % lvl, Color("ece6f7"), Color("6b4ba6"), 18))
 	var stage := Label.new()
 	stage.text = T.label(Pompon.stage_name_for_level(lvl))
 	stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stage.add_theme_font_size_override("font_size", 18)
+	stage.add_theme_font_size_override("font_size", 16)
 	stage.add_theme_color_override("font_color", Color(Hud.INK, 0.5))
 	box.add_child(stage)
 	return card

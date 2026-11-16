@@ -67,7 +67,7 @@ const REACTION_STAT := {"fed": "alimentacion", "drank": "hidratacion", "bathed":
 	"worked": "felicidad", "bought": "felicidad", "room_changed": "comodidad", "visited": "amistad", "levelup": "felicidad"}
 const REACTION_KIND := {"fed": KIND_SAY, "drank": KIND_SAY, "bathed": KIND_SAY, "petted": KIND_SAY, "played": KIND_FEEL,
 	"worked": KIND_FEEL, "bought": KIND_FEEL, "room_changed": KIND_THINK, "visited": KIND_FEEL, "levelup": KIND_FEEL}
-const PLURAL_START := ["Lentes", "Cubos"]
+const PLURAL_START := ["Lentes", "Cubos", "Almohadones", "Velas", "Estrellas"]
 const DREAMS := ["Soñé que volaba entre nubes de algodón", "Soñé con una montaña de galletitas",
 	"Soñé que jugaba a la pelota con mis amigos", "Soñé que nadaba con pececitos de colores",
 	"Soñé que la luna me contaba un cuento", "Soñé que mi casa era un castillo de almohadas",

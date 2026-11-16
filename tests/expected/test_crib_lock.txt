@@ -1,5 +1,5 @@
 la cuna va primera y se puede comprar:  | activa=true
-lo demas esta apagado (9 items): true
+lo demas esta apagado (15 items): true
 la flecha señala la cuna: visible=true | objetivo=true
 con 30 monedas todo apagado: true | sin flecha=true
 comprar la cuna: true

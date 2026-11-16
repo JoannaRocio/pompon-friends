@@ -168,6 +168,17 @@ func attach_item(item_id: String, support: String, ox: float) -> void:
 			p["ox"] = ox
 
 
+## Da vuelta un item del cuarto (mira para el otro lado). Tocar otra vez lo deja como estaba.
+func flip_item(item_id: String) -> void:
+	for p in placed:
+		if p["id"] == item_id:
+			if bool(p.get("flip", false)):
+				p.erase("flip")
+			else:
+				p["flip"] = true
+	save_game()
+
+
 func detach_item(item_id: String) -> void:
 	for p in placed:
 		if p["id"] == item_id:
@@ -1440,6 +1451,8 @@ func apply_save(parsed: Dictionary) -> void:
 			if str(entry.get("on", "")) != "":
 				loaded["on"] = str(entry["on"])
 				loaded["ox"] = float(entry.get("ox", 0.0))
+			if bool(entry.get("flip", false)):
+				loaded["flip"] = true
 			placed.append(loaded)
 	for p in placed:  # un adorno solo queda "apoyado" si su mueble sigue ahi, en la misma habitacion
 		if p.has("on"):

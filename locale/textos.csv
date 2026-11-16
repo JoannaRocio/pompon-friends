@@ -1773,3 +1773,117 @@ s:Socializando...,Socializando...,Hanging out...
 s:¡Ñam ñam ñam! <3,¡Ñam ñam ñam! <3,Yum yum yum! <3
 s:¡Ñam ñam!,¡Ñam ñam!,Yum yum!
 s:¡Ñam!,¡Ñam!,Yum!
+s:se sienta en la silla,se sienta en la silla,sits on the chair
+s:¡Una silla justo para mí!,¡Una silla justo para mí!,A chair just for me!
+s:descansa en el sillón,descansa en el sillón,relaxes in the armchair
+s:¡Un sillón! Perfecto para una siesta.,¡Un sillón! Perfecto para una siesta.,An armchair! Perfect for a nap.
+s:¡Qué blandito!,¡Qué blandito!,So squishy!
+s:se acurruca en los almohadones,se acurruca en los almohadones,snuggles into the cushions
+s:¡Almohadones! ¡Qué blanditos!,¡Almohadones! ¡Qué blanditos!,Cushions! So soft!
+s:se sienta en el banco,se sienta en el banco,sits on the bench
+s:¡Un banco como el de la plaza!,¡Un banco como el de la plaza!,A bench like the one in the park!
+s:juega en el tipi,juega en el tipi,plays in the teepee
+s:¡Un tipi! ¡Es mi escondite secreto!,¡Un tipi! ¡Es mi escondite secreto!,A teepee! It's my secret hideout!
+s:¿Acampamos adentro de casa?,¿Acampamos adentro de casa?,Shall we camp inside the house?
+s:cocina algo rico,cocina algo rico,cooks something yummy
+s:¡Una cocinita! ¿Te preparo una sopa?,¡Una cocinita! ¿Te preparo una sopa?,A little kitchen! Shall I make you some soup?
+s:busca algo rico en la heladera,busca algo rico en la heladera,looks for a snack in the fridge
+s:¡Una heladera! ¿Qué hay para comer?,¡Una heladera! ¿Qué hay para comer?,A fridge! What's there to eat?
+s:mira las estrellas por el telescopio,mira las estrellas por el telescopio,looks at the stars through the telescope
+s:¡Un telescopio! ¡Quiero ver la luna!,¡Un telescopio! ¡Quiero ver la luna!,A telescope! I want to see the moon!
+s:mira el agua de la fuente,mira el agua de la fuente,watches the fountain's water
+s:¡Una fuente! Qué lindo suena el agua.,¡Una fuente! Qué lindo suena el agua.,A fountain! The water sounds so nice.
+s:descansa bajo el arbolito,descansa bajo el arbolito,rests under the little tree
+s:¡Un árbol adentro de casa!,¡Un árbol adentro de casa!,A tree inside the house!
+s:¡Flores! ¡Qué perfume!,¡Flores! ¡Qué perfume!,Flowers! They smell so nice!
+s:pinta en el atril,pinta en el atril,paints at the easel
+s:¡Un atril! Voy a pintar tu retrato.,¡Un atril! Voy a pintar tu retrato.,An easel! I'll paint your picture.
+s:se tira por el tobogán,se tira por el tobogán,goes down the slide
+s:¡Un tobogán! ¡Wiii!,¡Un tobogán! ¡Wiii!,A slide! Wheee!
+s:se mira en el espejo,se mira en el espejo,looks in the mirror
+"s:¡Un espejo! ¡Hola, yo!","¡Un espejo! ¡Hola, yo!","A mirror! Hi, me!"
+s:mira la maceta colgante,mira la maceta colgante,looks at the hanging plant
+s:¡Una planta que cuelga del techo!,¡Una planta que cuelga del techo!,A plant hanging from the ceiling!
+s:mira las estrellas brillantes,mira las estrellas brillantes,looks at the glowing stars
+s:¡Estrellas que brillan de noche!,¡Estrellas que brillan de noche!,Stars that glow at night!
+s:dibuja en el pizarrón,dibuja en el pizarrón,draws on the chalkboard
+s:¡Un pizarrón! ¿Jugamos a la escuela?,¡Un pizarrón! ¿Jugamos a la escuela?,A chalkboard! Shall we play school?
+s:mira el mapa del mundo,mira el mapa del mundo,looks at the world map
+s:¡Un mapa! ¿A dónde viajamos?,¡Un mapa! ¿A dónde viajamos?,A map! Where shall we travel?
+s:mira la nube colgante,mira la nube colgante,looks at the hanging cloud
+s:¡Una nube adentro de casa!,¡Una nube adentro de casa!,A cloud inside the house!
+s:mira el velador,mira el velador,looks at the little lamp
+s:¡Un velador para leer de noche!,¡Un velador para leer de noche!,A little lamp for reading at night!
+s:mira el despertador,mira el despertador,looks at the alarm clock
+s:¡Riiing! ¡Hora de jugar!,¡Riiing! ¡Hora de jugar!,Riiing! Time to play!
+s:juega a tomar el té,juega a tomar el té,plays tea party
+s:¡Un juego de té! ¿Me acompañas?,¡Un juego de té! ¿Me acompañas?,A tea set! Will you join me?
+s:juega con el dinosaurio,juega con el dinosaurio,plays with the dinosaur
+s:¡Un dinosaurio! ¡Grrr!,¡Un dinosaurio! ¡Grrr!,A dinosaur! Rawr!
+s:mira las velitas,mira las velitas,looks at the candles
+s:Qué lindas velitas…,Qué lindas velitas…,Such pretty candles…
+s:juega con el patito,juega con el patito,plays with the rubber duck
+"s:¡Cuac, cuac!","¡Cuac, cuac!","Quack, quack!"
+s:sacude la bola de nieve,sacude la bola de nieve,shakes the snow globe
+s:¡Está nevando adentro!,¡Está nevando adentro!,It's snowing inside!
+s:mira el frutero con ganas,mira el frutero con ganas,looks hungrily at the fruit bowl
+s:¡Frutas! ¡Qué ricas!,¡Frutas! ¡Qué ricas!,Fruit! Yummy!
+item.furn_chair,Silla,Chair
+item.furn_armchair,Sillón,Armchair
+item.furn_cushions,Almohadones,Floor cushions
+item.furn_nightstand,Mesita de luz,Bedside table
+item.furn_tent,Tipi,Teepee
+item.furn_stove,Cocinita,Toy kitchen
+item.furn_fridge,Heladera,Fridge
+item.furn_telescope,Telescopio,Telescope
+item.furn_fountain,Fuente,Fountain
+item.furn_bench,Banco de plaza,Park bench
+item.furn_tree,Arbolito,Little tree
+item.furn_flowers,Cantero de flores,Flower bed
+item.furn_easel,Atril de pintura,Easel
+item.furn_slide,Tobogán,Slide
+item.furn_sofa_mint,Sofá menta,Mint sofa
+item.furn_beanbag_blue,Puff celeste,Blue beanbag
+item.furn_toybox_pink,Baúl rosa,Pink toy box
+item.furn_dresser_mint,Cómoda menta,Mint dresser
+item.rug_round,Alfombra redonda,Round rug
+item.rug_stripes,Alfombra a rayas,Striped rug
+item.rug_star,Alfombra estrella,Star rug
+item.rug_cloud,Alfombra nube,Cloud rug
+item.deco_mirror,Espejo,Mirror
+item.deco_plant_hanging,Maceta colgante,Hanging plant
+item.deco_stars,Estrellas brillantes,Glowing stars
+item.deco_board,Pizarrón,Chalkboard
+item.deco_map,Mapa del mundo,World map
+item.deco_cloud,Nube colgante,Hanging cloud
+item.toy_lamp,Velador,Table lamp
+item.toy_alarm,Despertador,Alarm clock
+item.toy_teacup,Juego de té,Tea set
+item.toy_dino,Dinosaurio de juguete,Toy dinosaur
+item.toy_candles,Velas,Candles
+item.toy_duck,Patito de goma,Rubber duck
+item.toy_snowglobe,Bola de nieve,Snow globe
+item.toy_fruit,Frutero,Fruit bowl
+item.wall_yellow,Pared amarilla,Yellow wall
+item.wall_flowers,Pared de flores,Flower wall
+item.wall_brick,Pared de ladrillos,Brick wall
+item.wall_wood,Pared de madera,Wooden wall
+item.wall_tiles,Pared de azulejos,Tiled wall
+item.floor_lilac,Piso lila,Lilac floor
+item.floor_dark,Piso de madera oscura,Dark wood floor
+item.floor_tiles,Piso de baldosas,Tiled floor
+item.floor_stones,Piso de piedras,Stepping-stone floor
+item.floor_starry,Alfombrado de estrellas,Starry carpet
+s:¡Ya está {place}!,¡Ya está {place}!,It's {place} now!
+s:Muévelo con Decorar,Muévelo con Decorar,Move it with Decorate
+s:¡Ya se ve {place}!,¡Ya se ve {place}!,You can see it {place} now!
+s:Póntelo en el Vestidor,Póntelo en el Vestidor,Try it on in the Wardrobe
+s:Para colgar,Para colgar,Hang up
+s:Adornos,Adornos,Little things
+s:Pared y piso,Pared y piso,Walls & floors
+s:Dar vuelta,Dar vuelta,Flip
+s:Guardar,Guardar,Put away
+s:Toca algo de abajo para ponerlo en tu cuarto.,Toca algo de abajo para ponerlo en tu cuarto.,Tap something below to put it in your room.
+s:Arrástralo para moverlo. Los adornos se apoyan en mesas y estantes.,Arrástralo para moverlo. Los adornos se apoyan en mesas y estantes.,Drag it to move it. Little things can sit on tables and shelves.
+s:No tienes nada de esto guardado. ¡Busca más en la tienda!,No tienes nada de esto guardado. ¡Busca más en la tienda!,You don't have any of these stored. Find more in the shop!
+s:Toca una pared o un piso para probarlo.,Toca una pared o un piso para probarlo.,Tap a wall or floor to try it.
