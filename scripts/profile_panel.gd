@@ -183,18 +183,14 @@ func _growth(col: VBoxContainer, p: Pompon, now: int) -> void:
 		bar.font_size = 24
 		bar.custom_minimum_size = Vector2(0, 58)
 		col.add_child(bar)
-		var stage := p.stage_index(now)
-		var total_days := PomponGrowth.stage_days(stage)
-		var day := PomponGrowth.day_index(p, now)
 		# a este ritmo, como terminaria la etapa
 		var pace := PomponGrowth.pace(p, now)
-		var next_name: String = T.label(Pompon.STAGES[stage + 1]).to_lower()
 		var outlook := T.s("Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas.")
 		if pace < PomponGrowth.NORMAL:
 			outlook = T.s("Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario.")
 		elif pace < PomponGrowth.EXCELLENT:
 			outlook = T.s("Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!")
-		col.add_child(_label(T.s("Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti.") % [day + 1, total_days, next_name, PomponGrowth.days_left(p, now)], 22, INK))
+		# (cuantos dias faltan ya lo dice el encabezado: aca solo como viene y que se puede sumar hoy)
 		col.add_child(_label(outlook, 22, PomponGrowth.tier_color(pace).darkened(0.25)))
 		col.add_child(_label(T.s("Hoy puedes sumar:"), 24, SOFT))
 		for item in PomponGrowth.checklist(p, now):

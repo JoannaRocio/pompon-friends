@@ -300,6 +300,10 @@ static func draw_icon(cv: CanvasItem, kind: String, c: Vector2, s: float, col: C
 			cv.draw_colored_polygon(_circle_pts(c + Vector2(0.13, -0.3) * s, 0.14 * s, 0.08 * s, -0.5), col)
 		"check":
 			cv.draw_polyline(PackedVector2Array([c + Vector2(-0.3, 0.02) * s, c + Vector2(-0.08, 0.24) * s, c + Vector2(0.32, -0.22) * s]), col, w * 1.8, true)
+		"clock":   # reloj (cuanto falta para que cambie algo)
+			cv.draw_arc(c, 0.38 * s, 0.0, TAU, 28, col, w * 1.3, true)
+			cv.draw_line(c, c + Vector2(0, -0.24) * s, col, w * 1.3, true)
+			cv.draw_line(c, c + Vector2(0.17, 0.08) * s, col, w * 1.3, true)
 		"chevron_down":
 			cv.draw_polyline(PackedVector2Array([c + Vector2(-0.3, -0.12) * s, c + Vector2(0, 0.16) * s, c + Vector2(0.3, -0.12) * s]), col, w * 1.5, true)
 		"chevron_up":

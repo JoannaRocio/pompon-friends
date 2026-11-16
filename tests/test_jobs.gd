@@ -77,7 +77,7 @@ func _initialize() -> void:
 	var buttons := _texts(board, "Button")
 	print("  botones: ", buttons)
 	print("  'Aplicar' en los tres: ", buttons.count("Aplicar") == 3, " | bloqueados: ", buttons.count("Bloqueado"))
-	print("  ninguno dice Proximamente: ", labels.count("Próximamente") == 0, " | vacantes: ", labels.count("¡Hay vacantes!") == 3)
+	print("  ninguno dice Proximamente: ", labels.count("Próximamente") == 0, " | sin carteles de vacantes: ", labels.count("¡Hay vacantes!") == 0)
 	board._open("astronomia")
 	print("tocar un trabajo bloqueado: '", board._message.text, "'")
 

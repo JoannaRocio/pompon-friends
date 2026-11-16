@@ -248,10 +248,10 @@ func _make_ad(job: Dictionary) -> Control:
 	blurb.add_theme_font_size_override("font_size", 22)
 	blurb.add_theme_color_override("font_color", Color("a0527a") if available else Color(INK, 0.45))
 	info.add_child(blurb)
-	var status_row := HBoxContainer.new()
-	info.add_child(status_row)
-	status_row.add_child(Hud.chip(T.s("¡Hay vacantes!") if available else T.s("Próximamente"),
-		Color("d8f5e3") if available else Color("ece6f0"), Color("1f7a4d") if available else Color("7d7390"), 20))
+	if not available:   # (si hay lugar no hace falta decirlo: el boton "Aplicar" ya lo dice)
+		var status_row := HBoxContainer.new()
+		info.add_child(status_row)
+		status_row.add_child(Hud.chip(T.s("Próximamente"), Color("ece6f0"), Color("7d7390"), 20))
 
 	if available:
 		var apply := Button.new()

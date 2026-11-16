@@ -189,7 +189,7 @@ func _build_week() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)
 	card.add_child(col)
-	var intro := _small("Entra cualquier día de la semana y gana un sello. ¡Si faltas un día no pierdes nada!", 21, Hud.INK)
+	var intro := _small("¡Un sello por cada día que entras!", 22, Hud.INK)
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.custom_minimum_size = Vector2(400, 0)
 	col.add_child(intro)

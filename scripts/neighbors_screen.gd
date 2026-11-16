@@ -319,7 +319,6 @@ func _friends_card() -> Control:
 			Color("ffe6ef") if full else Color("d8f5e3"), Color("d6336c") if full else Color("1f7a4d"), 22))
 
 	if not Friends.is_active():
-		col.add_child(_small("Agrega a tus amigos con su código y visítense.", 22))
 		col.add_child(_pill_button("Activar amigos", _activate, PINK))
 		return card
 

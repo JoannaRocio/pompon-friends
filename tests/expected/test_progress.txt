@@ -13,7 +13,7 @@ aviso: dentro de * dias, a las 18 h
   programado: 'Mochi te extraña' - 'Pasa a saludarlo cuando quieras. Tu sello de la semana te espera.'
   al abrir el juego se cancela: true
   con la campana apagada no se programa: true
-capitulo 1 (cuidar): aparece=true | '¡Hola! Te muestro en un ratito cómo cuidar a Mochi. Toca los botones q'
+capitulo 1 (cuidar): aparece=true | '¡Hola! Te enseño a cuidar a Mochi. | '
   el tutorial tapa los avisos sueltos: true
   paso 2 resalta: Caricia | modo=tap
   paso 3 resalta: Comer
@@ -21,11 +21,11 @@ capitulo 1 (cuidar): aparece=true | '¡Hola! Te muestro en un ratito cómo cuida
   paso 4 resalta la tarjeta de necesidades: true
   paso 5 resalta el Diario: Diario
 capitulo 1 terminado: capitulo=1 | el siguiente espera un ratito: true
-capitulo 2 (crecer): true | 'En 5 días Mochi va a ser niño. ¡Cuídalo mucho estos días: así aprende a hablar y confía en' | dibujo de etapas: true
+capitulo 2 (crecer): true | 'En 5 días Mochi va a ser niño. ¡Cuídalo mucho! | ' | dibujo de etapas: true
 capitulo 3 (casa): true | resalta la solapa Casa: true
   despues resalta la Tienda: Tienda
 capitulo 4 (amigos) espera a otro dia: true
   resalta Vecinos: Vecinos
-  en Vecinos resalta la tarjeta de amigos: true | 'Cada jugador tiene un código (su ID). Comparte el tuyo y agr'
+  en Vecinos resalta la tarjeta de amigos: true | 'Comparte tu código con tus amigos para visitarse. | '
   capitulo siguiente: jugar
 saltar tutorial: apagado=true | sin cartel: true

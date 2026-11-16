@@ -12,6 +12,8 @@ func _texts(node: Node) -> Array:
 		if c is Label or c is Button:
 			if c.text != "" and not c.is_queued_for_deletion():
 				out.append(c.atr(c.text))   # (lo que se ve: Godot traduce solo los textos que son clave del CSV)
+			elif c is Button and c.tooltip_text != "" and not c.is_queued_for_deletion():
+				out.append(c.tooltip_text)   # boton de solo icono (ActionButton sin etiqueta): su nombre va en la ayuda
 		elif c is RichTextLabel:
 			out.append(c.get_parsed_text())
 		elif c is Control and "text" in c and typeof(c.get("text")) == TYPE_STRING and c.get("text") != "":   # barras dibujadas (StatBar)
@@ -622,7 +624,7 @@ func _initialize() -> void:
 	await create_timer(2.0).timeout
 	var tt: Array = _texts(h2._tut) if h2._tut != null else []
 	var h2t := _texts(h2)
-	print("casa con Pompon (en): ", h2t.filter(func(s): return s in ["Eat", "Drink", "Bath", "Cuddle", "Games", "Pompon", "Home", "Food", "Water", "Clean", "Fun", "Comfort", "Sleep", "Trust", "Social"] or s.begins_with("Mochi  (Baby)") or s.begins_with("Growth") or s.begins_with("Day 1 of 7")))
+	print("casa con Pompon (en): ", h2t.filter(func(s): return s in ["Eat", "Drink", "Bath", "Cuddle", "Games", "Pompon", "Home", "Food", "Water", "Clean", "Fun", "Comfort", "Sleep", "Trust", "Social"] or s == "Mochi" or s.begins_with("Growth") or s.begins_with("Day 1 of 7")))
 	print("  tutorial (en): ", tt.filter(func(s): return s.begins_with("Hi!") or s in ["Skip tutorial", "Got it!"]), " | claves sueltas: ", _raw_keys(h2t))
 	h2.queue_free()
 	await process_frame
@@ -634,7 +636,7 @@ func _initialize() -> void:
 	await create_timer(2.0).timeout
 	var h3t := _texts(h3)
 	var tt3: Array = _texts(h3._tut) if h3._tut != null else []
-	print("casa con Pompon (es): ", h3t.filter(func(s): return s in ["Comer", "Caricia", "Casa", "Comida", "Sueño"] or s.begins_with("Mochi  (Bebé)") or s.begins_with("Día 1 de 7")), " | tutorial: ", tt3.filter(func(s): return s.begins_with("¡Hola!") or s == "Saltar tutorial"))
+	print("casa con Pompon (es): ", h3t.filter(func(s): return s in ["Comer", "Caricia", "Casa", "Comida", "Sueño"] or s == "Mochi" or s.begins_with("Día 1 de 7")), " | tutorial: ", tt3.filter(func(s): return s.begins_with("¡Hola!") or s == "Saltar tutorial"))
 	h3.queue_free()
 
 	gs.set_language("en")

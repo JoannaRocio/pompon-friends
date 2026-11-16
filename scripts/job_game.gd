@@ -755,7 +755,6 @@ func _show_result(res: Dictionary) -> void:
 	chips.alignment = BoxContainer.ALIGNMENT_CENTER
 	chips.add_theme_constant_override("separation", 12)
 	chips.add_child(Hud.chip("%s: %d de %d" % [T.s("Cuentas bien") if subject == "math" else T.s("Bien"), correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
-	chips.add_child(Hud.chip(T.s("Ordenados: %d") % sorter.sorted_total, Color("e6efff"), Color("3f66b0"), 24))
 	box.add_child(chips)
 	var pay := HBoxContainer.new()
 	pay.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -768,10 +767,8 @@ func _show_result(res: Dictionary) -> void:
 	if res["extra"] > 0:
 		var extra_row := HBoxContainer.new()
 		extra_row.alignment = BoxContainer.ALIGNMENT_CENTER
-		extra_row.add_child(Hud.chip(T.s("¡Turno completo! +%d monedas extra") % res["extra"], Color("fff0cf"), Color("8a6d3b"), 26))
+		extra_row.add_child(Hud.chip(T.s("¡Turno completo! +%d") % res["extra"], Color("fff0cf"), Color("8a6d3b"), 26))
 		box.add_child(extra_row)
-	else:
-		box.add_child(_label(T.s("Termina el turno completo y gana +%d extra") % problems.FULL_SHIFT_BONUS, 22, HORIZONTAL_ALIGNMENT_CENTER, Color("a0527a")))
 	if res["bonus"] > 0:
 		box.add_child(_label(T.s("+%d monedas de premio por el nivel") % res["bonus"], 28, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e")))
 	box.add_child(HSeparator.new())
@@ -787,7 +784,7 @@ func _show_result(res: Dictionary) -> void:
 		"down":
 			box.add_child(_label(T.s("Bajamos un nivel para afirmar. ¡Tú puedes!"), 26))
 		_:
-			box.add_child(_label(T.s("Para subir: %d seguidas bien y rápidas (llevas %d)") % [problems.WINDOW, streak], 24))
+			box.add_child(_label(T.s("Para subir: %d / %d") % [streak, problems.WINDOW], 24))   # (los puntitos de arriba muestran cuales salieron bien)
 
 	if not mistakes.is_empty():
 		box.add_child(HSeparator.new())

@@ -16,7 +16,7 @@ signal room_pressed(index: int)
 
 const CARE_ICONS := {"Beber": ["drop", Color("5bb8f5")], "Bañar": ["bubbles", Color("3cc9b0")], "Caricia": ["heart", Color("ff7aa8")]}
 const PAGE_HEIGHT := 232.0        # solapa Casa (dos filas)
-const POMPON_PAGE_HEIGHT := 140.0  # solapa Pompon (una fila)
+const POMPON_PAGE_HEIGHT := 120.0  # solapa Pompon (una fila, solo iconos)
 const LOCKED_TINT := Color("b9b1bd")
 
 var shop_button: ActionButton
@@ -65,10 +65,11 @@ func _init() -> void:
 	_pages.append(page_a)
 	page_a.alignment = BoxContainer.ALIGNMENT_CENTER
 	var care := _row(page_a)
-	_button(care, "Comer", "apple", Color("ffa94d"), eat_pressed.emit, 92.0, 22)
+	# solo iconos (manzana, gota, burbujas, corazon, joystick): se entienden sin leer
+	_button(care, "Comer", "apple", Color("ffa94d"), eat_pressed.emit, 104.0, 22, false)
 	for action_name in CARE_ICONS:
-		_button(care, action_name, CARE_ICONS[action_name][0], CARE_ICONS[action_name][1], care_pressed.emit.bind(action_name), 92.0, 22)
-	_button(care, "Juegos", "game", Color("a98bea"), games_pressed.emit, 92.0, 22)
+		_button(care, action_name, CARE_ICONS[action_name][0], CARE_ICONS[action_name][1], care_pressed.emit.bind(action_name), 104.0, 22, false)
+	_button(care, "Juegos", "game", Color("a98bea"), games_pressed.emit, 104.0, 22, false)
 
 	# solapa "Casa"
 	var page_b := VBoxContainer.new()
@@ -107,12 +108,13 @@ func _divider() -> ColorRect:
 	return d
 
 
-func _button(row: HBoxContainer, label: String, kind: String, color: Color, callback: Callable, badge: float, label_size := 20) -> ActionButton:
+func _button(row: HBoxContainer, label: String, kind: String, color: Color, callback: Callable, badge: float, label_size := 20, with_label := true) -> ActionButton:
 	var b := ActionButton.new().setup(kind, label, color, badge)
 	buttons[label] = b
 	b.label_size = label_size
+	b.show_label = with_label
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.custom_minimum_size = Vector2(0, badge + 34.0)
+	b.custom_minimum_size = Vector2(0, badge + (34.0 if with_label else 8.0))
 	b.pressed.connect(callback)
 	row.add_child(b)
 	return b
@@ -162,4 +164,4 @@ func refresh_rooms(level: int, current: int) -> void:
 		if Rooms.is_unlocked(i, level):
 			_room_buttons[i].restyle(Rooms.LIST[i]["icon"], Rooms.short_name(i), Color("ff7aa8") if i == current else Color("a98bea"))
 		else:
-			_room_buttons[i].restyle("lock", "Nivel %d" % Rooms.unlock_level(i), LOCKED_TINT)
+			_room_buttons[i].restyle("lock", str(Rooms.unlock_level(i)), LOCKED_TINT)   # candado y el nivel en que abre

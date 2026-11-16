@@ -98,7 +98,7 @@ func _initialize() -> void:
 	var texts := _labels(job._layer)
 	print("cartel: ", texts.substr(0, 600))
 	print("  nota=", texts.contains("Nota:"), " paga=", texts.contains("+%d monedas" % pay), " nivel=", texts.contains("Nivel 1"), " repaso=", texts.contains("Para repasar"))
-	print("  dice como subir (8 seguidas)=", texts.contains("8 seguidas"))
+	print("  dice como subir (de 8)=", texts.contains("Para subir: ") and texts.contains(" / 8"))
 	print("  muestra la respuesta correcta de lo fallado=", job.mistakes.all(func(m): return texts.contains("%s = %d" % [m["text"], m["answer"]])))
 	print("repaso: ", gs.weak_facts("mul").size(), " cuentas falladas quedan para repasar | historial=", gs.math_state("mul")["history"].size(), " respuestas")
 	var times_ok: bool = job.answer_times.size() == 5 and job.answer_times.all(func(t): return t >= 0.0)
@@ -173,7 +173,7 @@ func _initialize() -> void:
 	job3._on_finish_pressed()
 	await process_frame
 	var cash_text := _labels(job3._layer)
-	print("cobrar antes: monedas ganadas=", gs.coins - coins_before, " (solo la paga de ", pay, ") | sin el extra=", not cash_text.contains("Turno completo"), " | invita a terminar=", cash_text.contains("Termina el turno completo"))
+	print("cobrar antes: monedas ganadas=", gs.coins - coins_before, " (solo la paga de ", pay, ") | sin el extra=", not cash_text.contains("Turno completo"), " | sin carteles de mas=", not cash_text.contains("Termina el turno completo"))
 	job3.queue_free()
 	await process_frame
 
@@ -187,6 +187,6 @@ func _initialize() -> void:
 		job4._start_play()
 	await _play_shift(job4, [])
 	var full_text := _labels(job4._layer)
-	print("turno completo: monedas ganadas=", gs.coins - coins_before2, " | dice que fue completo=", full_text.contains("Turno completo") and full_text.contains("+20 monedas extra"))
+	print("turno completo: monedas ganadas=", gs.coins - coins_before2, " | dice que fue completo=", full_text.contains("Turno completo! +20"))
 	Engine.time_scale = 1.0
 	quit()

@@ -8,6 +8,7 @@ var tint := Color("ff8fb8")
 var caption := ""
 var badge := 64.0
 var label_size := 20
+var show_label := true   # false: solo el icono (el nombre queda como id y como ayuda al pasar el mouse)
 var _badge: Control
 var _label: Label
 
@@ -67,7 +68,8 @@ func _ready() -> void:
 	(_badge as Badge).owner_button = self
 	_badge.custom_minimum_size = Vector2(badge, badge)
 	holder.add_child(_badge)
-	if caption != "":
+	tooltip_text = T.label(caption) if not show_label else ""
+	if caption != "" and show_label:
 		_label = Label.new()
 		_label.text = T.label(caption)   # (caption queda en español: es el id del boton)
 		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

@@ -13,7 +13,7 @@ tienda del nivel 60: 18 items | hay de todos los niveles=true
 bloqueados (nivel 1): 6 ordenados por nivel=true | primero=Tazón rosa de lunares nivel 2
 con nivel 99 no queda nada bloqueado: true
 items nuevos con dibujo y precio: 165 en total
-tienda en nivel 3: tarjetas hoy=18 | bloqueadas=6 | titulo='Nivel 3 · Bebé'
+tienda en nivel 3: tarjetas hoy=18 | bloqueadas=6 | titulo='Bebé'
 todo lo que se ofrece esta desbloqueado: true
 filtro Ropa: 5 tarjetas, todas de ropa=true
 aviso de nivel nuevo: '¡Nivel 7! | ¡Nueva habitación: Dormitorio!' | nivel visto=7

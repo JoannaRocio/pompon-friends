@@ -77,6 +77,8 @@ var _activity_label: Label
 var _activity_timer := 0.0
 var _activity_walking := false
 var _activity_last := ""
+var _activity_show := 0.0          # segundos que se sigue viendo el cuadrito (aparece un rato cuando cambia)
+const ACTIVITY_SECONDS := 5.0
 var _practice_text := ""          # lo que esta haciendo con un objeto ("Mochi toca el piano")
 var _practice_left := 0.0
 # jugar con los objetos del cuarto (ver PomponPlay)
@@ -472,7 +474,7 @@ func _place_pet(bounds: Rect2) -> void:
 			top_limit += _activity_chip.size.y + 8.0
 	_bubble.position = Vector2(
 		clampf(sx - mid_w * 0.5, 10.0, maxf(10.0, size.x - mid_w - 10.0)),
-		maxf(_pet_pos.y - 412.0 * pet.scale.y - _bubble.size.y, top_limit))
+		maxf(_pet_pos.y - (420.0 * PomponView.STAGE_SCALE[pet._stage()] + 14.0) * pet.scale.y - _bubble.size.y, top_limit))   # justo sobre su cabeza
 
 
 # ------------------------------------------------- jugar con los objetos del cuarto
@@ -824,9 +826,8 @@ func _check_news() -> void:
 		GameState.stage_news = ""
 		pet.celebrate(8)
 		Audio.play("hatch" if news.begins_with("¡Tu huevo") else "success")
-		_speech.text = news
+		_say(news, 8.0)
 		_bubble.visible = true
-		_speech_timer = 8.0
 
 
 # Guias para la primera vez: de una en una y solo una vez ("text" = clave en locale/textos.csv). Primero la Tienda (el baul de
@@ -1135,7 +1136,7 @@ func _show_farewell() -> void:
 func _build_bubble() -> void:
 	_bubble = PanelContainer.new()
 	_bubble.set_anchors_preset(Control.PRESET_TOP_LEFT)  # sigue al Pompon (ver _place_pet)
-	_bubble.custom_minimum_size = Vector2(380, 0)
+	_bubble.custom_minimum_size = Vector2(0, 0)   # el ancho se ajusta al texto en _say
 	_bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_bubble.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.95), 30, Color("ffd0e2"), 4, 6))
 	add_child(_bubble)
@@ -1205,7 +1206,6 @@ func _build_bars() -> void:
 	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	texts.alignment = BoxContainer.ALIGNMENT_CENTER
 	texts.add_theme_constant_override("separation", 2)
-	title.reparent(texts)
 	var detail_row := HBoxContainer.new()
 	detail_row.add_theme_constant_override("separation", 10)
 	_sex_badge = Control.new()
@@ -1217,7 +1217,8 @@ func _build_bars() -> void:
 		_sex_badge.draw_circle(c, 16.0, col)
 		Hud.draw_icon(_sex_badge, _sex_kind, c, 30.0, Color.WHITE))
 	detail_row.add_child(_sex_badge)
-	details.reparent(detail_row)
+	title.reparent(detail_row)   # nombre al lado del simbolo de nena/nene (sin especie, personalidad ni codigo: estan en la ficha)
+	details.reparent(texts)
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	details.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	texts.add_child(detail_row)
@@ -1267,6 +1268,7 @@ func _build_bars() -> void:
 	_growth_hint.add_theme_font_size_override("font_size", 20)
 	_growth_hint.add_theme_color_override("font_color", Color("a0527a"))
 	_growth_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_growth_hint.visible = false   # "Dia 6 de 7 · Sera Niño en 2 dias" esta en la ficha: la casa queda mas limpia
 	info.add_child(_growth_hint)
 	info.move_child(_growth_hint, 3)
 
@@ -1348,12 +1350,12 @@ func _build_actions() -> void:
 	for entry in [["Menú", "menu", "menu", Color("a98bea")], ["Misiones", "missions", "star", Color("ffb938")],
 			["Vecinos", "neighbors", "people", Color("5fc77f")], ["Trabajo", "job_board", "case", Color("ff9b54")],
 			["Diario", "", "book", Color("5bb8f5")]]:
-		var tb := ActionButton.new().setup(entry[2], entry[0], entry[3], 54.0)
-		tb.label_size = 17
+		var tb := ActionButton.new().setup(entry[2], entry[0], entry[3], 66.0)
+		tb.show_label = false   # solo el icono: menos texto en la pantalla principal
 		tb.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		tb.position = Vector2(x, 10)
-		tb.custom_minimum_size = Vector2(90, 90)
-		tb.size = Vector2(90, 90)
+		tb.position = Vector2(x, 14)
+		tb.custom_minimum_size = Vector2(80, 80)
+		tb.size = Vector2(80, 80)
 		var scene_name: String = entry[1]
 		if scene_name == "":
 			tb.pressed.connect(_show_journal)
@@ -1369,14 +1371,14 @@ func _build_actions() -> void:
 		if entry[0] == "Vecinos":  # punto rojo: hay solicitudes de amistad esperando
 			_friends_dot = Control.new()
 			_friends_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			_friends_dot.position = Vector2(62, 2)
+			_friends_dot.position = Vector2(58, 2)
 			_friends_dot.size = Vector2(22, 22)
 			_friends_dot.draw.connect(func():
 				_friends_dot.draw_circle(Vector2(11, 11), 11.0, Color.WHITE)
 				_friends_dot.draw_circle(Vector2(11, 11), 8.0, Color("e0295f")))
 			_friends_dot.visible = false
 			tb.add_child(_friends_dot)
-		x += 92.0
+		x += 84.0
 
 	# barra de abajo: dos solapas (Pompon y Casa), ver HomeDock
 	_dock = HomeDock.new()
@@ -1445,6 +1447,9 @@ func _show_thought_pill(entry: Dictionary) -> void:
 
 func _say(text: String, seconds: float) -> void:
 	_speech.text = text
+	# globo a la medida: "<3" no necesita un cartel de media pantalla
+	var w := _speech.get_theme_font("font").get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 28).x
+	_speech.custom_minimum_size.x = clampf(w + 8.0, 60.0, 340.0)
 	_bubble.visible = not _edit and not _any_modal()
 	_speech_timer = seconds
 
@@ -1571,9 +1576,10 @@ func _build_activity() -> void:
 func _update_activity(delta: float) -> void:
 	var p := GameState.pompon
 	var show := _is_born(p) and p.stage_index(int(Time.get_unix_time_from_system())) > 0 		and not _edit and not _any_modal()
-	_activity_chip.visible = show
 	if not show:
+		_activity_chip.visible = false
 		return
+	var before := _activity_label.text
 	_activity_timer -= delta
 	if _night:  # de noche: durmiendo, jugando en la cama o tomando algo
 		_activity_label.text = _night_activity_text()
@@ -1592,9 +1598,14 @@ func _update_activity(delta: float) -> void:
 			text = PomponActivity.idle(p, ctx, _mood_rng, _activity_last)
 		_activity_last = text.substr(p.display_name().length() + 1)
 		_activity_label.text = text
+	# menos texto en pantalla: el cuadrito aparece unos segundos cuando cambia lo que hace y se va solo
+	# (no se muestra junto con un pensamiento: uno por vez)
+	if _activity_label.text != before:
+		_activity_show = ACTIVITY_SECONDS
+	_activity_show = maxf(_activity_show - delta, 0.0)
+	_activity_chip.visible = _activity_show > 0.0 and not _mood_pill.visible
+	_activity_chip.modulate.a = clampf(_activity_show / 0.5, 0.0, 1.0)
 	var y: float = $InfoPanel.position.y + $InfoPanel.size.y + 10.0
-	if _mood_pill.visible:
-		y += _mood_pill.size.y + 8.0
 	_activity_chip.size = _activity_chip.get_combined_minimum_size()
 	_activity_chip.position = Vector2(16.0, y)
 
@@ -1620,15 +1631,9 @@ func _show_journal() -> void:
 	head.add_theme_font_size_override("font_size", 40)
 	head.add_theme_color_override("font_color", Color("d6336c"))
 	box.add_child(head)
-	var sub := Label.new()
-	sub.text = T.with_pron(T.s("Lo que piensa, siente y dice"), GameState.pompon.sex)
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.add_theme_font_size_override("font_size", 22)
-	sub.add_theme_color_override("font_color", Color("a0527a"))
-	box.add_child(sub)
 	var prog := PomponAlbum.progress(GameState.pompon, int(Time.get_unix_time_from_system()))
 	var album := Button.new()
-	album.text = T.s("Álbum de recuerdos (%d/%d)") % [prog["won"], prog["total"]]
+	album.text = T.s("Álbum  %d/%d") % [prog["won"], prog["total"]]
 	album.custom_minimum_size = Vector2(0, 68)
 	album.focus_mode = Control.FOCUS_NONE
 	Hud.style_primary(album, 26, Color("ffb938"))
@@ -1711,8 +1716,8 @@ func _journal_card(e: Dictionary, now: int, bias: int) -> PanelContainer:
 	var age := now - int(e["t"])
 	var when := T.s("ahora") if age < 60 else (T.s("hace %d min") % (age / 60) if age < 3600 else "%02d:%02d" % [Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["hour"], Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["minute"]])
 	var meta := Label.new()
-	meta.text = "%s · %s" % [T.s(String(PomponThoughts.KIND_VERBS[e["kind"]])).capitalize(), when]
-	meta.add_theme_font_size_override("font_size", 20)
+	meta.text = when   # (el color y el icono ya dicen si lo dijo, lo penso o lo sintio)
+	meta.add_theme_font_size_override("font_size", 18)
 	meta.add_theme_color_override("font_color", color.darkened(0.25))
 	col.add_child(meta)
 	var text := Label.new()
@@ -2111,13 +2116,6 @@ func _show_food_menu() -> void:
 	head.add_theme_font_size_override("font_size", 38)
 	head.add_theme_color_override("font_color", Color("d6336c"))
 	box.add_child(head)
-	var sub := Label.new()
-	sub.text = T.with_pron(T.s("Lo nuevo le da desconfianza… ¡pero de a poco se anima!"), p.sex if p != null else "")
-	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	sub.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	sub.add_theme_font_size_override("font_size", 22)
-	sub.add_theme_color_override("font_color", Color("a0527a"))
-	box.add_child(sub)
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -2164,11 +2162,27 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var food_id: String = food["id"]
+	# nunca la probo: estrellita en la esquina (en vez de la palabra "¡Nuevo!"); todavia duda: un "?"
+	var mark := ""
+	if p != null:
+		if PomponTastes.is_new_food(p, food_id):
+			mark = "new"
+		elif PomponTastes.food_hearts(p, food_id) == 0:
+			mark = "doubt"
 	badge.draw.connect(func():   # el dibujo de la comida (se reconoce sin leer), con un aro del color de su precio
 		var c := badge.size * 0.5
 		badge.draw_circle(c, 35.0, Color.WHITE)
 		badge.draw_arc(c, 34.0, 0, TAU, 40, tint, 4.0, true)
-		FOOD_ART.draw(badge, food_id, c, 52.0))
+		FOOD_ART.draw(badge, food_id, c, 52.0)
+		var corner := c + Vector2(26, -26)
+		if mark == "new":
+			badge.draw_circle(corner, 15.0, Color.WHITE)
+			badge.draw_circle(corner, 12.0, Color("ff7aa8"))
+			Hud.draw_icon(badge, "star", corner, 18.0, Color.WHITE)
+		elif mark == "doubt":
+			badge.draw_circle(corner, 15.0, Color.WHITE)
+			badge.draw_circle(corner, 12.0, Color("b9a3c9"))
+			badge.draw_string(badge.get_theme_default_font(), corner + Vector2(-12, 7), "?", HORIZONTAL_ALIGNMENT_CENTER, 24, 20, Color.WHITE))
 	row.add_child(badge)
 	var texts := VBoxContainer.new()
 	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2183,31 +2197,29 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	name_label.add_theme_color_override("font_color", Hud.INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(name_label)
+	# precio: moneda y numero (gratis = sin moneda, dice "gratis")
+	var price_row := HBoxContainer.new()
+	price_row.add_theme_constant_override("separation", 4)
+	price_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texts.add_child(price_row)
 	var price := Label.new()
-	price.text = T.s("gratis") if food["price"] == 0 else T.s("%d monedas") % food["price"]
-	price.add_theme_font_size_override("font_size", 20)
-	price.add_theme_color_override("font_color", Color("a0527a"))
+	price.add_theme_font_size_override("font_size", 22)
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	texts.add_child(price)
-	if p != null:
-		if PomponTastes.is_new_food(p, food["id"]):
-			var tag := Label.new()
-			tag.text = T.s("¡Nuevo!")
-			tag.add_theme_font_size_override("font_size", 20)
-			tag.add_theme_color_override("font_color", Color("d6336c"))
-			tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			texts.add_child(tag)
-		else:
-			var hearts := PomponTastes.food_hearts(p, food["id"])
-			if hearts == 0:
-				var doubt := Label.new()
-				doubt.text = T.s("todavía duda")
-				doubt.add_theme_font_size_override("font_size", 18)
-				doubt.add_theme_color_override("font_color", Color("a0527a"))
-				doubt.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				texts.add_child(doubt)
-			else:
-				texts.add_child(HeartsRow.new().setup(hearts, 20.0))
+	if food["price"] == 0:
+		price.text = T.s("gratis")
+		price.add_theme_color_override("font_color", Color("2f9e5b"))
+	else:
+		var coin := Control.new()
+		coin.custom_minimum_size = Vector2(24, 24)
+		coin.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		coin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		coin.draw.connect(func(): Hud.draw_icon(coin, "coin", coin.size * 0.5, 24.0, Color.WHITE))
+		price_row.add_child(coin)
+		price.text = str(food["price"])
+		price.add_theme_color_override("font_color", Color("b87400"))
+	price_row.add_child(price)
+	if mark == "" and p != null:
+		texts.add_child(HeartsRow.new().setup(PomponTastes.food_hearts(p, food_id), 20.0))
 	return b
 
 
@@ -2316,9 +2328,8 @@ func _on_pet_tapped() -> void:
 		return
 	if not p.hatched:  # el huevo no nace con toques: necesita su cuna
 		Audio.play("pet")
-		_speech.text = T.t("home.need_crib")
+		_say(T.t("home.need_crib"), 4.0)
 		_bubble.visible = true
-		_speech_timer = 4.0
 		return
 	p.add_stat("amor", 1.0)
 	Audio.play("pet")
@@ -2579,7 +2590,7 @@ func _refresh() -> void:
 	var grow_now := int(Time.get_unix_time_from_system())
 	var growing: bool = born and PomponGrowth.active(p, grow_now)
 	_growth_bar.visible = growing
-	_growth_hint.visible = growing
+	_growth_hint.visible = false
 	if growing:
 		var gq := PomponGrowth.quality(p, grow_now)
 		_growth_bar.value = gq
@@ -2618,8 +2629,8 @@ func _refresh() -> void:
 		details.visible = false
 		return
 	var now := int(Time.get_unix_time_from_system())
-	title.text = "%s  (%s)" % [p.display_name(), T.label(p.stage_name(now))]
-	details.visible = true
+	title.text = p.display_name()
+	details.visible = false   # (se sigue armando: lo usan los tests y la ficha lo muestra completo)
 	details.text = "%s · %s" % [Pompon.species_label(p.species), Pompon.personality_label(p.personality)]
 	if p.nickname != "":
 		details.text += " · " + p.id  # el ID (para amigos) se muestra cuando ya tiene nombre

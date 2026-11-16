@@ -134,7 +134,7 @@ Earn them at Work!"
 tip.shopcrib,"¡Ya alcanza!
 Compra la cuna en la Tienda.","You have enough!
 Buy the crib at the Shop."
-tip.growth,¡{name} está creciendo! Cuídalo estos {days} días: así aprende a hablar y confía en ti.,{name} is growing! Take good care of {name} these {days} days to help them learn to talk and trust you.
+tip.growth,¡{name} está creciendo! Cuídalo bien estos {days} días.,{name} is growing! Take good care of {name} these {days} days.
 tip.care,Cuida a tu Pompon con los botones de abajo.,Take care of your Pompon with the buttons below.
 tip.pet,¡Tócalo para darle cariño!,Tap your Pompon to give it some love!
 tip.decor,"¡Muebles nuevos!
@@ -149,29 +149,29 @@ tut.skip,Saltar tutorial,Skip tutorial
 tut.ok,¡Entendido!,Got it!
 tut.day,día,day
 tut.days,días,days
-tut.grown,"¡{name} ya creció! Cada etapa le enseña algo nuevo: bebé, niño, adolescente y grande.","{name} has grown! Every stage teaches something new: baby, kid, teen and grown-up."
+tut.grown,¡{name} ya creció! Cada etapa le enseña algo nuevo.,{name} has grown! Every stage teaches something new.
 tut.card.0,días 1 a 7,days 1 to 7
 tut.card.1,días 8 a 21,days 8 to 21
 tut.card.2,días 22 a 51,days 22 to 51
 tut.card.3,desde el día 52,day 52 on
-tut.cuidar.0,¡Hola! Te muestro en un ratito cómo cuidar a {name}. Toca los botones que brillan.,Hi! Let me quickly show you how to take care of {name}. Tap the glowing buttons.
-tut.cuidar.1,Los mimos le dan confianza. ¡Toca Caricia!,Cuddles build trust. Tap Cuddle!
-tut.cuidar.2,"Cuando tenga hambre, toca Comer y elige algo rico.","When it's hungry, tap Eat and pick something yummy."
-tut.cuidar.3,"Estas barras son lo que necesita: comida, agua, baño, diversión y sueño. Si una baja, ¡atiéndela!","These bars show what it needs: food, water, bath, fun and sleep. If one gets low, take care of it!"
-tut.cuidar.4,En el Diario se anota lo que {name} piensa y siente. ¡Léelo cada tanto!,The Diary keeps what {name} thinks and feels. Read it now and then!
-tut.crecer.0,En {days} {days_word} {name} va a ser niño. ¡Cuídalo mucho estos días: así aprende a hablar y confía en ti!,In {days} {days_word} {name} will be a kid. Take extra care these days: that's how it learns to talk and trust you!
-tut.crecer.1,La barra verde de Crecimiento muestra qué tan bien lo estás cuidando.,The green Growth bar shows how well you're taking care of it.
-tut.casa.0,Aquí está todo para tu casa. Toca Casa.,Everything for your home is here. Tap Home.
-tut.casa.1,"En la Tienda hay muebles, ropa y comida. Cada día cambian las ofertas.","The Shop has furniture, clothes and food. The deals change every day."
-tut.casa.2,"Con Decorar acomodas tus cosas. ¡{name} va a usarlas: se sienta, toca el piano, mira los cuadros!","Use Decorate to arrange your things. {name} will use them: sit down, play the piano, look at pictures!"
-tut.casa.3,Toca Pompon para volver a sus cuidados.,Tap Pompon to go back to caring for it.
+tut.cuidar.0,¡Hola! Te enseño a cuidar a {name}.,Hi! Let me show you how to care for {name}.
+tut.cuidar.1,¡Dale un mimo!,Give a cuddle!
+tut.cuidar.2,"Si tiene hambre, ¡dale de comer!","When it's hungry, feed it!"
+tut.cuidar.3,Esto es lo que necesita. ¡Que no se vacíe!,This is what it needs. Don't let it run low!
+tut.cuidar.4,Su diario: lo que piensa y siente.,The diary: what {name} thinks and feels.
+tut.crecer.0,En {days} {days_word} {name} va a ser niño. ¡Cuídalo mucho!,In {days} {days_word} {name} will be a kid. Take good care!
+tut.crecer.1,Esta barra muestra qué tan bien lo cuidas.,This bar shows how well you care for it.
+tut.casa.0,¡Toca Casa!,Tap Home!
+tut.casa.1,La Tienda cambia cada día.,The Shop changes every day.
+tut.casa.2,Con Decorar acomodas tus cosas. ¡{name} las va a usar!,Decorate to arrange your things. {name} will use them!
+tut.casa.3,Toca Pompon para volver.,Tap Pompon to go back.
 tut.amigos.0,¡Hoy toca hacer amigos! Toca Vecinos.,Today is friends day! Tap Neighbors.
-tut.amigos.1,Cada jugador tiene un código (su ID). Comparte el tuyo y agrega el de tus amigos: se visitan y se regalan dibujos.,Every player has a code (their ID). Share yours and add your friends' codes: you can visit and send drawings.
-tut.jugar.0,Los minijuegos le enseñan cosas a {name} y suben sus habilidades.,Minigames teach {name} new things and raise its skills.
-tut.jugar.1,"En Misiones hay tareas nuevas cada día, logros y un sello por cada día de la semana que entras.","Missions has new tasks every day, achievements and a stamp for each day of the week you play."
-tut.pueblo.0,"Esta puerta sale al pueblo: el cine con películas nuevas cada semana, la tienda y las casas de tus vecinos.","This door goes out to town: the movie theater with new movies every week, the shop and your neighbors' houses."
-tut.pueblo.1,"En Trabajo puedes enseñar Matemáticas, Inglés y Geografía. ¡Más clases, más monedas!","At Work you can teach Math, English and Geography. More classes, more coins!"
-tut.pueblo.2,¡Ya conoces todo lo importante! Cada semana hay algo nuevo. ¡Que lo disfrutes con {name}!,Now you know all the important stuff! There's something new every week. Have fun with {name}!
+tut.amigos.1,Comparte tu código con tus amigos para visitarse.,Share your code with friends to visit each other.
+tut.jugar.0,¡Los juegos le enseñan cosas a {name}!,Games teach {name} new things!
+tut.jugar.1,Misiones: tareas y premios de cada día.,Missions: daily tasks and prizes.
+tut.pueblo.0,"Esta puerta sale al pueblo: cine, tienda y vecinos.","This door goes to town: movies, shop and neighbors."
+tut.pueblo.1,En Trabajo das clases y ganas monedas.,At Work you teach classes and earn coins.
+tut.pueblo.2,¡Listo! Que lo disfrutes con {name}.,All set! Have fun with {name}.
 item.hat_beanie,Gorro de lana,Wool hat
 item.hat_cap,Gorra azul,Blue cap
 item.hat_bow,Moño rosa,Pink bow
@@ -325,7 +325,6 @@ s:Tazones,Tazones,Bowls
 s:Especial,Especial,Special
 s:Tienda,Tienda,Shop
 s:Se desbloquea al subir de nivel,Se desbloquea al subir de nivel,Unlocks as you level up
-s:Nueva tienda en %02d:%02d:%02d,Nueva tienda en %02d:%02d:%02d,New shop in %02d:%02d:%02d
 s:¡Compra la cuna!,¡Compra la cuna!,Buy the crib!
 s:Nivel %d · %s,Nivel %d · %s,Level %d · %s
 s:¡Ya creció del todo!,¡Ya creció del todo!,All grown up!
@@ -350,7 +349,6 @@ en el nivel %d","%s opens
 at level %d"
 s:¿Qué le damos a %s?,¿Qué le damos a %s?,What should we give %s?
 s:tu Pompon,tu Pompon,your Pompon
-s:Lo nuevo le da desconfianza… ¡pero de a poco se anima!,Lo nuevo le da desconfianza… ¡pero de a poco se anima!,New food makes {him} unsure… but little by little {he} gets braver!
 s:gratis,gratis,free
 s:%d monedas,%d monedas,%d coins
 s:¡Nuevo!,¡Nuevo!,New!
@@ -707,7 +705,6 @@ s:¡Vamos!,¡Vamos!,Let's go!
 s:¡Conseguiste tu primer trabajo!,¡Conseguiste tu primer trabajo!,You got your first job!
 s:Sube de nivel trabajando y gana más monedas.,Sube de nivel trabajando y gana más monedas.,Level up by working and earn more coins.
 s:¡A trabajar!,¡A trabajar!,Let's work!
-s:¡Hay vacantes!,¡Hay vacantes!,Now hiring!
 s:Próximamente,Próximamente,Coming soon
 s:Aplicar,Aplicar,Apply
 s:Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!,Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!,This job isn't open yet. More jobs are coming soon!
@@ -757,14 +754,10 @@ s:¡Fin del turno!,¡Fin del turno!,End of shift!
 s:Nota: %d / 10,Nota: %d / 10,Grade: %d / 10
 s:Cuentas bien,Cuentas bien,Problems right
 s:Bien,Bien,Right
-s:Ordenados: %d,Ordenados: %d,Tidied: %d
-s:¡Turno completo! +%d monedas extra,¡Turno completo! +%d monedas extra,Full shift! +%d extra coins
-s:Termina el turno completo y gana +%d extra,Termina el turno completo y gana +%d extra,Finish the full shift to earn +%d extra
 s:+%d monedas de premio por el nivel,+%d monedas de premio por el nivel,+%d bonus coins for the level
 s:%s · Nivel %d,%s · Nivel %d,%s · Level %d
 s:¡Ahora estás en el nivel %d!,¡Ahora estás en el nivel %d!,Now you're at level %d!
 s:Bajamos un nivel para afirmar. ¡Tú puedes!,Bajamos un nivel para afirmar. ¡Tú puedes!,We'll go down a level to practice. You can do it!
-s:Para subir: %d seguidas bien y rápidas (llevas %d),Para subir: %d seguidas bien y rápidas (llevas %d),To level up: %d in a row right and fast (you have %d)
 s:Para repasar,Para repasar,To review
 s:¡Otra vez!,¡Otra vez!,Again!
 s:Aula,Aula,Classroom
@@ -1403,8 +1396,6 @@ s:redonda,redonda,round
 s:ovalada,ovalada,oval
 s:ancha,ancha,wide
 s:Diario de %s,Diario de %s,%s's diary
-"s:Lo que piensa, siente y dice","Lo que piensa, siente y dice","What {he} thinks, feels and says"
-s:Álbum de recuerdos (%d/%d),Álbum de recuerdos (%d/%d),Memory album (%d/%d)
 "s:Todavía no hay recuerdos.
 %s irá anotando lo que piensa y siente.","Todavía no hay recuerdos.
 %s irá anotando lo que piensa y siente.","No memories yet.
@@ -1461,7 +1452,6 @@ me encantó cuando cruzó con la soga,me encantó cuando cruzó con la soga,I lo
 Cine Pompon,Cine Pompon,Pompon Cinema
 ¿Con quién vas?,¿Con quién vas?,Who are you going with?
 Solo,Solo,Alone
-La entrada trae pochoclos,La entrada trae pochoclos,The ticket comes with popcorn
 Esta semana,Esta semana,This week
 Próxima,Próxima,Next
 Te faltan monedas,Te faltan monedas,You need more coins
@@ -1487,7 +1477,6 @@ s: con %s, con %s, with %s
 Tu nivel,Tu nivel,Your level
 Simón Dice,Simón Dice,Simon Says
 Minijuegos,Minijuegos,Minigames
-¡Jugar lo hace crecer y aprender cosas nuevas!,¡Jugar lo hace crecer y aprender cosas nuevas!,Playing helps it grow and learn new things!
 Crecimiento,Crecimiento,Growth
 ¡Jugar!,¡Jugar!,Play!
 ¡Tu Pompon aprendió algo nuevo!,¡Tu Pompon aprendió algo nuevo!,Your Pompon learned something new!
@@ -1544,7 +1533,6 @@ Hoy,Hoy,Today
 Logros,Logros,Achievements
 día,día,day
 días,días,days
-Entra cualquier día de la semana y gana un sello. ¡Si faltas un día no pierdes nada!,Entra cualquier día de la semana y gana un sello. ¡Si faltas un día no pierdes nada!,Come in any day of the week and get a stamp. Missing a day doesn't lose anything!
 ¡Semana completa! El lunes empieza otra.,¡Semana completa! El lunes empieza otra.,Week complete! A new one starts on Monday.
 ¡Completo!,¡Completo!,Done!
 Ir,Ir,Go
@@ -1603,7 +1591,6 @@ De tu edad,De tu edad,Your age
 Amigo,Amigo,Friend
 Visitar,Visitar,Visit
 Quitar,Quitar,Remove
-Agrega a tus amigos con su código y visítense.,Agrega a tus amigos con su código y visítense.,Add your friends with their code and visit each other.
 Activar amigos,Activar amigos,Turn on friends
 Tu código de amigo,Tu código de amigo,Your friend code
 Agregar amigo,Agregar amigo,Add a friend
@@ -1887,3 +1874,7 @@ s:Toca algo de abajo para ponerlo en tu cuarto.,Toca algo de abajo para ponerlo 
 s:Arrástralo para moverlo. Los adornos se apoyan en mesas y estantes.,Arrástralo para moverlo. Los adornos se apoyan en mesas y estantes.,Drag it to move it. Little things can sit on tables and shelves.
 s:No tienes nada de esto guardado. ¡Busca más en la tienda!,No tienes nada de esto guardado. ¡Busca más en la tienda!,You don't have any of these stored. Find more in the shop!
 s:Toca una pared o un piso para probarlo.,Toca una pared o un piso para probarlo.,Tap a wall or floor to try it.
+s:Álbum  %d/%d,Álbum  %d/%d,Album  %d/%d
+¡Un sello por cada día que entras!,¡Un sello por cada día que entras!,A stamp for every day you play!
+s:¡Turno completo! +%d,¡Turno completo! +%d,Full shift! +%d
+s:Para subir: %d / %d,Para subir: %d / %d,Next level: %d / %d

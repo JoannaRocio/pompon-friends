@@ -148,7 +148,7 @@ func _pompon_card() -> Control:
 	row.add_theme_constant_override("separation", 14)
 	card.add_child(row)
 	var view := PomponView.new()
-	view.custom_minimum_size = Vector2(190, 240)
+	view.custom_minimum_size = Vector2(150, 180)
 	view.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	if GameState.pompon != null:
 		view.set_pompon(GameState.pompon, GameState.equipped)
@@ -158,13 +158,6 @@ func _pompon_card() -> Control:
 	col.alignment = BoxContainer.ALIGNMENT_CENTER
 	col.add_theme_constant_override("separation", 10)
 	row.add_child(col)
-	var hint := Label.new()
-	hint.text = T.s("¡Jugar lo hace crecer y aprender cosas nuevas!")
-	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	hint.add_theme_font_size_override("font_size", 28)
-	hint.add_theme_color_override("font_color", Color("d6336c"))
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	col.add_child(hint)
 	for stat in ["crecimiento", "diversion", "amor"]:
 		var bar := StatBar.new().setup("" if stat == "crecimiento" else stat, "sprout" if stat == "crecimiento" else "", Color("5fc77f") if stat == "crecimiento" else Color.TRANSPARENT)
 		bar.custom_minimum_size = Vector2(0, 44)

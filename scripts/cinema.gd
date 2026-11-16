@@ -132,12 +132,6 @@ func _show_lobby() -> void:
 	Hud.style_primary(buy, 38, Color("e0609e"))
 	buy.pressed.connect(_buy)
 	root.add_child(buy)
-	var popcorn := Label.new()
-	popcorn.text = "La entrada trae pochoclos"
-	popcorn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	popcorn.add_theme_font_size_override("font_size", 22)
-	popcorn.add_theme_color_override("font_color", Color("ffe9a3"))
-	root.add_child(popcorn)
 
 
 ## Afiche de una pelicula: un dibujo de su primera escena, el titulo y de que se trata.

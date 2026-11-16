@@ -154,8 +154,14 @@ func _level_card() -> Control:
 	_level_title.add_theme_font_size_override("font_size", 34)
 	_level_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	head.add_child(_level_title)
+	# cuanto falta para la tienda nueva: relojito y la hora (sin "Nueva tienda en")
+	var clock := Control.new()
+	clock.custom_minimum_size = Vector2(30, 30)
+	clock.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	clock.draw.connect(func(): Hud.draw_icon(clock, "clock", clock.size * 0.5, 30.0, Color("a0527a")))
+	head.add_child(clock)
 	_timer_label = Label.new()
-	_timer_label.add_theme_font_size_override("font_size", 20)
+	_timer_label.add_theme_font_size_override("font_size", 22)
 	_timer_label.add_theme_color_override("font_color", Color("a0527a"))
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	head.add_child(_timer_label)
@@ -182,7 +188,7 @@ func _draw_level_badge() -> void:
 
 func _process(_delta: float) -> void:
 	var left := Catalog.seconds_until_refresh(int(Time.get_unix_time_from_system()))
-	_timer_label.text = T.s("Nueva tienda en %02d:%02d:%02d") % [left / 3600, (left % 3600) / 60, left % 60]
+	_timer_label.text = "%d:%02d" % [left / 3600, (left % 3600) / 60]
 
 
 func _update_level_card() -> void:
@@ -196,7 +202,7 @@ func _update_level_card() -> void:
 		_level_bar.value = 0.0
 		_level_bar.text = T.s("¡Compra la cuna!")
 		return
-	_level_title.text = T.s("Nivel %d · %s") % [level, T.label(p.stage_name(now))]
+	_level_title.text = T.label(p.stage_name(now))   # (el numero de nivel ya esta en la estrella)
 	var next_level := p.next_stage_level(now)
 	if next_level < 0:
 		_level_bar.max_value = 1.0
@@ -293,17 +299,14 @@ func _make_card(item: Dictionary) -> Control:
 	name_label.add_theme_constant_override("line_spacing", -4)
 	box.add_child(name_label)
 
-	var tag := HBoxContainer.new()
-	tag.alignment = BoxContainer.ALIGNMENT_CENTER
-	tag.custom_minimum_size = Vector2(0, 30)
-	box.add_child(tag)
-	var kind: String = Catalog.category_name(item["category"])
+	# menos texto: sin la etiqueta de categoria (las solapas ya separan Ropa, Muebles...). Solo la cuna
+	# que espera el huevo lleva su cartelito.
 	if item["id"] == GameState.CRIB_ID and GameState.egg_waiting():
+		var tag := HBoxContainer.new()
+		tag.alignment = BoxContainer.ALIGNMENT_CENTER
+		tag.custom_minimum_size = Vector2(0, 30)
+		box.add_child(tag)
 		tag.add_child(Hud.chip(T.s("¡Para que nazca!"), Color("ffe6ef"), Color("d6336c"), 16))
-	elif needed:   # pensado para su especie (ya no es obligatorio: no decir "lo necesita")
-		tag.add_child(Hud.chip(T.s("Para %s") % Pompon.species_label(item["species"]), Color("ffe6ef"), Color("d6336c"), 16))
-	else:   # lo de otra especie también lo puede usar: se muestra como cualquier mueble
-		tag.add_child(Hud.chip(kind, Color("f3eefc"), Color("7a56c4"), 16))
 
 	var buy := Button.new()
 	buy.custom_minimum_size = Vector2(0, 60)

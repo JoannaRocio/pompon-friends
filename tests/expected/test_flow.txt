@@ -32,6 +32,6 @@ aviso de nacimiento: ¡Tu huevo eclosionó!
 antes de nacer golpea la cascara: true
 antes: animacion del nacimiento=true | todavia sin pedir nombre=true
 pide nombre: true | cuidados visibles=true
-nombre: Mochi | titulo: *  (Bebé)
+nombre: Mochi | titulo: *
 al cargar con cuna y huevo: nacio=true
 visitar vecino siendo huevo: Tu huevo todavía no nació. ¡Cómprale una cuna primero!

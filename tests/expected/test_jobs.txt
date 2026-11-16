@@ -22,7 +22,7 @@ con perfil: no vuelve a preguntar=true
   encabezado: ["EL PERIÓDICO POMPON", "OFERTAS DE EMPLEO"]
   botones: ["", "Cambiar", "Aplicar", "Aplicar", "Aplicar"]
   'Aplicar' en los tres: true | bloqueados: 0
-  ninguno dice Proximamente: true | vacantes: true
+  ninguno dice Proximamente: true | sin carteles de vacantes: true
 tocar un trabajo bloqueado: 'Este trabajo todavía no está disponible. ¡Pronto habrá más oficios!'
 cambiar: precarga nombre='Ana'
 cambiar: se puede cancelar=true | ahora='m' 'Leo' | ["Profesor Leo", "Profesor de Matemáticas", "Profesor de Inglés", "Profesor de Geografía"]
