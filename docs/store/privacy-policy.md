@@ -1,6 +1,6 @@
 # Política de privacidad — Pompon Friends
 
-_Última actualización: 14 de noviembre de 2026_
+_Última actualización: 16 de noviembre de 2026_
 
 ## Español
 
@@ -26,7 +26,7 @@ _Última actualización: 14 de noviembre de 2026_
 
 **Niños:** el juego está pensado para chicos y familias. No pedimos datos de contacto de nadie. Recomendamos usar un apodo como nombre de jugador y compartir el código de amigo solo con personas conocidas. Un adulto puede pedirnos que borremos la tarjeta de amigos o la partida en la nube de un chico escribiendo al contacto de abajo con el código.
 
-**Cómo borrar tus datos:** desinstalar el juego borra todo lo que hay en el dispositivo. Para borrar lo que está en el servidor (partida en la nube, tarjeta de amigos o denuncias enviadas), escríbenos con tu código y lo eliminamos.
+**Cómo borrar tus datos:** desinstalar el juego borra todo lo que hay en el dispositivo. Para borrar lo que está en el servidor (partida en la nube, tarjeta de amigos o denuncias enviadas), pídelo en la página [Borrar tus datos](borrar-datos.html) o escríbenos con tu código. Lo eliminamos dentro de los 30 días.
 
 **Cambios en esta política:** si se agregan funciones que usen datos, se actualizará esta política y se indicará en la ficha de la tienda antes de publicar el cambio.
 
@@ -58,7 +58,7 @@ _Última actualización: 14 de noviembre de 2026_
 
 **Children:** the game is made for children and families. We never ask anyone for contact details. We recommend using a nickname as player name and sharing the friend code only with people you know. A parent can ask us to delete a child's friend card or cloud save by writing to the contact below with the code.
 
-**How to delete your data:** uninstalling the game deletes everything on the device. To delete what is on the server (cloud save, friend card or reports you sent), write to us with your code and we will remove it.
+**How to delete your data:** uninstalling the game deletes everything on the device. To delete what is on the server (cloud save, friend card or reports you sent), use the [Delete your data](borrar-datos.html#en) page or write to us with your code. We remove it within 30 days.
 
 **Changes to this policy:** if features that use data are added, this policy will be updated and the store listing will say so before the change is published.
 

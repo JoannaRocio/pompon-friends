@@ -140,7 +140,7 @@ func _initialize() -> void:
 	await create_timer(0.8).timeout
 	print("capitulo 4 (amigos) espera a otro dia: ", h._tut == null and gs.tutorial_chapter_id() == "amigos" and not gs.tutorial_ready())
 	gs.tutorial["done_day"] = Missions.today(now) - 1
-	await _wait_tut(h)
+	await _wait_tut(h, 8.0)   # (si hay una figurita en pantalla, el tutorial espera a que se vaya)
 	print("  resalta Vecinos: ", h._tut.target.caption)
 	h._tut.finish()   # (como si lo tocara: se va a la pantalla de vecinos, que sigue el capitulo)
 	h.queue_free()

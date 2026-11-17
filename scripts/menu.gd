@@ -217,7 +217,7 @@ func _ready() -> void:
 	foot.offset_top = -56
 	foot.offset_bottom = -16
 	foot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	foot.add_theme_font_size_override("font_size", 20)
+	foot.add_theme_font_size_override("font_size", 24)
 	foot.add_theme_color_override("font_color", Color.WHITE)
 	foot.add_theme_color_override("font_outline_color", Color("4f9a6a"))
 	foot.add_theme_constant_override("outline_size", 6)

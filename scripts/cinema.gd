@@ -117,7 +117,7 @@ func _show_lobby() -> void:
 			name_label.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 			name_label.offset_top = -30
 			name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			name_label.add_theme_font_size_override("font_size", 20)
+			name_label.add_theme_font_size_override("font_size", 24)
 			name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			b.add_child(name_label)
 			b.set_meta("name_label", name_label)
@@ -286,7 +286,7 @@ func _start_movie() -> void:
 	hint.text = "Toca la pantalla para seguir"
 	hint.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	hint.position = Vector2(24, 40)
-	hint.add_theme_font_size_override("font_size", 20)
+	hint.add_theme_font_size_override("font_size", 24)
 	hint.add_theme_color_override("font_color", Color(1, 1, 1, 0.55))
 	add_child(hint)
 	resized.connect(_place_seats)

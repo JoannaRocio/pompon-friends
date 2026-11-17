@@ -165,12 +165,12 @@ func _build_top() -> void:
 	lvl.add_child(_hearts)
 	_level_label = Label.new()
 	_level_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_level_label.add_theme_font_size_override("font_size", 22)
+	_level_label.add_theme_font_size_override("font_size", 24)
 	_level_label.add_theme_color_override("font_color", PINK.darkened(0.2))
 	lvl.add_child(_level_label)
 	var today := Label.new()
 	today.text = "Hoy"
-	today.add_theme_font_size_override("font_size", 18)
+	today.add_theme_font_size_override("font_size", 21)
 	today.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
 	lvl.add_child(today)
 	for key in Neighbors.DAILY_KEYS:

@@ -17,6 +17,7 @@ const LOOK := {
 const NODE := 96.0   # diametro de cada premio del pase
 
 var _coins_label: Label
+var _coin_card: Control   # a donde vuelan las monedas al cobrar
 var _timer_label: Label
 var _missions_box: VBoxContainer
 var _xp_bar: StatBar
@@ -62,6 +63,7 @@ func _ready() -> void:
 	coin_card.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	coin_card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.94), 30, Color.WHITE, 3, 6))
 	top.add_child(coin_card)
+	_coin_card = coin_card
 	var coin_row := HBoxContainer.new()
 	coin_row.add_theme_constant_override("separation", 6)
 	coin_row.add_child(Hud.coin_icon(34.0))
@@ -93,7 +95,7 @@ func _ready() -> void:
 	_timer_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_timer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_timer_label.add_theme_font_size_override("font_size", 20)
+	_timer_label.add_theme_font_size_override("font_size", 24)
 	_timer_label.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
 	head.add_child(_timer_label)
 	_missions_box = VBoxContainer.new()
@@ -189,7 +191,7 @@ func _build_week() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 10)
 	card.add_child(col)
-	var intro := _small("¡Un sello por cada día que entras!", 22, Hud.INK)
+	var intro := _small("¡Un sello por cada día que entras!", 24, Hud.INK)
 	intro.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	intro.custom_minimum_size = Vector2(400, 0)
 	col.add_child(intro)
@@ -232,12 +234,13 @@ func _build_week() -> void:
 			var coins := GameState.claim_week_stamp()
 			if coins > 0:
 				_float_reward(b, "+%d" % coins)
+				Hud.fly_coins(self, b.get_global_rect().get_center(), _coin_card, coins)
 			_rebuild())
 		col.add_child(b)
 	elif got < 7:
 		col.add_child(_small(T.s("Vuelve otro día para el sello %d") % (got + 1), 22, Color("a0527a")))
 	else:
-		col.add_child(_small("¡Semana completa! El lunes empieza otra.", 22, Color("2f9e6e")))
+		col.add_child(_small("¡Semana completa! El lunes empieza otra.", 24, Color("2f9e6e")))
 
 
 # ------------------------------------------------------------------ logros
@@ -318,12 +321,13 @@ func _achievement_card(def: Dictionary) -> Control:
 		inner.alignment = BoxContainer.ALIGNMENT_CENTER
 		inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		b.add_child(inner)
-		inner.add_child(_small(Progress.TIER_NAMES[claimed], 18, Color.WHITE))
+		inner.add_child(_small(Progress.TIER_NAMES[claimed], 21, Color.WHITE))
 		inner.add_child(_reward_row("+%d" % Progress.TIER_COINS[claimed], 26, Color.WHITE, Color("2f7a4d")))
 		b.pressed.connect(func():
 			var coins := GameState.claim_achievement(id)
 			if coins > 0:
 				_float_reward(b, "+%d" % coins)
+				Hud.fly_coins(self, b.get_global_rect().get_center(), _coin_card, coins)
 			_rebuild())
 		row.add_child(b)
 	return card
@@ -403,7 +407,7 @@ func _mission_button(m: Dictionary, claimed: bool, done: bool, target: String) -
 	elif done:
 		Hud.style_primary(b, 28, GREEN)
 		inner.add_child(_reward_row("+%d" % m["coins"], 30, Color.WHITE, Color("2f7a4d")))
-		var xp := _small("+%d XP" % m["xp"], 17, Color.WHITE)
+		var xp := _small("+%d XP" % m["xp"], 21, Color.WHITE)
 		xp.add_theme_color_override("font_outline_color", Color("2f7a4d"))
 		xp.add_theme_constant_override("outline_size", 6)
 		inner.add_child(xp)
@@ -415,6 +419,7 @@ func _mission_button(m: Dictionary, claimed: bool, done: bool, target: String) -
 		b.pressed.connect(func():
 			if GameState.claim_mission(id):
 				_float_reward(b, "+%d" % m["coins"])
+				Hud.fly_coins(self, b.get_global_rect().get_center(), _coin_card, int(m["coins"]))
 				_rebuild())
 	else:
 		Hud.style_soft(b, 24)
@@ -589,6 +594,7 @@ func _tier_node(i: int) -> Control:
 			if GameState.claim_pass_tier(i):
 				if tier["item"] == "":
 					_float_reward(b, "+%d" % tier["coins"])
+					Hud.fly_coins(self, b.get_global_rect().get_center(), _coin_card, int(tier["coins"]))
 				else:
 					_float_reward(b, "¡Nuevo!", false)
 				_rebuild())

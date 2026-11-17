@@ -204,7 +204,7 @@ func _game_card(g: Dictionary) -> Control:
 	gain.add_child(Hud.coin_icon(28.0))
 	var gain_label := Label.new()
 	gain_label.text = T.s("hasta %d") % g["max"]
-	gain_label.add_theme_font_size_override("font_size", 22)
+	gain_label.add_theme_font_size_override("font_size", 24)
 	gain_label.add_theme_color_override("font_color", Color("b87400"))
 	gain.add_child(gain_label)
 	chips.add_child(gain)

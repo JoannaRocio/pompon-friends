@@ -5,7 +5,7 @@ Estado técnico: el proyecto ya apunta a **Android 16 (API 36)**, requisito de G
 ## 1. Lo que tienes que hacer tú (cuentas e identidad)
 
 1. **Cuenta de desarrollador de Google Play** (pago único de unos 25 USD) en <https://play.google.com/console>. Google verifica tu identidad (documento y a veces dirección).
-2. **Política de privacidad en una URL pública.** Publica el contenido de `privacy-policy.md` (por ejemplo en GitHub Pages o Google Sites) y reemplaza el correo de contacto.
+2. **Política de privacidad y página de borrado en una URL pública.** La carpeta `docs/sitio/` ya tiene las dos páginas listas (`index.html` = política, `borrar-datos.html` = pedir el borrado), en español e inglés. Lo más fácil: entrar a <https://app.netlify.com/drop> y arrastrar la carpeta `docs/sitio` entera; Netlify da una dirección como `https://pompon-friends.netlify.app`. En Play Console van la política (`.../`) y, en "Seguridad de los datos > Eliminación de datos", la página de borrado (`.../borrar-datos.html`). Si cambias `privacy-policy.md`, corre `python tools/build_sitio.py` y vuelve a subir la carpeta.
 3. **Pruebas cerradas:** las cuentas personales nuevas suelen necesitar un período de prueba cerrada con un mínimo de testers antes de poder publicar en producción. Revisa en tu Play Console el requisito vigente (hoy: unos 12 testers durante 14 días).
 
 ## 2. Clave de firma de lanzamiento (importante)

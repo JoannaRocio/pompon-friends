@@ -138,7 +138,7 @@ func _make_stage() -> Control:
 	row.add_child(icon)
 	var name_label := Label.new()
 	name_label.text = Rooms.room_name(GameState.current_room)
-	name_label.add_theme_font_size_override("font_size", 22)
+	name_label.add_theme_font_size_override("font_size", 24)
 	name_label.add_theme_color_override("font_color", Hud.INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(name_label)
@@ -321,7 +321,7 @@ func _make_tile(id: String) -> Control:
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	name_label.add_theme_font_size_override("font_size", 19)
+	name_label.add_theme_font_size_override("font_size", 21)
 	name_label.add_theme_constant_override("line_spacing", -4)
 	name_label.add_theme_color_override("font_color", Hud.INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE

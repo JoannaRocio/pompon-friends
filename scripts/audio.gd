@@ -1,6 +1,7 @@
 extends Node
 ## Autoload "Audio": musica de fondo (con cambio suave entre pistas) y efectos de sonido.
 ## Todos los botones suenan solos; usa set_meta("silent", true) en uno para evitarlo.
+## Algunos efectos tambien vibran un toque corto en el celular (se apagan junto con los sonidos).
 
 const DIR := "res://assets/audio/"
 const SETTINGS_PATH := "user://settings.cfg"
@@ -9,6 +10,9 @@ const MUSIC_DB := -9.0
 const SFX_DB := {"click": -16.0, "bath": -12.0, "eat": -10.0, "drink": -10.0, "stamp": -5.0, "ding": -10.0}
 const DEFAULT_SFX_DB := -8.0
 const POOL_SIZE := 8
+## Milisegundos de vibracion por efecto (solo en el celular). Cortos y suaves: es para chicos.
+const HAPTIC_MS := {"pet": 12, "coin": 20, "success": 35, "hatch": 70, "stamp": 30, "fail": 25}
+const HAPTIC_GAP := 0.08   # no encadenar vibraciones (varias monedas seguidas = una sola)
 const PLAY_SCENES := ["math_game", "simon_game", "pattern_game", "minigames", "job_game"]
 
 var music_on := true
@@ -20,6 +24,7 @@ var _streams := {}
 var _track := ""
 var _watch := 0.0
 var _fade: Tween
+var _last_haptic := -1.0
 
 
 func _ready() -> void:
@@ -84,6 +89,7 @@ func _stream(file: String) -> AudioStream:
 func play(sfx_name: String, pitch := 1.0) -> void:
 	if not sfx_on:
 		return
+	vibrate(HAPTIC_MS.get(sfx_name, 0))
 	for p in _pool:
 		if not p.playing:
 			p.stream = _stream("sfx_%s.wav" % sfx_name)
@@ -91,6 +97,17 @@ func play(sfx_name: String, pitch := 1.0) -> void:
 			p.pitch_scale = pitch
 			p.play()
 			return
+
+
+## Vibracion corta. En PC y en la web no hace nada.
+func vibrate(ms: int) -> void:
+	if ms <= 0 or not sfx_on or not OS.has_feature("mobile"):
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	if _last_haptic >= 0.0 and now - _last_haptic < HAPTIC_GAP:
+		return
+	_last_haptic = now
+	Input.vibrate_handheld(ms, 0.5)
 
 
 func play_music(track: String) -> void:

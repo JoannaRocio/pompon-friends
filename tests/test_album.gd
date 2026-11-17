@@ -38,6 +38,9 @@ func _initialize() -> void:
 	# en la casa: el album se abre y una figurita nueva se festeja
 	gs.daily_gift_day = Missions.today(now)
 	gs.tips_seen = ["egg1", "job1", "shopcrib", "care", "pet", "decor", "coins", "friends", "growth", "night1"]
+	gs.tutorial["off"] = true   # (con un paso del tutorial en pantalla los avisos esperan su turno)
+	gs.level_seen = 999   # (sin el aviso de nivel ni el de ponerle nombre: la figurita espera a que no haya otro cartel)
+	p.nickname = "Mochi"
 	var h: Control = load("res://scenes/home.tscn").instantiate()
 	root.add_child(h)
 	await create_timer(0.5).timeout

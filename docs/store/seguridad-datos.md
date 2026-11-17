@@ -41,7 +41,8 @@ Notas:
 - Las notificaciones son locales (las programa el celular): no envían datos.
 
 ## Antes de publicar
-- [ ] Subir la política de privacidad (docs/store/privacy-policy.md) a una página pública y poner el enlace en Play Console.
+- [ ] Subir la carpeta `docs/sitio/` a una página pública (ver publicar.md) y poner en Play Console el enlace a la política y, en "Eliminación de datos", el de `borrar-datos.html`.
+- [ ] Cuando llegue un pedido de borrado: borrar en Supabase las filas de ese código (`cloud_saves` con el código de la nube; `friend_profiles`, `friend_links`, `friend_events` y las `friend_reports` que hizo, con el código de amigo) y responder el correo. Plazo prometido: 30 días.
 - [ ] Completar "Seguridad de los datos" con la tabla de arriba.
 - [ ] Declarar el público objetivo (incluye menores de 13) y responder el cuestionario de Familias.
 - [ ] Revisar de vez en cuando la tabla `friend_reports` en Supabase (marcar `reviewed` y borrar la tarjeta si hace falta).

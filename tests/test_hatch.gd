@@ -36,6 +36,8 @@ func _initialize() -> void:
 	anim.t = 6.0   # como si hubiera pasado todo el tiempo
 	await create_timer(1.2).timeout
 	print("termina sola: capa cerrada=", h._hatch_layer == null)
-	await create_timer(1.5).timeout
+	await create_timer(1.0).timeout
+	print("primero la fiesta: confeti=", h._born_party > 0.0, " | sin cartel del nombre todavia=", h._name_panel == null)
+	await create_timer(3.6).timeout
 	print("despues pide el nombre: ", h._name_panel != null, " | ya no esta por nacer: ", not h._prehatch, " | se ve el bebe: ", not h.pet.show_egg)
 	quit()

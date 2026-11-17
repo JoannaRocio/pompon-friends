@@ -56,6 +56,7 @@ func _initialize() -> void:
 	p.nickname = "Tofu"
 	p.born_at = now - 6 * 86400   # nivel 7
 	gs.level_seen = 3
+	gs.tutorial["off"] = true   # (con un paso del tutorial en pantalla los avisos esperan su turno)
 	var h: Control = load("res://scenes/home.tscn").instantiate()
 	root.add_child(h)
 	await create_timer(2.6).timeout

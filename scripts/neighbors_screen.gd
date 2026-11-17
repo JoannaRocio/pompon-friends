@@ -189,7 +189,7 @@ func _make_row(entry: Dictionary) -> Control:
 	lvl.add_child(HeartsRow.new().setup(Neighbors.level_index(pts) + 1, 22.0, Neighbors.LEVELS.size()))
 	var lvl_name := Label.new()
 	lvl_name.text = Neighbors.level_name(pts)
-	lvl_name.add_theme_font_size_override("font_size", 20)
+	lvl_name.add_theme_font_size_override("font_size", 24)
 	lvl_name.add_theme_color_override("font_color", PINK.darkened(0.2))
 	lvl.add_child(lvl_name)
 	info.add_child(lvl)
@@ -222,7 +222,7 @@ func _make_row(entry: Dictionary) -> Control:
 	var go := Label.new()
 	go.text = "Visitar"
 	go.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	go.add_theme_font_size_override("font_size", 22)
+	go.add_theme_font_size_override("font_size", 24)
 	go.add_theme_color_override("font_color", Color.WHITE)
 	go.add_theme_color_override("font_outline_color", GREEN.darkened(0.3))
 	go.add_theme_constant_override("outline_size", 8)
@@ -329,7 +329,7 @@ func _friends_card() -> Control:
 	mine.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	mine.add_theme_constant_override("separation", 0)
 	code_row.add_child(mine)
-	mine.add_child(_small("Tu código de amigo", 18, Color("a0527a")))
+	mine.add_child(_small("Tu código de amigo", 21, Color("a0527a")))
 	var code := Label.new()
 	code.text = CloudCode.format_code(GameState.friend_code)
 	code.add_theme_font_size_override("font_size", 40)

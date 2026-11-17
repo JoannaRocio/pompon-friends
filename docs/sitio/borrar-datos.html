@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Borrar tus datos · Pompon Friends</title>
+<meta name="description" content="Cómo pedir que se borren los datos de Pompon Friends guardados en el servidor (partida en la nube y amigos).">
+<link rel="icon" href="icon.png">
+<style>
+  :root { --ink: #5b3a4a; --pink: #ff8fb8; --pink-dark: #d6336c; --soft: #fff1f6; --card: #ffffff; --line: #ffc2d9; --bg: #fff7ec; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  header img { width: 64px; height: 64px; border-radius: 16px; }
+  h1 { font-size: 1.7rem; margin: 0; color: var(--pink-dark); line-height: 1.2; }
+  h2 { font-size: 1.2rem; margin: 28px 0 8px; color: var(--pink-dark); }
+  .lang { margin: 8px 0 20px; font-size: .95rem; }
+  .lang a { color: var(--pink-dark); font-weight: 600; }
+  .card { background: var(--card); border: 3px solid var(--line); border-radius: 22px; padding: 18px 20px; margin: 16px 0; }
+  ol, ul { padding-left: 1.3em; margin: 6px 0; }
+  li { margin: 4px 0; }
+  label { display: block; font-weight: 600; margin: 14px 0 4px; }
+  input[type=text] { width: 100%; font: inherit; padding: 10px 12px; border: 2px solid var(--line); border-radius: 12px; background: var(--soft); color: var(--ink); text-transform: uppercase; letter-spacing: .05em; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; margin: 8px 0; }
+  .check input { margin-top: 5px; width: 18px; height: 18px; accent-color: var(--pink-dark); }
+  .button { display: inline-block; margin-top: 18px; background: var(--pink); color: #fff; font-weight: 700; font-size: 1.1rem; text-decoration: none; padding: 14px 24px; border-radius: 999px; border: 0; cursor: pointer; box-shadow: 0 4px 0 var(--pink-dark); }
+  .button:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--pink-dark); }
+  .small { font-size: .92rem; opacity: .85; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: .97rem; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 2px solid var(--soft); vertical-align: top; }
+  th { color: var(--pink-dark); }
+  code { background: var(--soft); padding: 1px 6px; border-radius: 6px; }
+  footer { margin-top: 32px; font-size: .9rem; }
+  footer a { color: var(--pink-dark); }
+  section[lang=en] { display: none; }
+  body.en section[lang=es] { display: none; }
+  body.en section[lang=en] { display: block; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="icon.png" alt="">
+    <h1 id="title">Borrar tus datos de Pompon Friends</h1>
+  </header>
+  <p class="lang"><a href="#es" data-lang="es">Español</a> · <a href="#en" data-lang="en">English</a></p>
+
+  <section lang="es">
+    <p><strong>Pompon Friends</strong> no tiene cuentas ni pide email. Todo se guarda en tu celular, salvo si usaste <em>Guardar en la nube</em> o <em>Amigos</em>. Con esta página pides que borremos lo que está en nuestro servidor.</p>
+
+    <div class="card">
+      <h2 style="margin-top:0">Cómo pedir el borrado</h2>
+      <ol>
+        <li>Abre el juego y anota tus códigos:
+          <ul>
+            <li><strong>Código de la nube</strong> (12 letras y números, por ejemplo <code>ABCD-EFGH-JKLM</code>): en el menú, botón de la nube.</li>
+            <li><strong>Código de amigo</strong> (8 letras y números, por ejemplo <code>K7F3-QW2M</code>): en Vecinos, "Tu código de amigo".</li>
+          </ul>
+        </li>
+        <li>Completa lo de abajo y toca <strong>Pedir el borrado</strong>. Se abre un correo ya escrito: solo tienes que enviarlo.</li>
+        <li>Lo borramos dentro de los 30 días y te respondemos para avisarte.</li>
+      </ol>
+      <p class="small">Si ya no tienes el juego o no encuentras los códigos, escríbenos igual a <a href="mailto:jrsakugawa@gmail.com">jrsakugawa@gmail.com</a> contando qué quieres borrar.</p>
+
+      <label for="cloud-es">Código de la nube (si lo usaste)</label>
+      <input type="text" id="cloud-es" placeholder="ABCD-EFGH-JKLM" autocomplete="off" maxlength="16">
+      <label for="friend-es">Código de amigo (si lo usaste)</label>
+      <input type="text" id="friend-es" placeholder="K7F3-QW2M" autocomplete="off" maxlength="11">
+      <label>Qué quieres borrar</label>
+      <label class="check"><input type="checkbox" id="all-es" checked> Todo lo que hay en el servidor (partida en la nube, tarjeta de amigos, amistades, avisos y dibujos enviados)</label>
+      <a class="button" id="send-es" href="#">Pedir el borrado</a>
+    </div>
+
+    <h2>Qué se borra y qué no</h2>
+    <table>
+      <tr><th>Dato</th><th>Qué pasa</th></tr>
+      <tr><td>Partida en la nube (progreso, nombre de jugador, nombre del Pompon, dibujos)</td><td>Se borra.</td></tr>
+      <tr><td>Tarjeta de amigos, lista de amigos, solicitudes y avisos ("vino a visitarte")</td><td>Se borra. Tus amigos dejan de verte.</td></tr>
+      <tr><td>Dibujos que regalaste y todavía no se abrieron</td><td>Se borran.</td></tr>
+      <tr><td>Denuncias que hiciste</td><td>Se borran.</td></tr>
+      <tr><td>Partida guardada en tu celular</td><td>No está en el servidor: se borra desinstalando el juego o borrando sus datos desde Ajustes.</td></tr>
+    </table>
+    <p class="small">No guardamos copias de lo que borramos. Si alguien te denunció, esa denuncia se puede conservar hasta que la revisemos (como mucho 90 días) para cuidar a los demás jugadores.</p>
+
+    <h2>Para madres, padres y adultos</h2>
+    <p>Un adulto puede pedir el borrado de los datos de un chico con este mismo formulario. No hace falta ningún otro dato: con el código alcanza. Más información en la <a href="index.html">política de privacidad</a>.</p>
+  </section>
+
+  <section lang="en">
+    <p><strong>Pompon Friends</strong> has no accounts and never asks for an email. Everything stays on your phone, unless you used <em>Save to the cloud</em> or <em>Friends</em>. Use this page to ask us to delete what is on our server.</p>
+
+    <div class="card">
+      <h2 style="margin-top:0">How to request deletion</h2>
+      <ol>
+        <li>Open the game and write down your codes:
+          <ul>
+            <li><strong>Cloud code</strong> (12 letters and numbers, for example <code>ABCD-EFGH-JKLM</code>): in the menu, cloud button.</li>
+            <li><strong>Friend code</strong> (8 letters and numbers, for example <code>K7F3-QW2M</code>): in Neighbors, "Your friend code".</li>
+          </ul>
+        </li>
+        <li>Fill in the form below and tap <strong>Request deletion</strong>. A ready-made email opens: just send it.</li>
+        <li>We delete it within 30 days and reply to let you know.</li>
+      </ol>
+      <p class="small">If you no longer have the game or can't find the codes, write to <a href="mailto:jrsakugawa@gmail.com">jrsakugawa@gmail.com</a> anyway and tell us what you want deleted.</p>
+
+      <label for="cloud-en">Cloud code (if you used it)</label>
+      <input type="text" id="cloud-en" placeholder="ABCD-EFGH-JKLM" autocomplete="off" maxlength="16">
+      <label for="friend-en">Friend code (if you used it)</label>
+      <input type="text" id="friend-en" placeholder="K7F3-QW2M" autocomplete="off" maxlength="11">
+      <label>What to delete</label>
+      <label class="check"><input type="checkbox" id="all-en" checked> Everything on the server (cloud save, friend card, friendships, notices and drawings sent)</label>
+      <a class="button" id="send-en" href="#">Request deletion</a>
+    </div>
+
+    <h2>What is deleted and what is not</h2>
+    <table>
+      <tr><th>Data</th><th>What happens</th></tr>
+      <tr><td>Cloud save (progress, player name, Pompon name, drawings)</td><td>Deleted.</td></tr>
+      <tr><td>Friend card, friend list, requests and notices ("came to visit you")</td><td>Deleted. Your friends stop seeing you.</td></tr>
+      <tr><td>Drawings you gave that were not opened yet</td><td>Deleted.</td></tr>
+      <tr><td>Reports you made</td><td>Deleted.</td></tr>
+      <tr><td>Game saved on your phone</td><td>Not on the server: delete it by uninstalling the game or clearing its data in Settings.</td></tr>
+    </table>
+    <p class="small">We keep no copies of what we delete. If someone reported you, that report may be kept until we review it (90 days at most) to keep other players safe.</p>
+
+    <h2>For parents and adults</h2>
+    <p>A parent can request deletion of a child's data with this same form. No other information is needed: the code is enough. More in the <a href="index.html#en">privacy policy</a>.</p>
+  </section>
+
+  <footer>Pompon Friends · <a href="index.html">Política de privacidad / Privacy policy</a> · <a href="mailto:jrsakugawa@gmail.com">jrsakugawa@gmail.com</a></footer>
+</main>
+<script>
+  var MAIL = "jrsakugawa@gmail.com";
+  function setLang(l) {
+    document.body.classList.toggle("en", l === "en");
+    document.documentElement.lang = l;
+    document.getElementById("title").textContent = l === "en" ? "Delete your Pompon Friends data" : "Borrar tus datos de Pompon Friends";
+    document.title = l === "en" ? "Delete your data · Pompon Friends" : "Borrar tus datos · Pompon Friends";
+  }
+  document.querySelectorAll("[data-lang]").forEach(function (a) {
+    a.addEventListener("click", function (e) { e.preventDefault(); setLang(a.dataset.lang); history.replaceState(null, "", "#" + a.dataset.lang); });
+  });
+  var nav = (navigator.language || "es").toLowerCase();
+  setLang(location.hash === "#en" || (location.hash !== "#es" && nav.indexOf("es") !== 0) ? "en" : "es");
+  function clean(v) { return (v || "").toUpperCase().replace(/[^A-Z0-9-]/g, ""); }
+  ["es", "en"].forEach(function (l) {
+    document.getElementById("send-" + l).addEventListener("click", function (e) {
+      e.preventDefault();
+      var cloud = clean(document.getElementById("cloud-" + l).value);
+      var friend = clean(document.getElementById("friend-" + l).value);
+      var es = l === "es";
+      var subject = es ? "Pompon Friends: pedido de borrado de datos" : "Pompon Friends: data deletion request";
+      var body = es
+        ? "Hola, quiero que borren mis datos de Pompon Friends del servidor.\n\nCódigo de la nube: " + (cloud || "(no lo usé)") + "\nCódigo de amigo: " + (friend || "(no lo usé)") + "\nQué borrar: todo lo que hay en el servidor.\n"
+        : "Hello, I would like my Pompon Friends data deleted from the server.\n\nCloud code: " + (cloud || "(not used)") + "\nFriend code: " + (friend || "(not used)") + "\nWhat to delete: everything on the server.\n";
+      location.href = "mailto:" + MAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    });
+  });
+</script>
+</body>
+</html>

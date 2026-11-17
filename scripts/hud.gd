@@ -108,6 +108,42 @@ static func coin_icon(px := 32.0) -> Control:
 	return c
 
 
+## Monedas que salen de `from` (posicion en pantalla) y vuelan hasta `target` (el contador), que salta al recibirlas.
+## Es solo el festejo: el numero ya se sumo antes.
+static func fly_coins(host: Node, from: Vector2, target: Control, amount: int) -> void:
+	if host == null or not is_instance_valid(target) or not host.is_inside_tree():
+		return
+	var n := clampi(amount / 5, 4, 9)
+	var to := target.get_global_rect().get_center()
+	for i in n:
+		var coin := coin_icon(52.0)
+		coin.top_level = true
+		coin.size = Vector2(52, 52)
+		coin.pivot_offset = Vector2(26, 26)
+		coin.scale = Vector2.ZERO
+		host.add_child(coin)
+		var start := from + Vector2(randf_range(-60.0, 60.0), randf_range(-40.0, 30.0)) - coin.size * 0.5
+		coin.global_position = from - coin.size * 0.5
+		var last := i == n - 1
+		var tw := coin.create_tween()
+		tw.tween_interval(i * 0.06)
+		tw.tween_property(coin, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		tw.parallel().tween_property(coin, "global_position", start, 0.18)
+		tw.tween_interval(0.12)
+		tw.tween_property(coin, "global_position", to - coin.size * 0.5, 0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+		tw.parallel().tween_property(coin, "scale", Vector2(0.7, 0.7), 0.5)
+		tw.tween_callback(func():
+			var audio := coin.get_node_or_null("/root/Audio")   # (Hud es estatico: el autoload se busca por ruta)
+			if audio != null and (i % 2 == 0 or last):
+				audio.play("coin", 1.0 + 0.04 * i)
+			if is_instance_valid(target):
+				target.pivot_offset = target.size * 0.5
+				var bump := target.create_tween()
+				bump.tween_property(target, "scale", Vector2(1.12, 1.12), 0.07)
+				bump.tween_property(target, "scale", Vector2.ONE, 0.12)
+			coin.queue_free())
+
+
 # --------------------------------------------------------------- iconos
 
 static func _circle_pts(c: Vector2, rx: float, ry: float, rot := 0.0, n := 28) -> PackedVector2Array:
@@ -141,7 +177,8 @@ static func _crescent(o: Vector2, big_r: float, i: Vector2, r: float) -> PackedV
 	var span2 := wrapf((p1 - i).angle() - b1, 0.0, TAU)
 	if absf(angle_difference(b1 + span2 * 0.5, (o - i).angle())) > PI * 0.5:
 		span2 -= TAU
-	for k in 17:
+	# (sin repetir p2 y p1, que ya estan en el borde de afuera: puntos repetidos rompen la triangulacion)
+	for k in range(1, 16):
 		pts.append(i + Vector2.from_angle(b1 + span2 * k / 16.0) * r)
 	return pts
 

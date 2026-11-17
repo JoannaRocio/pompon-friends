@@ -119,6 +119,9 @@ var _night_seen := false           # ya paso por la noche en esta sesion (si no,
 var _night_notice: BigNotice
 var _album_panel: AlbumPanel
 var _album_check := 2.0
+# Avisos chicos de a uno por vez: las figuritas esperan en fila a que no haya otro cartel en pantalla.
+var _sticker_queue: Array = []
+var _sticker_chip: Control
 var _clock_label: Label
 var _clock_icon: Control
 var _pet_ready := false
@@ -170,6 +173,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_born_party = maxf(_born_party - delta, 0.0)
 	_speech_timer -= delta
 	if _speech_timer <= 0.0 and _bubble.visible:
 		_bubble.visible = false
@@ -310,7 +314,7 @@ func _update_tutorial(delta: float) -> void:
 		if _tip_panel != null and _tip_id in TutorialSteps.COVERS_TIPS:
 			_dismiss_tip()
 	if not _is_born(p) or _needs_name() or _any_modal() or _edit or _night or _prehatch or _tip_panel != null \
-			or GameState.farewell != "":
+			or is_instance_valid(_sticker_chip) or GameState.farewell != "":
 		return
 	if not GameState.pending_art.is_empty():   # le mandaron un dibujo: se ve primero y elige guardarlo o no
 		var art_notice := FriendSafety.show_received_art(self, func(): _night_notice = null)
@@ -794,7 +798,43 @@ func _play_hatch() -> void:
 	anim.finished.connect(func():
 		_hatch_layer = null
 		pet.visible = true
-		pet.celebrate(6))
+		_born_party_start())
+
+
+## Recien nacido: unos segundos de fiesta (confeti, primer piiio, saltitos mirando a la camara) antes de pedir el nombre.
+const BORN_PARTY_SECONDS := 3.2
+var _born_party := 0.0
+
+func _born_party_start() -> void:
+	_born_party = BORN_PARTY_SECONDS
+	pet.celebrate(6)
+	Audio.play("success")
+	Audio.vibrate(60)
+	get_tree().create_timer(0.5).timeout.connect(func():
+		if is_instance_valid(pet):
+			Audio.play(["voice_a", "voice_b", "voice_c"].pick_random(), 1.25)
+			_say(PomponSpeech.line(GameState.pompon, int(Time.get_unix_time_from_system())), 2.6))
+	var layer := Control.new()
+	layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(layer)
+	var colors := [Color("ff8fb8"), Color("ffd34d"), Color("7fd1ff"), Color("8fe3a8"), Color("c8a2ff"), Color("ffa94d")]
+	var w := size.x
+	for i in 46:
+		var bit := ColorRect.new()
+		bit.color = colors[i % colors.size()]
+		bit.size = Vector2(randf_range(10, 16), randf_range(16, 24))
+		bit.pivot_offset = bit.size * 0.5
+		bit.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bit.position = Vector2(randf_range(0.0, w), randf_range(-260.0, -20.0))
+		bit.rotation = randf_range(0.0, TAU)
+		layer.add_child(bit)
+		var fall := randf_range(1.8, 2.8)
+		var tw := bit.create_tween().set_parallel()
+		tw.tween_property(bit, "position", bit.position + Vector2(randf_range(-80.0, 80.0), size.y * randf_range(0.75, 1.05)), fall)
+		tw.tween_property(bit, "rotation", bit.rotation + randf_range(-8.0, 8.0), fall)
+		tw.tween_property(bit, "modulate:a", 0.0, 0.5).set_delay(fall - 0.5)
+	get_tree().create_timer(3.0).timeout.connect(layer.queue_free)
 
 
 ## Avisos importantes: el Pompon crecio / nacio, o se fue de casa.
@@ -807,6 +847,8 @@ func _check_news() -> void:
 	if GameState.hatch_anim_pending and _hatch_layer == null and not _any_modal() and not _edit 			and GameState.pompon != null and GameState.pompon.hatched:
 		if not _prehatch:
 			_start_prehatch()
+	elif _born_party > 0.0:
+		pass   # recien nacido: primero la fiesta, despues el nombre y los demas carteles
 	elif GameState.farewell != "" and _note_panel == null:
 		_show_farewell()
 	elif GameState.welcome_back and _is_born(GameState.pompon) and not _any_modal() and not _edit:
@@ -962,6 +1004,8 @@ func _check_tips() -> void:
 	if _tip_timer > 0.0 or GameState.pompon == null or _tip_panel != null or _edit:
 		return
 	_tip_timer = 1.0
+	if is_instance_valid(_sticker_chip) or _tut != null:   # figurita o paso del tutorial en pantalla: el aviso espera
+		return
 	if _check_level_up():
 		return
 	var now := Time.get_ticks_msec() / 1000.0
@@ -1095,7 +1139,9 @@ func _show_daily_gift() -> void:
 	ok.custom_minimum_size = Vector2(0, 90)
 	Hud.style_primary(ok, 38)
 	ok.pressed.connect(func():
+		var before := GameState.coins
 		GameState.claim_daily_gift()
+		Hud.fly_coins(self, ok.get_global_rect().get_center(), _coin_pill, GameState.coins - before)
 		_gift_panel.queue_free()
 		_gift_panel = null)
 	box.add_child(ok)
@@ -1187,6 +1233,30 @@ func _make_bar(stat: String, height: float, font_size: int, with_text := false) 
 	return bar
 
 
+## Cartelito con el nombre de la necesidad debajo de su barrita (y si le falta, que le falta).
+var _bar_chip: Control
+
+func _show_bar_name(bar: StatBar) -> void:
+	if is_instance_valid(_bar_chip):
+		_bar_chip.queue_free()
+	var low := bar.value < 25.0
+	var text := T.label(STAT_LABELS[bar.stat]) + ("  ·  " + T.s("¡Necesita más!") if low else "")
+	var chip := Hud.chip(text, Color("fff3d1") if not low else Color("ffe0e6"), Color("8a6d00") if not low else Color("c2304f"), 26)
+	chip.top_level = true
+	add_child(chip)
+	_bar_chip = chip
+	Audio.play("pet", 1.3)
+	await get_tree().process_frame
+	if not is_instance_valid(chip):
+		return
+	var r := bar.get_global_rect()
+	chip.global_position = Vector2(clampf(r.get_center().x - chip.size.x * 0.5, 12.0, get_viewport_rect().size.x - chip.size.x - 12.0), r.end.y + 8.0)
+	var tw := chip.create_tween()
+	tw.tween_interval(1.8)
+	tw.tween_property(chip, "modulate:a", 0.0, 0.4)
+	tw.tween_callback(chip.queue_free)
+
+
 ## Tarjeta de arriba: foto del Pompon, nombre, las 4 necesidades con iconos y "Ver todo" (las 9).
 func _build_bars() -> void:
 	var panel: PanelContainer = $InfoPanel
@@ -1253,7 +1323,7 @@ func _build_bars() -> void:
 	texts.add_child(detail_row)
 	title.add_theme_font_size_override("font_size", 34)
 	title.add_theme_color_override("font_color", Hud.INK)
-	details.add_theme_font_size_override("font_size", 21)
+	details.add_theme_font_size_override("font_size", 24)
 	details.add_theme_color_override("font_color", Color("a0527a"))
 	header.add_child(texts)
 
@@ -1279,6 +1349,11 @@ func _build_bars() -> void:
 		var bar := _make_bar(s, 40.0, 16)
 		mini.add_child(bar)
 		_mini_nodes[s] = bar
+		# tocar una barrita dice que es (con solo el icono un chico no sabe que le falta)
+		bar.mouse_filter = Control.MOUSE_FILTER_STOP
+		bar.gui_input.connect(func(e: InputEvent):
+			if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+				_show_bar_name(bar))
 	info.add_child(mini)
 	info.move_child(mini, 1)
 	_mini_row = mini
@@ -1294,7 +1369,7 @@ func _build_bars() -> void:
 		if e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 			_show_profile())
 	_growth_hint = Label.new()
-	_growth_hint.add_theme_font_size_override("font_size", 20)
+	_growth_hint.add_theme_font_size_override("font_size", 24)
 	_growth_hint.add_theme_color_override("font_color", Color("a0527a"))
 	_growth_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_growth_hint.visible = false   # "Dia 6 de 7 · Sera Niño en 2 dias" esta en la ficha: la casa queda mas limpia
@@ -1456,6 +1531,8 @@ func _log_thought(entry: Dictionary) -> void:
 		return
 	GameState.add_journal(entry)
 	_thought_timer = randf_range(THOUGHT_MIN, THOUGHT_MAX)
+	if _tip_panel != null or is_instance_valid(_sticker_chip):   # con un aviso en pantalla queda solo en el diario (no se pisan)
+		return
 	if entry["kind"] == PomponThoughts.KIND_SAY:
 		_say(entry["text"], 6.0)
 	else:
@@ -1596,7 +1673,7 @@ func _build_activity() -> void:
 	_activity_chip.visible = false
 	add_child(_activity_chip)
 	_activity_label = Label.new()
-	_activity_label.add_theme_font_size_override("font_size", 23)
+	_activity_label.add_theme_font_size_override("font_size", 24)
 	_activity_label.add_theme_color_override("font_color", Color("a0527a"))
 	_activity_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_activity_chip.add_child(_activity_label)
@@ -1746,7 +1823,7 @@ func _journal_card(e: Dictionary, now: int, bias: int) -> PanelContainer:
 	var when := T.s("ahora") if age < 60 else (T.s("hace %d min") % (age / 60) if age < 3600 else "%02d:%02d" % [Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["hour"], Time.get_datetime_dict_from_unix_time(int(e["t"]) + bias)["minute"]])
 	var meta := Label.new()
 	meta.text = when   # (el color y el icono ya dicen si lo dijo, lo penso o lo sintio)
-	meta.add_theme_font_size_override("font_size", 18)
+	meta.add_theme_font_size_override("font_size", 21)
 	meta.add_theme_color_override("font_color", color.darkened(0.25))
 	col.add_child(meta)
 	var text := Label.new()
@@ -1878,7 +1955,7 @@ func _build_edit_panel() -> void:
 		b.custom_minimum_size = Vector2(0, 48)
 		b.focus_mode = Control.FOCUS_NONE
 		b.clip_text = true
-		b.add_theme_font_size_override("font_size", 19)
+		b.add_theme_font_size_override("font_size", 21)
 		b.add_theme_stylebox_override("normal", Hud.pill(Color("fff1f6"), Color("ffc2d9"), 24, 3))
 		b.add_theme_stylebox_override("hover", Hud.pill(Color("ffe4ee"), Color("ffb3d1"), 24, 3))
 		b.add_theme_stylebox_override("pressed", Hud.pill(Color("ff8fb8"), Color.WHITE, 24, 0))
@@ -2085,7 +2162,7 @@ func _rebuild_tray() -> void:
 		empty.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty.add_theme_font_size_override("font_size", 21)
+		empty.add_theme_font_size_override("font_size", 24)
 		empty.add_theme_color_override("font_color", Color(Hud.INK, 0.7))
 		_tray.add_child(empty)
 	_update_edit_hint()
@@ -2114,7 +2191,7 @@ func _tray_tile(id: String) -> Button:
 	lbl.clip_text = true
 	lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	lbl.add_theme_font_size_override("font_size", 15)
+	lbl.add_theme_font_size_override("font_size", 18)
 	lbl.add_theme_color_override("font_color", Color("ff4f8b") if on else Hud.INK)
 	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(lbl)
@@ -2218,7 +2295,7 @@ func _water_card() -> Button:
 	texts.add_child(name_label)
 	var price := Label.new()
 	price.text = T.s("gratis")
-	price.add_theme_font_size_override("font_size", 22)
+	price.add_theme_font_size_override("font_size", 24)
 	price.add_theme_color_override("font_color", Color("2f9e5b"))
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(price)
@@ -2290,7 +2367,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	price_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(price_row)
 	var price := Label.new()
-	price.add_theme_font_size_override("font_size", 22)
+	price.add_theme_font_size_override("font_size", 24)
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if food["price"] == 0:
 		price.text = T.s("gratis")
@@ -2880,9 +2957,15 @@ func _update_album(delta: float) -> void:
 	var p := GameState.pompon
 	if not _is_born(p) or _edit:
 		return
-	for s in PomponAlbum.new_ones(p, int(Time.get_unix_time_from_system())):
-		_sticker_toast(s)
-		break   # de a una: las demas en la proxima vuelta
+	_sticker_queue.append_array(PomponAlbum.new_ones(p, int(Time.get_unix_time_from_system())))   # (quedan vistas: no se pierden)
+	var mid_tutorial: bool = GameState.tutorial_active() and int(GameState.tutorial["step"]) > 0   # (no cortar un capitulo)
+	if not _sticker_queue.is_empty() and not _notice_on_screen() and not mid_tutorial:
+		_sticker_toast(_sticker_queue.pop_front())   # de a una: las demas en la proxima vuelta
+
+
+## Hay un cartel en pantalla (aviso de abajo, figurita o ventana): el siguiente espera su turno.
+func _notice_on_screen() -> bool:
+	return _tip_panel != null or is_instance_valid(_sticker_chip) or _tut != null or _any_modal() or _edit
 
 
 func _sticker_toast(s: Dictionary) -> void:
@@ -2907,7 +2990,7 @@ func _sticker_toast(s: Dictionary) -> void:
 	row.add_child(texts)
 	var t1 := Label.new()
 	t1.text = T.s("¡Figurita nueva!")
-	t1.add_theme_font_size_override("font_size", 20)
+	t1.add_theme_font_size_override("font_size", 24)
 	t1.add_theme_color_override("font_color", Color("b87400"))
 	texts.add_child(t1)
 	var t2 := Label.new()
@@ -2916,10 +2999,11 @@ func _sticker_toast(s: Dictionary) -> void:
 	t2.add_theme_color_override("font_color", Hud.INK)
 	texts.add_child(t2)
 	add_child(chip)
+	_sticker_chip = chip
 	chip.position = Vector2((size.x - chip.get_combined_minimum_size().x) * 0.5, -120.0)
 	Audio.play("ding")
 	var tw := chip.create_tween()
-	tw.tween_property(chip, "position:y", 330.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)   # sobre el cuarto, sin tapar la tarjeta
+	tw.tween_property(chip, "position:y", 452.0, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)   # sobre el cuarto: debajo de la tarjeta y del globito, arriba de la cabeza del Pompon
 	tw.tween_interval(2.6)
 	tw.tween_property(chip, "modulate:a", 0.0, 0.4)
 	tw.tween_callback(chip.queue_free)

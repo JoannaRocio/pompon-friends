@@ -83,7 +83,7 @@ func _ready() -> void:
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		b.custom_minimum_size = Vector2(0, 62)
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 22)
+		b.add_theme_font_size_override("font_size", 24)
 		b.add_theme_stylebox_override("normal", Hud.pill(Color("fff1f6"), Color("ffc2d9"), 31, 3))
 		b.add_theme_stylebox_override("hover", Hud.pill(Color("ffe4ee"), Color("ffb3d1"), 31, 3))
 		b.add_theme_stylebox_override("pressed", Hud.pill(Color("ff8fb8"), Color.WHITE, 31, 0))
@@ -161,7 +161,7 @@ func _level_card() -> Control:
 	clock.draw.connect(func(): Hud.draw_icon(clock, "clock", clock.size * 0.5, 30.0, Color("a0527a")))
 	head.add_child(clock)
 	_timer_label = Label.new()
-	_timer_label.add_theme_font_size_override("font_size", 22)
+	_timer_label.add_theme_font_size_override("font_size", 24)
 	_timer_label.add_theme_color_override("font_color", Color("a0527a"))
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	head.add_child(_timer_label)
@@ -295,7 +295,7 @@ func _make_card(item: Dictionary) -> Control:
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(0, 54)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 20)
+	name_label.add_theme_font_size_override("font_size", 24)
 	name_label.add_theme_constant_override("line_spacing", -4)
 	box.add_child(name_label)
 
@@ -349,7 +349,7 @@ func _make_card(item: Dictionary) -> Control:
 			var missing := Label.new()
 			missing.text = T.s("Te faltan %d") % (int(item["price"]) - GameState.coins)
 			missing.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			missing.add_theme_font_size_override("font_size", 16)
+			missing.add_theme_font_size_override("font_size", 20)
 			missing.add_theme_color_override("font_color", Color("e0295f"))
 			missing.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			card.set_meta("missing", missing)
@@ -457,7 +457,7 @@ func _make_locked_card(item: Dictionary) -> Control:
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size = Vector2(0, 54)
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.add_theme_font_size_override("font_size", 19)
+	name_label.add_theme_font_size_override("font_size", 21)
 	name_label.add_theme_constant_override("line_spacing", -4)
 	name_label.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
 	box.add_child(name_label)
@@ -468,7 +468,7 @@ func _make_locked_card(item: Dictionary) -> Control:
 	var stage := Label.new()
 	stage.text = T.label(Pompon.stage_name_for_level(lvl))
 	stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	stage.add_theme_font_size_override("font_size", 16)
+	stage.add_theme_font_size_override("font_size", 20)
 	stage.add_theme_color_override("font_color", Color(Hud.INK, 0.5))
 	box.add_child(stage)
 	return card

@@ -138,7 +138,7 @@ func _initialize() -> void:
 	await create_timer(0.9).timeout
 	print("antes: animacion del nacimiento=", h._hatch_layer != null, " | todavia sin pedir nombre=", h._name_panel == null)
 	h._hatch_layer.t = 6.0  # se salta al final de la animacion
-	await create_timer(2.6).timeout
+	await create_timer(2.6 + 3.4).timeout   # (antes del nombre, unos segundos de fiesta)
 	print("pide nombre: ", h._name_panel != null, " | cuidados visibles=", h._dock._tab_buttons[0].is_visible_in_tree())
 	var nbox: Node = h._name_panel.get_child(0)
 	var edit: LineEdit = nbox.get_child(2)

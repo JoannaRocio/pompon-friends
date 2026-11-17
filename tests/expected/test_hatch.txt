@@ -9,4 +9,5 @@ el huevo se va rajando: grietas=1
 nace (se abre la cascara): true | aparece el bebe: true
 al principio no se puede saltar el final: true
 termina sola: capa cerrada=true
+primero la fiesta: confeti=true | sin cartel del nombre todavia=true
 despues pide el nombre: true | ya no esta por nacer: true | se ve el bebe: true
