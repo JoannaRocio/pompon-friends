@@ -67,14 +67,16 @@ class Piece extends Control:
 func _ready() -> void:
 	game_id = "pattern"
 	_build_chrome(Color("dcf7e6"), QUESTIONS)
-	content.add_theme_constant_override("separation", 40)
+	content.add_theme_constant_override("separation", 50)
 	var card := PanelContainer.new()
 	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.95), 44, Color.WHITE, 4, 12))
+	card.custom_minimum_size = Vector2(0, 270)   # tarjeta y opciones grandes: llenan la pantalla sin huecos
 	content.add_child(card)
 	var inner := VBoxContainer.new()
-	inner.add_theme_constant_override("separation", 12)
+	inner.alignment = BoxContainer.ALIGNMENT_CENTER
+	inner.add_theme_constant_override("separation", 18)
 	card.add_child(inner)
-	inner.add_child(_label(T.s("¿Qué sigue?"), 40, Color("3f8f68")))
+	inner.add_child(_label(T.s("¿Qué sigue?"), 44, Color("3f8f68")))
 	_series_row = HBoxContainer.new()
 	_series_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	_series_row.add_theme_constant_override("separation", 6)
@@ -111,8 +113,8 @@ func _next_question() -> void:
 	base.shuffle()
 	var unit := base.slice(0, period)
 	for i in 5:
-		_series_row.add_child(_piece(unit[i % period], 92))
-	_series_row.add_child(_piece(0, 92, true))
+		_series_row.add_child(_piece(unit[i % period], 98))
+	_series_row.add_child(_piece(0, 98, true))
 	_answer = unit[5 % period]
 
 	var options := [_answer]
@@ -122,7 +124,7 @@ func _next_question() -> void:
 	options.shuffle()
 	for opt in options:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(190, 190)
+		b.custom_minimum_size = Vector2(200, 200)
 		Hud.style_soft(b, 20)
 		var inner := _piece(opt, 0)
 		inner.set_anchors_preset(Control.PRESET_FULL_RECT)

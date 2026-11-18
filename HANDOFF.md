@@ -164,6 +164,8 @@ Cada uno suma su habilidad (`PomponSkills.GAME_SKILL`), cuenta como juego favori
 
 **Aula con pizarra** (18/11/2026): debajo de los caminos del aula (`job_menu.gd`, `_classroom()`) hay una pizarra con los símbolos de la materia (en Geografía, un globo de tiza) y el Pompon al lado mirándola, en vez de media pantalla vacía. Ocupa 400 de alto fuera del scroll.
 
+**Celulares viejos** (18/11/2026): los dos presets de Android exportan también `armeabi-v7a` (además de `arm64-v8a`), para los celulares baratos o viejos que corren Android de 32 bits aunque el procesador sea de 64. Sin Vulkan, Godot cae solo a OpenGL (`rendering/rendering_device/fallback_to_opengl3` vale true por defecto); todas las capturas de `tools/screenshot_ux.gd` con `--rendering-driver opengl3` usan ese modo y se ven bien. En Patrones las piezas pasan a 98 y las opciones a 200, con la tarjeta de 270 de alto, igual que en cuentas.
+
 **Finales de línea**: los `.gd` deben quedar en LF. Si se edita con Python en Windows, leer/escribir en binario: con CRLF los textos multilínea muestran una línea vacía de más.
 
 **Flechas guía** (`GuideArrow`, con `set_targets` recorre varios botones): mientras `GameState.job_guide_on()` (nunca trabajó, o el huevo espera cuna y no alcanzan las monedas) señalan Trabajo en la casa, "Aplicar" en las ofertas y los tres "Trabajar" del aula (o "Ir a la Tienda" si ya alcanza). En el turno: si pasan 6 s sin ordenar, un dedito muestra cómo arrastrar un objeto (`SortField`); si un alumno levanta la mano y no lo tocás en 4 s, la flecha señala su examen; si no respondés en 8 s, recorre las respuestas (sin marcar la correcta). Una ayuda por vez.
