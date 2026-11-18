@@ -146,9 +146,12 @@ func _initialize() -> void:
 	_be("Mochi", "", "")
 	var jump: Control = load("res://scenes/jump_game.tscn").instantiate()
 	root.add_child(jump)
-	await process_frame
-	await process_frame
-	print("salto: nubes=", jump.platforms.size(), " | esperando el primer toque=", not jump.started)
+	for i in 10:   # la calle de nubes se arma recien cuando la pantalla tiene tamaño
+		await process_frame
+		if not jump.platforms.is_empty():
+			break
+	# cuantas nubes salen depende del azar (19, 20 o 21): se mira que alcancen para llenar la pantalla y mas
+	print("salto: nubes suficientes=", jump.platforms.size() >= 15, " | esperando el primer toque=", not jump.started)
 	jump._start()
 	var heights := 0
 	var aim := -1.0

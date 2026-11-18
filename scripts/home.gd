@@ -53,6 +53,8 @@ var _dock: HomeDock
 var _coin_pill: PanelContainer
 var _expanded := false
 var _top_buttons: Array[Button] = []
+const TOP_BADGE := 58.0          # circulo de los botones de arriba
+const TOP_BUTTON_H := 104.0      # circulo + nombre debajo
 var _shop_button: Button
 var _job_button: Button
 var _friends_dot: Control
@@ -172,7 +174,40 @@ func _ready() -> void:
 	_refresh()
 
 
+## Ahorro de bateria: si nadie toca la pantalla por un rato, la casa se dibuja a 30 cuadros por
+## segundo (el Pompon se sigue moviendo igual de rapido, solo un poco menos suave). Al tocar, vuelve a 60.
+## Solo en el celular (en la PC y en las pruebas queda en 60, salvo que una prueba lo active).
+const CALM_FPS := 30
+const CALM_AFTER := 4.0
+var calm_fps_enabled := OS.has_feature("mobile")
+var _calm_t := 0.0
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag or event is InputEventMouseButton or event is InputEventKey:
+		_calm_t = 0.0
+		if Engine.max_fps != _full_fps():
+			Engine.max_fps = _full_fps()
+
+
+func _full_fps() -> int:
+	return int(ProjectSettings.get_setting("application/run/max_fps", 60))
+
+
+func _update_calm(delta: float) -> void:
+	if not calm_fps_enabled:
+		return
+	_calm_t += delta
+	if _calm_t >= CALM_AFTER and Engine.max_fps != CALM_FPS:
+		Engine.max_fps = CALM_FPS
+
+
+func _exit_tree() -> void:
+	Engine.max_fps = _full_fps()   # los minijuegos y las otras pantallas siempre a 60
+
+
 func _process(delta: float) -> void:
+	_update_calm(delta)
 	_born_party = maxf(_born_party - delta, 0.0)
 	_speech_timer -= delta
 	if _speech_timer <= 0.0 and _bubble.visible:
@@ -233,7 +268,9 @@ func _wander(delta: float) -> void:
 	if not grown or busy:
 		pet.walking = false
 		_moving = false
-		if not grown or _prehatch:
+		if _prehatch:
+			_pet_pos = _egg_spot()      # por nacer: adentro de su cuna nueva
+		elif not grown:
 			_pet_pos = _world_center()  # el huevo se queda en el centro
 	elif _play_state == "using":
 		_play_step(delta)
@@ -467,6 +504,8 @@ func _focus_pet() -> void:
 func _place_pet(bounds: Rect2) -> void:
 	var depth := clampf(inverse_lerp(bounds.position.y, bounds.end.y, _pet_pos.y), 0.0, 1.0)
 	pet.scale = Vector2.ONE * lerpf(0.9, 1.06, depth)  # mas cerca = un poco mas grande
+	if _prehatch and _crib_front != null and _crib_center() != null:
+		pet.scale = Vector2.ONE * EGG_IN_CRIB_SCALE   # el huevo por nacer, mas chico: entra en la cuna
 	var sx := _pet_pos.x - room.scroll   # posicion en la pantalla (la habitacion se desliza)
 	pet.position = Vector2(sx - PET_SIZE * 0.5, _pet_pos.y - PET_SIZE + 6.0 + room.position.y)   # (al decorar el cuarto sube un poco)
 	_bubble.size = _bubble.get_combined_minimum_size()   # el globo se achica solo al cambiar el texto
@@ -720,6 +759,19 @@ func _start_prehatch() -> void:
 	_knock_t = 0.8
 	pet.show_egg = true
 	pet.egg_cracks = 0
+	var spot := _egg_spot()
+	if spot != _world_center():   # el huevo pasa a la cuna y la camara la muestra
+		room.scroll_to(spot.x - size.x * 0.5, false)
+	if _crib_front == null:
+		_crib_front = Control.new()
+		_crib_front.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_crib_front.set_anchors_preset(Control.PRESET_FULL_RECT)
+		add_child(_crib_front)
+		move_child(_crib_front, pet.get_index() + 1)   # encima del huevo, debajo de los carteles
+		_crib_front.draw.connect(func():
+			var c = _crib_center()
+			if c != null and _prehatch:
+				ItemArt.draw_crib_front(_crib_front, Vector2(c.x - room.scroll, c.y + room.position.y)))
 	if _egg_anchor == null:
 		_egg_anchor = Control.new()
 		_egg_anchor.size = Vector2(4, 4)
@@ -731,9 +783,13 @@ func _start_prehatch() -> void:
 
 
 func _update_prehatch(delta: float) -> void:
-	if not _prehatch or _prehatch_ending:
+	if not _prehatch:
 		return
-	_egg_anchor.position = pet.position + pet.head_point() - Vector2(2, 2)
+	if _crib_front != null:
+		_crib_front.queue_redraw()
+	if _prehatch_ending:
+		return
+	_egg_anchor.position = _pet_head() - Vector2(2, 2)
 	_prehatch_t += delta
 	_knock_t -= delta
 	if _knock_t <= 0.0:
@@ -757,7 +813,7 @@ func _knock(tapped: bool) -> void:
 	toc.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(toc)
 	var side := -1.0 if randf() < 0.5 else 1.0
-	toc.position = pet.position + pet.head_point() + Vector2(side * 110.0 - 40.0, -20.0)
+	toc.position = _pet_head() + Vector2(side * 110.0 - 40.0, -20.0)
 	var tw := toc.create_tween().set_parallel()
 	tw.tween_property(toc, "position:y", toc.position.y - 70.0, 0.9).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	tw.tween_property(toc, "modulate:a", 0.0, 0.5).set_delay(0.4)
@@ -782,6 +838,9 @@ func _end_prehatch() -> void:
 	await get_tree().create_timer(0.5).timeout
 	pet.show_egg = false
 	pet.egg_cracks = 0
+	if _crib_front != null:
+		_crib_front.queue_free()
+		_crib_front = null
 	_play_hatch()   # deja de estar pendiente: ya no vuelve a empezar
 	_prehatch = false
 	_prehatch_ending = false
@@ -899,6 +958,8 @@ var _prehatch_ending := false   # ya se rompio: en medio segundo empieza la anim
 var _prehatch_t := 0.0
 var _knock_t := 0.0
 var _egg_anchor: Control          # punto sobre el huevo (para la flecha)
+var _crib_front: Control          # frente de la cuna dibujado encima del huevo por nacer
+const EGG_IN_CRIB_SCALE := 0.7
 var _level_badge: Control
 var _level_value := 0
 var _mood_pill: PanelContainer
@@ -1124,8 +1185,7 @@ func _show_daily_gift() -> void:
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
 	_gift_panel.add_child(box)
-	var next_streak := GameState.gift_streak + 1 if Missions.today(int(Time.get_unix_time_from_system())) == GameState.daily_gift_day + 1 else 1
-	var amount := 10 + 5 * mini(next_streak - 1, 4)
+	var amount := GameState.gift_amount(GameState.next_gift_streak())
 	var label := Label.new()
 	label.text = T.t("home.gift", {"n": amount})
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -1263,7 +1323,7 @@ func _build_bars() -> void:
 	panel.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.93), 34, Color.WHITE, 3, 10))
 	panel.offset_left = 16
 	panel.offset_right = -16
-	panel.offset_top = 112
+	panel.offset_top = 118   # (debajo de los botones de arriba con su nombre)
 	var info: VBoxContainer = $InfoPanel/Info
 	info.add_theme_constant_override("separation", 10)
 
@@ -1449,23 +1509,27 @@ func _build_actions() -> void:
 	coin_row.add_child(_coins_label)
 
 	# arriba a la izquierda, las cosas del cuidador: Menu, Misiones, Vecinos, Trabajo y Diario
-	# (circulo con icono y nombre corto). Abajo quedan solo los cuidados del Pompon.
-	var x := 12.0
+	# (circulo con icono y su nombre debajo: los chicos que todavia no reconocen el icono lo leen).
+	# Abajo quedan solo los cuidados del Pompon.
+	var x := 10.0
 	for entry in [["Menú", "menu", "menu", Color("a98bea")], ["Misiones", "missions", "star", Color("ffb938")],
 			["Vecinos", "neighbors", "people", Color("5fc77f")], ["Trabajo", "job_board", "case", Color("ff9b54")],
 			["Diario", "", "book", Color("5bb8f5")]]:
-		var tb := ActionButton.new().setup(entry[2], entry[0], entry[3], 66.0)
-		tb.show_label = false   # solo el icono: menos texto en la pantalla principal
+		var tb := ActionButton.new().setup(entry[2], entry[0], entry[3], TOP_BADGE)
+		tb.label_size = 17
 		tb.set_anchors_preset(Control.PRESET_TOP_LEFT)
-		tb.position = Vector2(x, 14)
-		tb.custom_minimum_size = Vector2(80, 80)
-		tb.size = Vector2(80, 80)
+		tb.position = Vector2(x, 6)
+		tb.custom_minimum_size = Vector2(84, TOP_BUTTON_H)
+		tb.size = Vector2(84, TOP_BUTTON_H)
 		var scene_name: String = entry[1]
 		if scene_name == "":
 			tb.pressed.connect(_show_journal)
 		else:
 			tb.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/%s.tscn" % scene_name))
 		add_child(tb)
+		if tb._label != null:   # borde blanco: se lee sobre cualquier pared
+			tb._label.add_theme_color_override("font_outline_color", Color.WHITE)
+			tb._label.add_theme_constant_override("outline_size", 7)
 		_top_buttons.append(tb)
 		if entry[0] == "Trabajo":
 			_job_button = tb
@@ -1475,14 +1539,14 @@ func _build_actions() -> void:
 		if entry[0] == "Vecinos":  # punto rojo: hay solicitudes de amistad esperando
 			_friends_dot = Control.new()
 			_friends_dot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			_friends_dot.position = Vector2(58, 2)
+			_friends_dot.position = Vector2(56, 0)
 			_friends_dot.size = Vector2(22, 22)
 			_friends_dot.draw.connect(func():
 				_friends_dot.draw_circle(Vector2(11, 11), 11.0, Color.WHITE)
 				_friends_dot.draw_circle(Vector2(11, 11), 8.0, Color("e0295f")))
 			_friends_dot.visible = false
 			tb.add_child(_friends_dot)
-		x += 84.0
+		x += 86.0
 
 	# barra de abajo: dos solapas (Pompon y Casa), ver HomeDock
 	_dock = HomeDock.new()
@@ -1804,16 +1868,19 @@ func _journal_card(e: Dictionary, now: int, bias: int) -> PanelContainer:
 	var card := PanelContainer.new()
 	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.97), 26, color.lightened(0.35), 3, 0))
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 14)
+	row.add_theme_constant_override("separation", 22)   # (lugar para la carita)
 	card.add_child(row)
 	var badge := Control.new()
 	badge.custom_minimum_size = Vector2(56, 56)
 	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var icon: String = Hud.STAT_ICONS.get(e["stat"], "smile")
+	var mood := str(e.get("mood", ""))   # carita de como se sintio (los recuerdos viejos no la tienen)
 	badge.draw.connect(func():
 		var c := badge.size * 0.5
 		badge.draw_circle(c, 27.0, color)
-		Hud.draw_icon(badge, icon, c, 34.0, Color.WHITE, color.darkened(0.3)))
+		Hud.draw_icon(badge, icon, c, 34.0, Color.WHITE, color.darkened(0.3))
+		if mood != "":
+			Hud.draw_face(badge, mood, c + Vector2(22, 20), 17.0))
 	row.add_child(badge)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2223,14 +2290,22 @@ func _show_food_menu() -> void:
 	_style_modal(_food_panel)
 	add_child(_food_panel)
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
+	box.add_theme_constant_override("separation", 12)
 	_food_panel.add_child(box)
+	# arriba: el titulo y la X para cerrar (se ve enseguida, sin bajar hasta el final)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 8)
+	box.add_child(top)
 	var head := Label.new()
 	head.text = T.s("¿Qué le damos a %s?") % (p.display_name() if p != null else T.s("tu Pompon"))
-	head.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	head.add_theme_font_size_override("font_size", 38)
+	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	head.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	head.add_theme_font_size_override("font_size", 36)
 	head.add_theme_color_override("font_color", Color("d6336c"))
-	box.add_child(head)
+	top.add_child(head)
+	top.add_child(_close_x(func():
+		_food_panel.queue_free()
+		_food_panel = null))
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -2239,26 +2314,40 @@ func _show_food_menu() -> void:
 	grid.columns = 2
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 12)
+	grid.add_theme_constant_override("v_separation", 14)
 	scroll.add_child(grid)
 	grid.add_child(_water_card())   # el agua va aca (ya no hay boton Beber aparte: un boton menos abajo)
 	for food in PomponTastes.FOODS:
 		grid.add_child(_food_card(food, p))
-	var close := Button.new()
-	close.text = T.s("Cancelar")
-	close.custom_minimum_size = Vector2(0, 70)
-	Hud.style_soft(close, 26)
-	close.pressed.connect(func():
-		_food_panel.queue_free()
-		_food_panel = null)
-	box.add_child(close)
+
+
+## Boton redondo con una X (cerrar un cartel), para la esquina de arriba a la derecha.
+func _close_x(on_close: Callable) -> Button:
+	var x := Button.new()
+	x.custom_minimum_size = Vector2(76, 76)
+	x.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	x.focus_mode = Control.FOCUS_NONE
+	x.tooltip_text = T.s("Cerrar")
+	for st in ["normal", "hover", "pressed", "hover_pressed"]:
+		x.add_theme_stylebox_override(st, Hud.pill(Color("ffe4ee") if st == "normal" else Color("ffd0e2"), Color("ffb3d1"), 38, 3))
+	x.draw.connect(func():
+		var c := x.size * 0.5
+		var col := Color("d6336c")
+		x.draw_line(c + Vector2(-14, -14), c + Vector2(14, 14), col, 7.0, true)
+		x.draw_line(c + Vector2(14, -14), c + Vector2(-14, 14), col, 7.0, true))
+	x.pressed.connect(on_close)
+	return x
+
+
+const FOOD_CARD_H := 150.0   # tarjetas grandes: faciles de tocar con dedos chicos
+const FOOD_BADGE := 96.0
 
 
 ## Tarjeta del agua (primera del menu de comer): gratis, hace lo mismo que el antiguo boton Beber.
 func _water_card() -> Button:
 	var b := Button.new()
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.custom_minimum_size = Vector2(0, 112)
+	b.custom_minimum_size = Vector2(0, FOOD_CARD_H)
 	Hud.style_soft(b, 24)
 	b.pressed.connect(func():
 		if _food_panel != null:
@@ -2273,14 +2362,14 @@ func _water_card() -> Button:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	b.add_child(row)
 	var badge := Control.new()
-	badge.custom_minimum_size = Vector2(72, 72)
+	badge.custom_minimum_size = Vector2(FOOD_BADGE, FOOD_BADGE)
 	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.draw.connect(func():
 		var c := badge.size * 0.5
-		badge.draw_circle(c, 35.0, Color.WHITE)
-		badge.draw_circle(c, 31.0, Color("5bb8f5"))
-		Hud.draw_icon(badge, "drop", c, 40.0, Color.WHITE, Color("3d8fcc")))
+		badge.draw_circle(c, 46.0, Color.WHITE)
+		badge.draw_circle(c, 41.0, Color("5bb8f5"))
+		Hud.draw_icon(badge, "drop", c, 54.0, Color.WHITE, Color("3d8fcc")))
 	row.add_child(badge)
 	var texts := VBoxContainer.new()
 	texts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -2289,13 +2378,13 @@ func _water_card() -> Button:
 	row.add_child(texts)
 	var name_label := Label.new()
 	name_label.text = T.label("Agua")
-	name_label.add_theme_font_size_override("font_size", 24)
+	name_label.add_theme_font_size_override("font_size", 27)
 	name_label.add_theme_color_override("font_color", Hud.INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(name_label)
 	var price := Label.new()
 	price.text = T.s("gratis")
-	price.add_theme_font_size_override("font_size", 24)
+	price.add_theme_font_size_override("font_size", 26)
 	price.add_theme_color_override("font_color", Color("2f9e5b"))
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(price)
@@ -2306,7 +2395,7 @@ func _water_card() -> Button:
 func _food_card(food: Dictionary, p: Pompon) -> Button:
 	var b := Button.new()
 	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.custom_minimum_size = Vector2(0, 112)
+	b.custom_minimum_size = Vector2(0, FOOD_CARD_H)
 	Hud.style_soft(b, 24)
 	b.disabled = GameState.coins < food["price"]
 	b.pressed.connect(_on_food.bind(food))
@@ -2322,7 +2411,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	margin.add_child(row)
 	var tint: Color = [Color("e0b48f"), Color("ffa94d"), Color("ff7aa8")][food["tier"]]
 	var badge := Control.new()
-	badge.custom_minimum_size = Vector2(72, 72)
+	badge.custom_minimum_size = Vector2(FOOD_BADGE, FOOD_BADGE)
 	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var food_id: String = food["id"]
@@ -2335,10 +2424,10 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 			mark = "doubt"
 	badge.draw.connect(func():   # el dibujo de la comida (se reconoce sin leer), con un aro del color de su precio
 		var c := badge.size * 0.5
-		badge.draw_circle(c, 35.0, Color.WHITE)
-		badge.draw_arc(c, 34.0, 0, TAU, 40, tint, 4.0, true)
-		FOOD_ART.draw(badge, food_id, c, 52.0)
-		var corner := c + Vector2(26, -26)
+		badge.draw_circle(c, 46.0, Color.WHITE)
+		badge.draw_arc(c, 45.0, 0, TAU, 40, tint, 4.0, true)
+		FOOD_ART.draw(badge, food_id, c, 70.0)
+		var corner := c + Vector2(34, -34)
 		if mark == "new":
 			badge.draw_circle(corner, 15.0, Color.WHITE)
 			badge.draw_circle(corner, 12.0, Color("ff7aa8"))
@@ -2357,7 +2446,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	var name_label := Label.new()
 	name_label.text = PomponTastes.food_name(food["id"])
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_label.add_theme_font_size_override("font_size", 24)
+	name_label.add_theme_font_size_override("font_size", 27)
 	name_label.add_theme_color_override("font_color", Hud.INK)
 	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(name_label)
@@ -2367,7 +2456,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 	price_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texts.add_child(price_row)
 	var price := Label.new()
-	price.add_theme_font_size_override("font_size", 24)
+	price.add_theme_font_size_override("font_size", 26)
 	price.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if food["price"] == 0:
 		price.text = T.s("gratis")
@@ -2383,7 +2472,7 @@ func _food_card(food: Dictionary, p: Pompon) -> Button:
 		price.add_theme_color_override("font_color", Color("b87400"))
 	price_row.add_child(price)
 	if mark == "" and p != null:
-		texts.add_child(HeartsRow.new().setup(PomponTastes.food_hearts(p, food_id), 20.0))
+		texts.add_child(HeartsRow.new().setup(PomponTastes.food_hearts(p, food_id), 22.0))
 	return b
 
 
@@ -2855,6 +2944,27 @@ func _leave_night() -> void:
 	if GameState.pompon != null and GameState.pompon.hatched:   # se desperto con la mañana
 		pet.celebrate(4)
 		_say("¡Buen día! Dormí riquísimo", 5.0)
+
+
+## Cabeza del Pompon en la pantalla (teniendo en cuenta que se achica o agranda desde los pies).
+func _pet_head() -> Vector2:
+	return pet.position + pet.pivot_offset + (pet.head_point() - pet.pivot_offset) * pet.scale
+
+
+## Centro de la cuna en el mundo si esta en esta habitacion (si no, null).
+func _crib_center() -> Variant:
+	for pl in GameState.placed:
+		if pl["id"] == GameState.CRIB_ID and int(pl.get("room", 0)) == GameState.current_room:
+			return room._item_center(pl)
+	return null
+
+
+## Donde espera el huevo a punto de nacer: sentado en la cuna si esta en esta habitacion; si no, en el centro.
+func _egg_spot() -> Vector2:
+	var c = _crib_center()
+	if c == null:
+		return _world_center()
+	return Vector2(c.x, c.y + 14.0)
 
 
 ## Donde duerme: {"pos": pies en el mundo, "props": "bed" o "mat"}.

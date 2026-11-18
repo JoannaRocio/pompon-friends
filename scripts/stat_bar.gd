@@ -53,7 +53,9 @@ func _draw() -> void:
 	if text != "":
 		var font := get_theme_default_font()
 		var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
-		draw_string(font, Vector2(size.x - tw - 14.0, h * 0.5 + font_size * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Hud.INK)
+		var at := Vector2(size.x - tw - 14.0, h * 0.5 + font_size * 0.35)
+		draw_string_outline(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, 5, Color(1, 1, 1, 0.85))   # se lee igual sobre la parte llena
+		draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Hud.INK)
 
 
 func _pill(rc: Rect2, fill: Color, border: Color) -> void:

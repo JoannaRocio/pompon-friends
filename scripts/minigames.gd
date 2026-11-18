@@ -3,7 +3,7 @@ extends Control
 ## inteligente, feliz y querido. Poco texto: se entiende mirando los iconos.
 
 const GAMES := [
-	{"name": "Matemáticas", "tag": "Tu nivel", "scene": "res://scenes/math_game.tscn", "color": "5bb8f5", "icon": "math", "max": 10},
+	{"name": "Matemáticas", "tag": "Cálculo", "scene": "res://scenes/math_game.tscn", "color": "5bb8f5", "icon": "math", "max": 10},
 	{"name": "Simón Dice", "tag": "Memoria", "scene": "res://scenes/simon_game.tscn", "color": "ff7aa8", "icon": "simon", "max": 12},
 	{"name": "Patrones", "tag": "Lógica", "scene": "res://scenes/pattern_game.tscn", "color": "5fd48a", "icon": "patterns", "max": 10},
 	{"name": "Salto al cielo", "tag": "Físico", "scene": "res://scenes/jump_game.tscn", "color": "ffb938", "icon": "jump", "max": 20},
@@ -147,12 +147,22 @@ func _pompon_card() -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 14)
 	card.add_child(row)
-	var view := PomponView.new()
-	view.custom_minimum_size = Vector2(150, 180)
-	view.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	# su carita en un circulo (como en Vecinos): de cuerpo entero, de bebe se veia chiquito
+	var frame := Control.new()
+	frame.custom_minimum_size = Vector2(150, 150)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.draw.connect(func():
+		frame.draw_circle(frame.size * 0.5, 75.0, Color.WHITE)
+		frame.draw_circle(frame.size * 0.5, 71.0, Color("ffe0ec")))
+	row.add_child(frame)
 	if GameState.pompon != null:
+		var view := PomponView.new()
+		view.set_anchors_preset(Control.PRESET_FULL_RECT)
+		view.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		view.head_zoom = PomponView.portrait_zoom(GameState.pompon, int(Time.get_unix_time_from_system()))
 		view.set_pompon(GameState.pompon, GameState.equipped)
-	row.add_child(view)
+		frame.add_child(view)
 	var col := VBoxContainer.new()
 	col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	col.alignment = BoxContainer.ALIGNMENT_CENTER

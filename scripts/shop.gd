@@ -17,6 +17,8 @@ var _list: VBoxContainer           # contenido que se desplaza
 var _grid: GridContainer           # las tarjetas de hoy
 var _locked_grid: GridContainer    # lo que falta desbloquear
 var _locked_title: Label
+var _more_label: Label            # Especial: "y 18 más adelante…" (no una pared de candados)
+const SPECIAL_NEXT := 3           # cuantos especiales con candado se ven (los proximos a desbloquear)
 var _level_badge: Control
 var _level_title: Label
 var _level_bar: StatBar
@@ -116,8 +118,15 @@ func _ready() -> void:
 	_list.add_child(_locked_title)
 	_locked_grid = _new_grid()
 	_list.add_child(_locked_grid)
+	_more_label = Label.new()
+	_more_label.add_theme_font_size_override("font_size", 26)
+	_more_label.add_theme_color_override("font_color", Color("a0527a"))
+	_more_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_more_label.visible = false
+	_list.add_child(_more_label)
 
 	_arrow = GuideArrow.new()
+	_arrow.ring = true   # arriba del boton de la cuna esta "¡Para que nazca!": un anillo no lo tapa
 	add_child(_arrow)
 	_rebuild()
 
@@ -228,14 +237,24 @@ func _rebuild() -> void:
 	var level := GameState.pompon_level()
 	# mientras el huevo espera su cuna, la cuna siempre va primera en la lista
 	var must: Array = [GameState.CRIB_ID] if _locked else []
-	if _filter == "special":  # los especiales no rotan: todos, del mas barato al mas caro
+	_more_label.visible = false
+	if _filter == "special":  # los especiales no rotan: los que ya se pueden comprar, del mas barato al mas caro
+		var waiting: Array = []
 		for item in Catalog.specials():
 			if Catalog.is_unlocked(item["id"], level):
 				_grid.add_child(_make_card(item))
 			else:
-				_grid.add_child(_make_locked_card(item))
-		_locked_title.visible = false
-		_locked_grid.visible = false
+				waiting.append(item)
+		# con candado, solo los proximos 3 (motiva mas que 21 candados seguidos) y cuantos quedan
+		waiting.sort_custom(func(a, b): return Catalog.unlock_level(a["id"]) < Catalog.unlock_level(b["id"]))
+		for item in waiting.slice(0, SPECIAL_NEXT):
+			_locked_grid.add_child(_make_locked_card(item))
+		_locked_title.visible = not waiting.is_empty()
+		_locked_grid.visible = _locked_title.visible
+		var more := waiting.size() - SPECIAL_NEXT
+		if more > 0:
+			_more_label.text = T.s("Y %d más adelante…") % more
+			_more_label.visible = true
 		_arrow.set_target(null)
 		return
 	var cats := _filter_cats()
@@ -344,8 +363,7 @@ func _make_card(item: Dictionary) -> Control:
 			price_label.add_theme_constant_override("outline_size", 8)
 		else:  # no alcanza: precio en gris y cuanto falta (no parece un boton para tocar)
 			buy.add_theme_stylebox_override("disabled", Hud.pill(Color("f3e8ee"), Color("e6d3dc"), 36, 0))
-			price_label.add_theme_color_override("font_color", Color("a08a96"))
-			price_row.modulate = Color(1, 1, 1, 0.75)
+			price_label.add_theme_color_override("font_color", Hud.MUTED)   # apagado pero se lee
 			var missing := Label.new()
 			missing.text = T.s("Te faltan %d") % (int(item["price"]) - GameState.coins)
 			missing.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -377,7 +395,9 @@ func _make_card(item: Dictionary) -> Control:
 			pulse.tween_property(buy, "scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_SINE)
 		else:
 			buy.disabled = true
-			card.modulate = Color(1, 1, 1, 0.45)
+			card.modulate = Color(1, 1, 1, 0.7)   # (apagada pero se lee: es lo que vas a poder comprar despues)
+			price_label.add_theme_color_override("font_color", Hud.MUTED)   # (el blanco no se ve sobre el boton apagado)
+			price_label.add_theme_constant_override("outline_size", 0)
 	return card
 
 
@@ -459,7 +479,7 @@ func _make_locked_card(item: Dictionary) -> Control:
 	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", 21)
 	name_label.add_theme_constant_override("line_spacing", -4)
-	name_label.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
+	name_label.add_theme_color_override("font_color", Hud.MUTED)
 	box.add_child(name_label)
 	var tag := HBoxContainer.new()
 	tag.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -469,6 +489,6 @@ func _make_locked_card(item: Dictionary) -> Control:
 	stage.text = T.label(Pompon.stage_name_for_level(lvl))
 	stage.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stage.add_theme_font_size_override("font_size", 20)
-	stage.add_theme_color_override("font_color", Color(Hud.INK, 0.5))
+	stage.add_theme_color_override("font_color", Hud.MUTED)
 	box.add_child(stage)
 	return card

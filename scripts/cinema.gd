@@ -72,7 +72,9 @@ func _show_lobby() -> void:
 	coins.add_child(coin_label)
 	top.add_child(coins)
 
-	root.add_child(_poster(movie, true))
+	var poster := _poster(movie, true)
+	poster.size_flags_vertical = Control.SIZE_EXPAND_FILL   # el afiche crece y ocupa el lugar libre
+	root.add_child(poster)
 	var next := Movies.next_of(_today())
 	var left := Movies.days_left(_today())
 	var next_row := HBoxContainer.new()
@@ -88,13 +90,14 @@ func _show_lobby() -> void:
 	who.add_theme_color_override("font_color", Color("ffe9a3"))
 	root.add_child(who)
 	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 10)
 	root.add_child(row)
 	_companion_buttons = []
 	var options: Array = [{}] + Neighbors.all().slice(0, 4)
 	for entry in options:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(118, 132)
+		b.custom_minimum_size = Vector2(128, 140)
 		b.focus_mode = Control.FOCUS_NONE
 		b.text = "" if not entry.is_empty() else "Solo"
 		b.add_theme_font_size_override("font_size", 26)
@@ -123,9 +126,6 @@ func _show_lobby() -> void:
 			b.set_meta("name_label", name_label)
 	_pick_companion({})
 
-	var spacer := Control.new()
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	root.add_child(spacer)
 	var buy := Button.new()
 	buy.text = T.s("Ver la película · %d") % Movies.TICKET
 	buy.custom_minimum_size = Vector2(0, 100)
@@ -150,6 +150,8 @@ func _poster(m: Dictionary, big: bool) -> Control:
 	head.add_child(Hud.chip(m["genre"], Color("fff3d1"), Color("8a6d00"), 22))
 	var preview := MovieScreen.new()
 	preview.custom_minimum_size = Vector2(0, 330 if big else 180)
+	if big:
+		preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	col.add_child(preview)
 	preview.setup.call_deferred(m)

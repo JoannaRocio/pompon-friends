@@ -167,7 +167,7 @@ func _initialize() -> void:
 	print("turno terminado: aciertos=", job.correct, " de 5 | explicaciones=", played["explanations"], " | con dibujo=", played["pictures"], " | muestran pronunciacion=", played["said"])
 	print("  preguntas: ", played["prompts"])
 	var texts := _labels(job._layer)
-	print("cartel: nota=", texts.contains("Nota:"), " | 'Bien: 3 de 5'=", texts.contains("Bien: 3 de 5"), " | repaso con la palabra=", job.mistakes.all(func(m): return texts.contains(m["review"])))
+	print("cartel: nota=", texts.contains("Nota:"), " | un solo numero (sin 'Bien: 3 de 5')=", not texts.contains("Bien: 3 de 5"), " | repaso con la palabra=", job.mistakes.all(func(m): return texts.contains(m["review"])))
 	print("  repaso: ", job.mistakes.map(func(m): return m["review"]))
 	print("palabras para repasar: ", gs.weak_facts("en_words"), " | turnos=", gs.jobs_done, " (era 3) | monedas=", gs.coins - coins_before)
 	print("ficha: ", load("res://scripts/teacher_card.gd").subjects())

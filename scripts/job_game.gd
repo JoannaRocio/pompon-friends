@@ -760,11 +760,7 @@ func _show_result(res: Dictionary) -> void:
 	stars.custom_minimum_size = Vector2(0, 46)
 	box.add_child(stars)
 	box.add_child(_label(res["title"], 38, HORIZONTAL_ALIGNMENT_CENTER, Color("2f9e6e") if res["note"] >= 5 else INK))
-	var chips := HBoxContainer.new()
-	chips.alignment = BoxContainer.ALIGNMENT_CENTER
-	chips.add_theme_constant_override("separation", 12)
-	chips.add_child(Hud.chip("%s: %d de %d" % [T.s("Cuentas bien") if subject == "math" else T.s("Bien"), correct, maxi(questions_done, 1)], Color("d8f5e3"), Color("1f7a4d"), 24))
-	box.add_child(chips)
+	# (un solo numero: la nota. Antes tambien decia "Cuentas bien: 4 de 5" y dos numeros distintos confundian)
 	var pay := HBoxContainer.new()
 	pay.alignment = BoxContainer.ALIGNMENT_CENTER
 	pay.add_theme_constant_override("separation", 10)

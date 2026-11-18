@@ -6,5 +6,6 @@ camas para dormir: cama amplia=true cama de nube=true sofa=false
 comprar corona de diamantes: true monedas=3800 (5000 - 1200)
 puesta: hat_crown_diamond
 el Pompon se dibuja con toda la ropa especial (sin errores)
-pestaña Especial: 21 tarjetas (21)
+pestaña Especial: 21 a la venta (21) + 0 con candado (los proximos) | resto: - (21)
+recien nacido: a la venta=0 | con candado=3 | Y 18 más adelante…
 de noche elige la cama de nube: true | durmiendo: true

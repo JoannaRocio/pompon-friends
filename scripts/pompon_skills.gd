@@ -10,7 +10,7 @@ const SKILLS := {
 	"creatividad": {"name": "Creatividad", "icon": "palette", "color": Color("ff7aa8"), "stat": "felicidad",
 		"hint": "Cuadros, bloques, arcoíris y adornos"},
 	"musica": {"name": "Música", "icon": "note", "color": Color("a98bea"), "stat": "felicidad",
-		"hint": "El juego de Memoria, el piano y la caja musical"},
+		"hint": "Simón Dice, el piano y la caja musical"},
 	"matematicas": {"name": "Matemáticas", "icon": "calc", "color": Color("5bb8f5"), "stat": "inteligencia",
 		"hint": "El juego de Matemáticas, el reloj y el escritorio"},
 	"logica": {"name": "Lógica", "icon": "puzzle", "color": Color("3cc9b0"), "stat": "inteligencia",

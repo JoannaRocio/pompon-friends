@@ -171,7 +171,7 @@ func _build_top() -> void:
 	var today := Label.new()
 	today.text = "Hoy"
 	today.add_theme_font_size_override("font_size", 21)
-	today.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
+	today.add_theme_color_override("font_color", Hud.MUTED)
 	lvl.add_child(today)
 	for key in Neighbors.DAILY_KEYS:
 		var dot := Control.new()

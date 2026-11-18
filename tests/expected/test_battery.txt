@@ -1,0 +1,5 @@
+en la PC no se activa solo: true | empieza en 60: true
+sin tocar un rato baja a 30: true
+al tocar vuelve a 60: true
+otra vez quieto: 30=true
+al salir de la casa queda en 60: true

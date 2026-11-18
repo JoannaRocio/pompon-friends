@@ -18,7 +18,7 @@ static func stickers() -> Array:
 		_s("sleep", 0, "Primera noche en su camita", "Que duerma de noche", "moon", Color("7b8ce0")),
 		_s("wear", 0, "Estrenó ropa", "Ponle ropa en el vestidor", "shirt", Color("a98bea")),
 		_s("game:math", 0, "Jugó a Matemáticas", "Juega a Matemáticas", "calc", Color("5bb8f5")),
-		_s("game:simon", 0, "Jugó a Memoria", "Juega a Memoria", "note", Color("a98bea")),
+		_s("game:simon", 0, "Jugó a Simón Dice", "Juega a Simón Dice", "note", Color("a98bea")),
 		_s("game:pattern", 0, "Jugó a Patrones", "Juega a Patrones", "puzzle", Color("3cc9b0")),
 		_s("game:jump", 0, "Saltó al cielo", "Juega a Salto al cielo", "star", Color("5bb8f5")),
 		_s("game:paint", 0, "Pintó su primer dibujo", "Juega a Pintar", "heart", Color("ff7aa8")),

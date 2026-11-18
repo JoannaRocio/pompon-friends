@@ -50,7 +50,18 @@ func _initialize() -> void:
 	shop._filter = "special"
 	shop._rebuild()
 	await process_frame
-	print("pestaña Especial: ", shop._grid.get_child_count(), " tarjetas (", specials.size(), ")")
+	var unlocked_n := specials.filter(func(it): return cat.is_unlocked(it["id"], gs.pompon_level())).size()
+	print("pestaña Especial: ", shop._grid.get_child_count(), " a la venta (", unlocked_n, ") + ", shop._locked_grid.get_child_count(),
+		" con candado (los proximos) | resto: ", shop._more_label.text if shop._more_label.visible else "-",
+		" (", specials.size(), ")")
+	# con un Pompon recien nacido: ninguno a la venta, solo los 3 proximos con candado y "y N mas adelante"
+	var born_before: int = gs.pompon.born_at
+	gs.pompon.born_at = now
+	shop._rebuild()
+	await process_frame
+	print("recien nacido: a la venta=", shop._grid.get_child_count(), " | con candado=", shop._locked_grid.get_child_count(),
+		" | ", shop._more_label.text if shop._more_label.visible else "-")
+	gs.pompon.born_at = born_before
 	shop.queue_free()
 	await process_frame
 

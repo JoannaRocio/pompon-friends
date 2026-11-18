@@ -379,6 +379,29 @@ static func draw_floor(cv: CanvasItem, rect: Rect2, id: String, k := 1.0) -> voi
 # ------------------------------------------------------- muebles y deco
 
 ## Dibuja el item `id` centrado en `center` (tamano fijo de size_of(id)).
+## El frente de la cuna (sabana, manta, barrotes y barandas, sin el osito) para dibujarlo encima de
+## lo que esta adentro: asi el huevo por nacer queda metido en la cuna y no delante.
+static func draw_crib_front(cv: CanvasItem, center: Vector2, sc := 1.0) -> void:
+	var size := size_of("furn_crib") * sc
+	var pos := center - size * 0.5
+	var col := Catalog.color_of("furn_crib")
+	var light := col.lightened(0.35)
+	var wood := Color("d8a56f")
+	_round(cv, Rect2(pos + Vector2(8, 80) * sc, Vector2(size.x - 16 * sc, 42 * sc)), Color("fff1f5"), int(14 * sc))
+	_round(cv, Rect2(pos + Vector2(8, 70) * sc, Vector2(size.x - 16 * sc, 36 * sc)), col, int(16 * sc))
+	for sx in [0.0, 1.0, 2.0, 3.0]:  # franjas de la manta
+		cv.draw_line(pos + Vector2(46 + sx * 36.0, 76) * sc, pos + Vector2(46 + sx * 36.0, 100) * sc, light, 5.0 * sc, true)
+	for i in 9:
+		var bx := 24.0 + i * ((size.x / sc - 48.0) / 8.0)
+		if i in [3, 4, 5]:   # (los del medio cortitos: el huevo se ve entre la manta y la baranda)
+			continue
+		cv.draw_line(pos + Vector2(bx, 26) * sc, pos + Vector2(bx, 100) * sc, OUTLINE, 8.0 * sc, true)
+		cv.draw_line(pos + Vector2(bx, 26) * sc, pos + Vector2(bx, 100) * sc, wood, 4.0 * sc, true)
+	_round(cv, Rect2(pos + Vector2(6, 96) * sc, Vector2(size.x - 12 * sc, 14 * sc)), wood, int(7 * sc))
+	_round(cv, Rect2(pos + Vector2(0, 2) * sc, Vector2(20, 124) * sc), wood.darkened(0.08), int(9 * sc))
+	_round(cv, Rect2(pos + Vector2(size.x / sc - 20, 2) * sc, Vector2(20, 124) * sc), wood.darkened(0.08), int(9 * sc))
+
+
 static func draw_item(cv: CanvasItem, id: String, center: Vector2) -> void:
 	var size := size_of(id)
 	var r := Rect2(center - size * 0.5, size)

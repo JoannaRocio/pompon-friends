@@ -4,6 +4,7 @@ extends RefCounted
 ## dibujados por codigo (se pintan en blanco sobre un circulo de color).
 
 const INK := Color("5b3a4a")
+const MUTED := Color("7d6070")   # texto apagado (bloqueado, todavia no, esperando) que igual se lee bien
 const PINK := Color("ff8fb8")
 const CARD := Color(1, 1, 1, 0.93)
 const SHADOW := Color(0.36, 0.23, 0.29, 0.22)
@@ -195,6 +196,36 @@ static func _rrect(cv: CanvasItem, r: Rect2, rad: float, col: Color) -> void:
 
 
 ## Dibuja un icono centrado en `c` dentro de una caja de lado `s`. `col` = trazo/relleno; `bg` = "huecos".
+## Carita redonda de como se sintio (diario): "happy", "sad", "sleep" o "wow". `r` = radio.
+static func draw_face(cv: CanvasItem, mood: String, c: Vector2, r: float) -> void:
+	var fill: Color = {"happy": Color("ffd34d"), "sad": Color("9ccbf2"), "sleep": Color("c9b8f2"), "wow": Color("ffa8c8")}.get(mood, Color("ffd34d"))
+	var ink := Color("5b3a4a")
+	var w := maxf(2.0, r * 0.14)
+	cv.draw_circle(c, r + w, Color.WHITE)
+	cv.draw_circle(c, r, fill)
+	var eye_y := -0.18 * r
+	match mood:
+		"sleep":   # ojitos cerrados y una z
+			for sx in [-1.0, 1.0]:
+				cv.draw_arc(c + Vector2(sx * 0.36 * r, eye_y), 0.16 * r, 0.2, PI - 0.2, 8, ink, w, true)
+			cv.draw_circle(c + Vector2(0, 0.38 * r), 0.1 * r, ink)
+		"wow":     # ojos grandes y boca en O
+			for sx in [-1.0, 1.0]:
+				cv.draw_circle(c + Vector2(sx * 0.34 * r, eye_y), 0.13 * r, ink)
+			cv.draw_arc(c + Vector2(0, 0.36 * r), 0.17 * r, 0.0, TAU, 14, ink, w, true)
+		"sad":     # cejas caidas, boca hacia abajo y una lagrimita
+			for sx in [-1.0, 1.0]:
+				cv.draw_circle(c + Vector2(sx * 0.34 * r, eye_y), 0.1 * r, ink)
+			cv.draw_arc(c + Vector2(0, 0.58 * r), 0.3 * r, PI + 0.5, TAU - 0.5, 10, ink, w, true)
+			cv.draw_circle(c + Vector2(0.36 * r, 0.12 * r), 0.11 * r, Color("3d8fcc"))
+		_:         # contento
+			for sx in [-1.0, 1.0]:
+				cv.draw_circle(c + Vector2(sx * 0.34 * r, eye_y), 0.1 * r, ink)
+			cv.draw_arc(c + Vector2(0, 0.08 * r), 0.36 * r, 0.35, PI - 0.35, 12, ink, w, true)
+			for sx in [-1.0, 1.0]:
+				cv.draw_circle(c + Vector2(sx * 0.6 * r, 0.22 * r), 0.13 * r, Color(1, 0.45, 0.55, 0.45))
+
+
 static func draw_icon(cv: CanvasItem, kind: String, c: Vector2, s: float, col: Color, bg := Color(0, 0, 0, 0.35)) -> void:
 	var w := maxf(2.0, s * 0.075)
 	match kind:

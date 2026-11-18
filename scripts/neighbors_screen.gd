@@ -146,6 +146,11 @@ func _social_card() -> Control:
 	bar.custom_minimum_size = Vector2(0, 40)
 	bar.value = GameState.pompon.stats.get("amistad", 0.0)
 	col.add_child(bar)
+	var hint := Label.new()   # para que se entienda que la barra se llena visitando
+	hint.text = "¡Le encanta tener amigos!" if bar.value >= 80.0 else "Se llena visitando a tus vecinos."
+	hint.add_theme_font_size_override("font_size", 20)
+	hint.add_theme_color_override("font_color", Hud.MUTED)
+	col.add_child(hint)
 	return card
 
 
@@ -273,6 +278,11 @@ func _today_dots(id: String) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var today := Label.new()   # "Hoy": los circulitos son lo que ya hicieron juntos hoy
+	today.text = "Hoy"
+	today.add_theme_font_size_override("font_size", 20)
+	today.add_theme_color_override("font_color", Hud.MUTED)
+	row.add_child(today)
 	for key in Neighbors.DAILY_KEYS:
 		var look := Neighbors.daily_look(key)
 		var dot := Control.new()
@@ -343,7 +353,7 @@ func _friends_card() -> Control:
 	for f in GameState.friend_requests:
 		col.add_child(_request_row(f))
 	for f in GameState.friend_sent:
-		col.add_child(_small(T.s("Esperando que %s acepte…") % CloudCode.format_code(f["code"]), 20, Color(Hud.INK, 0.6)))
+		col.add_child(_small(T.s("Esperando que %s acepte…") % CloudCode.format_code(f["code"]), 20, Hud.MUTED))
 	return card
 
 

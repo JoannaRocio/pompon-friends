@@ -92,6 +92,7 @@ func _ready() -> void:
 	scroll.add_child(list)
 	for camino in _problems.TRACKS:
 		list.add_child(_track_card(camino))
+	root.add_child(_classroom())
 
 	_arrow = GuideArrow.new()
 	add_child(_arrow)
@@ -106,6 +107,51 @@ func _process(_delta: float) -> void:
 		_arrow.set_targets([_shop_button])
 	else:
 		_arrow.set_targets(_work_buttons if GameState.job_guide_on() else [])
+
+
+## Abajo, el aula: una pizarra con los simbolos de la materia y tu Pompon al lado, de profe.
+## (Antes quedaba media pantalla vacia debajo de los tres caminos.)
+func _classroom() -> Control:
+	var room := Control.new()
+	room.custom_minimum_size = Vector2(0, 400)
+	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var marks: Array = []
+	for camino in _problems.TRACKS:
+		if SYMBOLS[camino] != "":
+			marks.append(SYMBOLS[camino])
+	room.draw.connect(func():
+		var w := room.size.x
+		var h := room.size.y
+		var board_r := Rect2(w * 0.04, h * 0.1, w * 0.56, h * 0.6)
+		room.draw_rect(Rect2(board_r.position - Vector2(12, 12), board_r.size + Vector2(24, 24)), Color("c99560"))
+		room.draw_rect(board_r, Color("4f8a76"))
+		var font := room.get_theme_default_font()
+		if marks.is_empty():   # geografia: un globo terraqueo de tiza
+			var c := board_r.get_center()
+			room.draw_arc(c, 62.0, 0.0, TAU, 40, Color(1, 1, 1, 0.85), 5.0, true)
+			room.draw_line(c - Vector2(62, 0), c + Vector2(62, 0), Color(1, 1, 1, 0.6), 4.0)
+			for k in [-1.0, 1.0]:
+				room.draw_line(c + Vector2(-54, k * 30.0), c + Vector2(54, k * 30.0), Color(1, 1, 1, 0.5), 3.0)
+			room.draw_line(c - Vector2(0, 62), c + Vector2(0, 62), Color(1, 1, 1, 0.6), 4.0)
+		else:
+			var text := "   ".join(marks)
+			var fs := 64
+			while fs > 30 and font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > board_r.size.x - 40.0:
+				fs -= 4
+			var tw := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+			room.draw_string(font, Vector2(board_r.get_center().x - tw * 0.5, board_r.get_center().y + fs * 0.35), text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1, 0.9))
+		# repisa de la tiza
+		room.draw_rect(Rect2(board_r.position.x - 4.0, board_r.end.y + 12.0, board_r.size.x + 8.0, 10.0), Color("b07a52"))
+		room.draw_rect(Rect2(board_r.position.x + 30.0, board_r.end.y + 4.0, 26.0, 8.0), Color.WHITE))
+	if GameState.pompon != null:
+		var pet := PomponView.new()
+		pet.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		pet.set_anchors_preset(Control.PRESET_FULL_RECT)
+		pet.anchor_left = 0.6
+		pet.facing = -1.0   # mira a la pizarra
+		pet.set_pompon(GameState.pompon, GameState.equipped)
+		room.add_child(pet)
+	return room
 
 
 ## Cuanto falta para comprar la cuna del huevo (barra + atajo a la tienda si ya alcanza).

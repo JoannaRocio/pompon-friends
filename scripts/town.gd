@@ -9,7 +9,8 @@ const INK := Color("5b3a4a")
 const GAP := 26.0
 const SIDE := 60.0          # margen al principio y al final de la calle
 const PET_SIZE := 260.0
-const GROUND_Y := 0.66      # donde apoyan los edificios (fraccion del alto de la pantalla)
+const GROUND_Y := 0.66
+const FLOWERS := [Color("ff8fb3"), Color("ffffff"), Color("c9a8ff"), Color("ffb36b")]      # donde apoyan los edificios (fraccion del alto de la pantalla)
 
 static var from_town := false     # se entro a la tienda o a una visita desde el pueblo (al volver, vuelve aca)
 static var last_scroll := -1.0    # donde se habia quedado mirando
@@ -166,8 +167,31 @@ func _draw_street() -> void:
 	_street.draw_line(Vector2(0, ground + 90.0), Vector2(w, ground + 90.0), Color(INK, 0.4), 3.0)
 	var road := ground + 140.0
 	_street.draw_rect(Rect2(0, road, w, 150.0), Color("8f8a99"))
+	_street.draw_line(Vector2(0, road), Vector2(w, road), Color(INK, 0.35), 3.0)
+	_street.draw_line(Vector2(0, road + 150.0), Vector2(w, road + 150.0), Color(INK, 0.35), 3.0)
 	for i in int(w / 120.0) + 1:
-		_street.draw_rect(Rect2(i * 120.0 + 20.0, road + 68.0, 60.0, 12.0), Color("fff3b0"))
+		_street.draw_rect(Rect2(i * 120.0 + 20.0, road + 68.0, 60.0, 12.0), Color("fff3b0"), true)
+	# florcitas en el pasto entre la vereda y la calle
+	for i in int(w / 70.0) + 1:
+		_draw_flower(Vector2(i * 70.0 + 30.0 + (i % 3) * 8.0, ground + 112.0 + (i % 2) * 10.0), 7.0, FLOWERS[i % FLOWERS.size()])
+	# abajo de la calle: cerco, arbustos y flores (para que el pasto no quede vacio)
+	var yard := road + 150.0
+	var fence_y := yard + 34.0
+	_street.draw_rect(Rect2(0, fence_y + 14.0, w, 10.0), Color("fffaf0"))
+	_street.draw_rect(Rect2(0, fence_y + 40.0, w, 10.0), Color("fffaf0"))
+	for i in int(w / 44.0) + 1:
+		var fx := i * 44.0 + 10.0
+		_street.draw_colored_polygon(PackedVector2Array([Vector2(fx, fence_y + 66.0), Vector2(fx, fence_y + 8.0), Vector2(fx + 10.0, fence_y), Vector2(fx + 20.0, fence_y + 8.0), Vector2(fx + 20.0, fence_y + 66.0)]), Color("fffaf0"))
+	for i in int(w / 230.0) + 1:
+		var bx := i * 230.0 + 90.0 + (i % 2) * 40.0
+		var by := h - 28.0
+		_street.draw_circle(Vector2(bx - 34.0, by), 34.0, Color("6cc98a"))
+		_street.draw_circle(Vector2(bx + 34.0, by), 34.0, Color("6cc98a"))
+		_street.draw_circle(Vector2(bx, by - 22.0), 42.0, Color("7ed69a"))
+		_draw_flower(Vector2(bx - 18.0, by - 30.0), 8.0, FLOWERS[i % FLOWERS.size()])
+		_draw_flower(Vector2(bx + 26.0, by - 12.0), 8.0, FLOWERS[(i + 2) % FLOWERS.size()])
+		for k in 3:
+			_draw_flower(Vector2(bx + 80.0 + k * 34.0, by + 4.0 - (k % 2) * 16.0), 9.0, FLOWERS[(i + k + 1) % FLOWERS.size()])
 	# arbolitos entre los edificios
 	for b in buildings:
 		var node: Control = b["node"]
@@ -175,6 +199,12 @@ func _draw_street() -> void:
 		if tx > SIDE:
 			_street.draw_rect(Rect2(tx - 5.0, ground - 40.0, 10.0, 40.0), Color("b07a52"))
 			_street.draw_circle(Vector2(tx, ground - 52.0), 22.0, Color("5fc77f"))
+
+
+func _draw_flower(c: Vector2, r: float, col: Color) -> void:
+	for k in 5:
+		_street.draw_circle(c + Vector2.from_angle(k * TAU / 5.0 - PI / 2.0) * r, r * 0.75, col)
+	_street.draw_circle(c, r * 0.6, Color("ffd24d"))
 
 
 ## Tocar un edificio.

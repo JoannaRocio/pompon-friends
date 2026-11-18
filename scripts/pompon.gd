@@ -100,7 +100,7 @@ static func generate(chosen_species := "", chosen_sex := "") -> Pompon:
 
 ## Su nombre, o su ID mientras no tenga uno.
 func display_name() -> String:
-	return nickname if nickname != "" else id
+	return nickname if nickname != "" else T.t("menu.your_pompon")   # (antes de ponerle nombre: "Tu Pompon", no el codigo #POMPON-1234)
 
 
 ## El huevo nace (cuando el jugador le compra la cuna).

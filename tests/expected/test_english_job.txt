@@ -16,7 +16,7 @@ leccion: true
 turno de ingles: materia=english camino=en_words | leccion antes de jugar: true
 turno terminado: aciertos=3 de 5 | explicaciones=2 | con dibujo=5 | muestran pronunciacion=5
   preguntas: *
-cartel: nota=true | 'Bien: 3 de 5'=true | repaso con la palabra=true
+cartel: nota=true | un solo numero (sin 'Bien: 3 de 5')=true | repaso con la palabra=true
   repaso: * = * = *
 palabras para repasar: [{ "key": * "streak": 0 }, { "key": * "streak": 0 }] | turnos=4 (era 3) | monedas=70
 ficha: Matemáticas e Inglés

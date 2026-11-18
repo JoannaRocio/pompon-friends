@@ -225,13 +225,13 @@ func _make_ad(job: Dictionary) -> Control:
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.add_theme_font_size_override("font_size", 30)
 	if not available:
-		name_label.add_theme_color_override("font_color", Color(INK, 0.55))
+		name_label.add_theme_color_override("font_color", Hud.MUTED)
 	info.add_child(name_label)
 	var blurb := Label.new()
 	blurb.text = Jobs.blurb(job)
 	blurb.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	blurb.add_theme_font_size_override("font_size", 24)
-	blurb.add_theme_color_override("font_color", Color("a0527a") if available else Color(INK, 0.45))
+	blurb.add_theme_color_override("font_color", Color("a0527a") if available else Hud.MUTED)
 	info.add_child(blurb)
 	if not available:   # (si hay lugar no hace falta decirlo: el boton "Aplicar" ya lo dice)
 		var status_row := HBoxContainer.new()

@@ -20,7 +20,9 @@ var _stage: Control
 var _preview: PomponView
 var _room_chip: PanelContainer
 var _grid: GridContainer
+const MORE_UNTIL := 6   # hasta 2 filas de cosas se muestra la invitacion a la tienda
 var _empty: Control
+var _more: Control   # con pocas cosas: invita a la tienda en vez de dejar un hueco vacio
 var _scroll: ScrollContainer
 var _t := 0.0
 
@@ -76,6 +78,8 @@ func _ready() -> void:
 	list.add_child(_grid)
 	_empty = _make_empty()
 	list.add_child(_empty)
+	_more = _make_empty(true)
+	list.add_child(_more)
 
 	_rebuild()
 
@@ -283,6 +287,7 @@ func _rebuild() -> void:
 			if Catalog.get_item(id).get("category", "") == cat:
 				ids.append(id)
 	_empty.visible = ids.is_empty()
+	_more.visible = not ids.is_empty() and ids.size() <= MORE_UNTIL
 	for id in ids:
 		_grid.add_child(_make_tile(id))
 
@@ -352,7 +357,8 @@ func _toggle(id: String) -> void:
 		_preview.celebrate(4)  # salto con corazones al estrenar algo
 
 
-func _make_empty() -> Control:
+## Tarjeta que lleva a la tienda: sin nada ("¡Aún no tienes nada aquí!") o, con `more`, debajo de pocas cosas.
+func _make_empty(more := false) -> Control:
 	var card := PanelContainer.new()
 	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.95), 34, Color.WHITE, 3, 8))
 	var box := VBoxContainer.new()
@@ -367,7 +373,7 @@ func _make_empty() -> Control:
 		Hud.draw_icon(icon, "bag", c, 60.0, ACCENT, Color("ffd6e7")))
 	box.add_child(icon)
 	var label := Label.new()
-	label.text = T.s("¡Aún no tienes nada aquí!")
+	label.text = T.s("¡Hay muchas más cosas en la tienda!") if more else T.s("¡Aún no tienes nada aquí!")
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_size_override("font_size", 28)
 	label.add_theme_color_override("font_color", Hud.INK)

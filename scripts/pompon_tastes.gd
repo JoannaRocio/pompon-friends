@@ -34,7 +34,7 @@ const FOODS := [
 	{"id": "torta", "name": "Torta de frutilla", "tier": 2, "price": 12, "alimentacion": 50.0, "felicidad": 10.0},
 	{"id": "fideos", "name": "Fideos con salsa", "tier": 2, "price": 12, "alimentacion": 50.0, "felicidad": 10.0},
 ]
-const GAMES := {"math": "Matemáticas", "simon": "Memoria", "pattern": "Patrones", "jump": "Salto al cielo", "paint": "Pintar", "music": "Hacer música"}
+const GAMES := {"math": "Matemáticas", "simon": "Simón Dice", "pattern": "Patrones", "jump": "Salto al cielo", "paint": "Pintar", "music": "Hacer música"}
 const TRAITS := ["Energico", "Timido", "Curioso", "Gloton", "Artistico"]
 const TRAIT_STAT := {"Energico": "diversion", "Timido": "amor", "Curioso": "inteligencia", "Gloton": "alimentacion", "Artistico": "felicidad"}
 const TRAIT_WORD := {"Energico": "enérgic{a}", "Timido": "tímid{a}", "Curioso": "curios{a}", "Gloton": "glot{on}", "Artistico": "artístic{a}"}

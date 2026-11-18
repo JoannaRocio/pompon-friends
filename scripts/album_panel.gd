@@ -50,11 +50,21 @@ func setup(p: Pompon) -> AlbumPanel:
 	scroll.add_child(list)
 	var all := PomponAlbum.stickers()
 	for page in PomponAlbum.PAGES.size():
+		var in_page := all.filter(func(st): return int(st["page"]) == page)
+		var won_here := in_page.filter(func(st): return PomponAlbum.unlocked(p, st["id"], now)).size()
+		var head := HBoxContainer.new()   # titulo de la pagina y cuantas tiene de esa pagina
+		head.add_theme_constant_override("separation", 10)
+		list.add_child(head)
 		var page_label := Label.new()
 		page_label.text = T.s(PomponAlbum.PAGES[page])
+		page_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		page_label.add_theme_font_size_override("font_size", 30)
 		page_label.add_theme_color_override("font_color", Color("a0527a"))
-		list.add_child(page_label)
+		head.add_child(page_label)
+		var full := won_here == in_page.size()
+		var count := Hud.chip("%d / %d" % [won_here, in_page.size()], Color("ffcf3f") if full else Color("f3e8ee"), Color("7a5200") if full else Hud.MUTED, 22)
+		count.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		head.add_child(count)
 		var grid := GridContainer.new()
 		grid.columns = 3
 		grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL

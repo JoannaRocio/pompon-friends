@@ -96,7 +96,7 @@ func _ready() -> void:
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_timer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_timer_label.add_theme_font_size_override("font_size", 24)
-	_timer_label.add_theme_color_override("font_color", Color(Hud.INK, 0.6))
+	_timer_label.add_theme_color_override("font_color", Hud.MUTED)
 	head.add_child(_timer_label)
 	_missions_box = VBoxContainer.new()
 	_missions_box.add_theme_constant_override("separation", 12)
@@ -180,7 +180,7 @@ func _build_week() -> void:
 	_week_box.add_child(head)
 	head.add_child(_section_title("Esta semana", "check"))
 	var left := Movies.days_left(Missions.today(int(Time.get_unix_time_from_system())))
-	var renew := _small(T.s("Se renueva en %d %s") % [left, T.s("día") if left == 1 else T.s("días")], 20, Color(Hud.INK, 0.6))
+	var renew := _small(T.s("Se renueva en %d %s") % [left, T.s("día") if left == 1 else T.s("días")], 20, Hud.MUTED)
 	renew.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	renew.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	head.add_child(renew)
@@ -248,11 +248,27 @@ func _build_week() -> void:
 func _build_achievements() -> void:
 	for c in _achievements_box.get_children():
 		c.queue_free()
-	# primero los que tienen medalla para cobrar
+	# primero los que tienen medalla para cobrar, despues los mas avanzados y al final los completos
 	var defs: Array = Progress.ACHIEVEMENTS.duplicate()
-	defs.sort_custom(func(a, b): return GameState.achievement_claimable(a["id"]) and not GameState.achievement_claimable(b["id"]))
+	var rank := {}
+	for def in defs:
+		rank[def["id"]] = _achievement_rank(def)
+	defs.sort_custom(func(a, b): return rank[a["id"]] > rank[b["id"]])
 	for def in defs:
 		_achievements_box.add_child(_achievement_card(def))
+
+
+## Orden de la lista: 3 = medalla para cobrar, 1-2 = cuanto le falta a la proxima (mas cerca, mas arriba),
+## 0 = completo del todo.
+func _achievement_rank(def: Dictionary) -> float:
+	var id: String = def["id"]
+	if GameState.achievement_claimable(id):
+		return 3.0
+	var value := GameState.achievement_value(id)
+	if Progress.tier_for(def, value) >= 3:
+		return 0.0
+	var goal := Progress.next_goal(def, value)
+	return 1.0 + clampf(float(value) / float(maxi(goal, 1)), 0.0, 0.99)
 
 
 func _achievement_card(def: Dictionary) -> Control:
@@ -292,8 +308,10 @@ func _achievement_card(def: Dictionary) -> Control:
 	medals.draw.connect(func():
 		for i in 3:
 			var c := Vector2(14 + i * 28, 14)
-			medals.draw_circle(c, 11.0, Progress.TIER_COLORS[i] if i < claimed else Color("ece3ea"))
-			medals.draw_arc(c, 11.0, 0.0, TAU, 20, Hud.INK if i < claimed else Color(Hud.INK, 0.25), 2.0, true))
+			# las que faltan se ven como la medalla apagadita (bronce, plata, oro), no un circulo gris
+			var mc: Color = Progress.TIER_COLORS[i]
+			medals.draw_circle(c, 11.0, mc if i < claimed else mc.lerp(Color.WHITE, 0.7))
+			medals.draw_arc(c, 11.0, 0.0, TAU, 20, Hud.INK if i < claimed else Color(mc.darkened(0.2), 0.6), 2.0, true))
 	name_row.add_child(medals)
 	var goal := Progress.next_goal(def, value)
 	var done_all := tier >= 3

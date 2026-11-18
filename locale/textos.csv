@@ -1046,7 +1046,7 @@ s:Música,Música,Music
 s:Lógica,Lógica,Logic
 "s:Explorar la casa (hasta el nivel 3), y después la rueda, el columpio, el túnel y el rascador","Explorar la casa (hasta el nivel 3), y después la rueda, el columpio, el túnel y el rascador","Exploring the house (up to level 3), then the wheel, swing, tunnel and scratching post"
 "s:Cuadros, bloques, arcoíris y adornos","Cuadros, bloques, arcoíris y adornos","Pictures, blocks, rainbows and decorations"
-"s:El juego de Memoria, el piano y la caja musical","El juego de Memoria, el piano y la caja musical","The Memory game, the piano and the music box"
+"s:Simón Dice, el piano y la caja musical","Simón Dice, el piano y la caja musical","Simon Says, the piano and the music box"
 "s:El juego de Matemáticas, el reloj y el escritorio","El juego de Matemáticas, el reloj y el escritorio","The Math game, the clock and the desk"
 "s:El juego de Patrones, los libros, la biblioteca y el robot","El juego de Patrones, los libros, la biblioteca y el robot","The Patterns game, the books, the bookshelf and the robot"
 s:hace ejercicio con %s,hace ejercicio con %s,exercises with %s
@@ -1308,16 +1308,16 @@ s:Estrenó ropa,Estrenó ropa,New clothes
 s:Ponle ropa en el vestidor,Ponle ropa en el vestidor,Dress {him} up in the Closet
 s:Jugó a Matemáticas,Jugó a Matemáticas,Played Math
 s:Juega a Matemáticas,Juega a Matemáticas,Play Math
-s:Jugó a Memoria,Jugó a Memoria,Played Memory
-s:Juega a Memoria,Juega a Memoria,Play Memory
+s:Jugó a Simón Dice,Jugó a Simón Dice,Played Simon Says
+s:Juega a Simón Dice,Juega a Simón Dice,Play Simon Says
 s:Jugó a Patrones,Jugó a Patrones,Played Patterns
 s:Juega a Patrones,Juega a Patrones,Play Patterns
 s:Saltó al cielo,Saltó al cielo,Jumped to the sky
 s:Juega a Salto al cielo,Juega a Salto al cielo,Play Sky Jump
 s:Pintó su primer dibujo,Pintó su primer dibujo,Painted {his} first picture
-s:Juega a Pintar,Juega a Pintar,Play Painting
+s:Juega a Pintar,Juega a Pintar,Play Paint
 s:Hizo su primera canción,Hizo su primera canción,Made {his} first song
-s:Juega a Hacer música,Juega a Hacer música,Play Making music
+s:Juega a Hacer música,Juega a Hacer música,Make a song in Music
 s:Dale de comer %s,Dale de comer %s,Feed {him} %s
 s:Ábrela al subir de nivel,Ábrela al subir de nivel,Unlock it by leveling up
 s:Primer vecino,Primer vecino,First neighbor
@@ -1347,42 +1347,24 @@ s:Le encanta explorar y aprender,Le encanta explorar y aprender,Loves to explore
 s:Siempre piensa en la próxima comida,Siempre piensa en la próxima comida,Always thinking about the next meal
 s:Le gustan los colores y las cosas lindas,Le gustan los colores y las cosas lindas,Likes colors and pretty things
 s:Crecimiento,Crecimiento,Growth
-s:Personalidad,Personalidad,Personality
-s:Gustos,Gustos,Likes
 s:Aspecto,Aspecto,Looks
-s:Habilidades,Habilidades,Skills
-s:Nivel %d · día %d de vida,Nivel %d · día %d de vida,Level %d · day %d of life
 "s:
 Será %s en %d días","
 Será %s en %d días","
 %s in %d days"
 s:Crecimiento  %d%%,Crecimiento  %d%%,Growth  %d%%
-"s:Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas.","Si sigues así, crecerá con un rasgo muy positivo y 5 palabras nuevas.",Keep it up and {he}'ll grow with a great trait and 5 new words.
-"s:Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario.","Si no lo cuidas mejor, podría crecer tímido, miedoso o solitario.","If you don't take better care of {him}, {he} could grow up shy, fearful or lonely."
-s:Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!,Crecerá con rasgos normales. ¡Con más cuidado puede llegar más lejos!,{He}'ll grow with normal traits. With more care {he} can go further!
 "s:Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti.","Día %d de %d. Pasa a ser %s en %d días. Cuidarlo bien lo ayuda a aprender, a hablar más rápido y a confiar en ti.","Day %d of %d. Becomes a %s in %d days. Good care helps {him} learn, talk sooner and trust you."
-s:Hoy puedes sumar:,Hoy puedes sumar:,Today you can add:
 s:Ya terminó de crecer.,Ya terminó de crecer.,{He}'s all grown up.
 s:Todavía no empezó a crecer.,Todavía no empezó a crecer.,{He} hasn't started growing yet.
 s:Palabras que sabe,Palabras que sabe,Words {he} knows
-s:Todavía no dice palabras: solo sonidos.,Todavía no dice palabras: solo sonidos.,No words yet: only sounds.
 s:Rasgos que ganó al crecer,Rasgos que ganó al crecer,Traits {he} got while growing up
 s:De %s,De %s,As a %s
-s:Es,Es,Is
-s:Su personalidad se está formando: lo que viven juntos la moldea.,Su personalidad se está formando: lo que viven juntos la moldea.,{His} personality is still forming: what you do together shapes it.
-s:Su personalidad ya está formada.,Su personalidad ya está formada.,{His} personality is formed.
 s:Color favorito,Color favorito,Favorite color
 s:Lo está descubriendo…,Lo está descubriendo…,Still finding out…
-s:Le gusta el %s,Le gusta el %s,Likes %s
 s:Comida favorita,Comida favorita,Favorite food
-s:Todavía no tiene una favorita,Todavía no tiene una favorita,No favorite yet
-s:Todavía no probó ninguna comida.,Todavía no probó ninguna comida.,{He} hasn't tried any food yet.
-"s:Le faltan probar %d comidas. Al principio duda, pero de a poco se anima.","Le faltan probar %d comidas. Al principio duda, pero de a poco se anima.","%d foods left to try. {He}'s unsure at first, but little by little {he} gets braver."
 s:Juego favorito,Juego favorito,Favorite game
-s:Todavía no eligió,Todavía no eligió,Hasn't picked yet
 s:Habitación favorita,Habitación favorita,Favorite room
 s:Ojos %s · boca de %s · cara %s,Ojos %s · boca de %s · cara %s,%s eyes · %s mouth · %s face
-s:Las va desarrollando con los minijuegos y con los objetos de su cuarto.,Las va desarrollando con los minijuegos y con los objetos de su cuarto.,{He} builds them with minigames and the things in {his} room.
 s:¡Máximo!,¡Máximo!,Top!
 s:Se entrena con: ,Se entrena con: ,Trains with: 
 s:redondos,redondos,round
@@ -1475,7 +1457,7 @@ s:veces,veces,times
 s:La entrada cuesta %d monedas. ¡Gánalas en Trabajo!,La entrada cuesta %d monedas. ¡Gánalas en Trabajo!,A ticket costs %d coins. Earn them at Work!
 s:Fui al cine%s a ver %s: %s,Fui al cine%s a ver %s: %s,I went to the movies%s to see %s: %s
 s: con %s, con %s, with %s
-Tu nivel,Tu nivel,Your level
+Cálculo,Cálculo,Numbers
 Simón Dice,Simón Dice,Simon Says
 Minijuegos,Minijuegos,Minigames
 Crecimiento,Crecimiento,Growth
@@ -1887,3 +1869,19 @@ s:%s pasó unos días en lo de su abuela y te extrañó mucho. ¡Dale de comer y
 s:¡Un abrazo!,¡Un abrazo!,A big hug!
 s:¡Volviste!,¡Volviste!,You came back!
 s:¡Necesita más!,¡Necesita más!,Needs more!
+s:¡Dale de comer para descubrir qué le gusta!,¡Dale de comer para descubrir qué le gusta!,Feed {him} to find out what {he} likes!
+s:Crece,Crece,Growing
+s:Cómo es,Cómo es,About
+s:Le gusta,Le gusta,Likes
+s:Sabe,Sabe,Skills
+s:¡Va genial!,¡Va genial!,Going great!
+s:¡Necesita tu cariño!,¡Necesita tu cariño!,{He} needs your love!
+s:¡Va bien!,¡Va bien!,Going well!
+s:Hoy para crecer feliz,Hoy para crecer feliz,"Today, to grow up happy"
+"s:Por ahora, solo soniditos.","Por ahora, solo soniditos.",Just little sounds for now.
+s:Comidas que probó,Comidas que probó,Foods {he} tried
+s:Y %d más adelante…,Y %d más adelante…,And %d more later…
+Se llena visitando a tus vecinos.,Se llena visitando a tus vecinos.,Visiting your neighbors fills it up.
+¡Le encanta tener amigos!,¡Le encanta tener amigos!,Loves having friends!
+s:¡Hay muchas más cosas en la tienda!,¡Hay muchas más cosas en la tienda!,There are lots more things in the Shop!
+s:Simón Dice,Simón Dice,Simon Says

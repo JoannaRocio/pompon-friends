@@ -199,7 +199,7 @@ static func build(entry: Dictionary) -> Dictionary:
 		if not floor_ids.has(pick):
 			floor_ids.append(pick)
 	var wall_ids: Array = []
-	while wall_ids.size() < 2:
+	while wall_ids.size() < 3:   # 3 cuadros: la pared de la visita no queda vacia (los 2 primeros son los de siempre)
 		var pick2: String = wall_pool[rng.randi() % wall_pool.size()]["id"]
 		if not wall_ids.has(pick2):
 			wall_ids.append(pick2)

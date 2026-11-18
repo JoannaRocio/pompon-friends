@@ -230,7 +230,7 @@ func _taste_check() -> void:
 
 # --- Diario del Pompon: lo que piensa, siente y dice (ver PomponThoughts) ---
 const JOURNAL_MAX := 120
-var journal: Array = []     # {"t": unix, "kind": pensamiento|sentimiento|frase, "text", "stat"}
+var journal: Array = []     # {"t": unix, "kind": pensamiento|sentimiento|frase, "text", "stat", "mood"}
 var events := {}            # suceso ("fed", "worked"...) -> ultima vez (unix); lo usa el Pompon para recordar
 var offline_seconds := 0    # cuanto estuvo cerrada la app antes de abrirla (se avisa una sola vez)
 
@@ -249,9 +249,23 @@ func _first(kind: String, subject: String, label: String) -> void:
 func add_journal(entry: Dictionary) -> void:
 	if entry.is_empty() or str(entry.get("text", "")) == "":
 		return
-	journal.append({"t": int(Time.get_unix_time_from_system()), "kind": str(entry["kind"]), "text": str(entry["text"]), "stat": str(entry.get("stat", ""))})
+	journal.append({"t": int(Time.get_unix_time_from_system()), "kind": str(entry["kind"]), "text": str(entry["text"]),
+		"stat": str(entry.get("stat", "")), "mood": journal_mood(entry)})
 	while journal.size() > JOURNAL_MAX:
 		journal.pop_front()
+
+
+## Carita del diario: como se sintio. Le falta algo = triste; soñando = dormido; una primera vez = sorpresa;
+## lo demas = contento.
+static func journal_mood(entry: Dictionary) -> String:
+	var key := str(entry.get("key", ""))
+	if key.begins_with("need:"):
+		return "sad"
+	if key.begins_with("dream") or str(entry.get("stat", "")) == "sueno" and str(entry.get("text", "")).begins_with("Zzz"):
+		return "sleep"
+	if key.begins_with("first:"):
+		return "wow"
+	return "happy"
 
 
 func last_journal_time() -> int:
@@ -668,14 +682,29 @@ func daily_gift_available() -> bool:
 	return pompon != null and Missions.today(int(Time.get_unix_time_from_system())) != daily_gift_day
 
 
+const GIFT_STREAK_MAX := 5   # 10, 15, 20, 25, 30 monedas
+
+
+## Racha que tendria el regalo de hoy. Seguido: +1 (hasta 5). Si faltas no se pierde de golpe:
+## faltar un dia la deja igual y cada dia mas que faltes baja un escalon (nunca menos de 1).
+func next_gift_streak() -> int:
+	var gap := Missions.today(int(Time.get_unix_time_from_system())) - daily_gift_day
+	if gap == 1:
+		return mini(gift_streak + 1, GIFT_STREAK_MAX)
+	return clampi(gift_streak - (gap - 2), 1, GIFT_STREAK_MAX)
+
+
+static func gift_amount(streak: int) -> int:
+	return 10 + 5 * clampi(streak - 1, 0, GIFT_STREAK_MAX - 1)
+
+
 ## Regalo de monedas una vez por dia: 10, y +5 por cada dia seguido (hasta 30). Sin castigo si faltas.
 func claim_daily_gift() -> int:
 	if not daily_gift_available():
 		return 0
-	var day := Missions.today(int(Time.get_unix_time_from_system()))
-	gift_streak = gift_streak + 1 if day == daily_gift_day + 1 else 1
-	daily_gift_day = day
-	var amount := 10 + 5 * mini(gift_streak - 1, 4)
+	gift_streak = next_gift_streak()
+	daily_gift_day = Missions.today(int(Time.get_unix_time_from_system()))
+	var amount := gift_amount(gift_streak)
 	coins += amount
 	Audio.play("coin")
 	save_game()
@@ -1456,7 +1485,7 @@ func apply_save(parsed: Dictionary) -> void:
 	journal = []
 	for e in parsed.get("journal", []):
 		if typeof(e) == TYPE_DICTIONARY and e.has("t") and str(e.get("text", "")) != "" 				and str(e.get("kind", "")) in ["pensamiento", "sentimiento", "frase"]:
-			journal.append({"t": int(e["t"]), "kind": str(e["kind"]), "text": str(e["text"]), "stat": str(e.get("stat", ""))})
+			journal.append({"t": int(e["t"]), "kind": str(e["kind"]), "text": str(e["text"]), "stat": str(e.get("stat", "")), "mood": str(e.get("mood", ""))})
 	while journal.size() > JOURNAL_MAX:
 		journal.pop_front()
 	events = {}

@@ -3,7 +3,7 @@ primer turno corto, sin leccion: juega directo=true | leccion marcada como vista
 turno terminado: estado=3 | aciertos=2 de 3 | errores guardados=1 | explicaciones=1 | con dibujo=1
 monedas: 70 (50 de paga + 20 extra por terminar el turno) | sin premio de nivel (primer turno): true
 primer turno: cartel del tutorial antes de la nota=true
-cartel: ¡Fin del turno! | Nota: 7 / 10 | ¡Muy bien! | Cuentas bien: 2 de 3 | +50 monedas | ¡Turno completo! +20 | Multiplicaciones · Nivel 1 | Para subir: 1 / 8 | Para repasar | *
+cartel: ¡Fin del turno! | Nota: 7 / 10 | ¡Muy bien! | +50 monedas | ¡Turno completo! +20 | Multiplicaciones · Nivel 1 | Para subir: 1 / 8 | Para repasar | *
   nota=true paga=true nivel=true repaso=true
   dice como subir (de 8)=true
   muestra la respuesta correcta de lo fallado=true

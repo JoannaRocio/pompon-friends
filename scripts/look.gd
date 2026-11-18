@@ -89,7 +89,7 @@ func _build() -> Theme:
 	t.set_stylebox("focus", "Button", StyleBoxEmpty.new())
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 		t.set_color(state, "Button", INK)
-	t.set_color("font_disabled_color", "Button", Color("a8978a"))
+	t.set_color("font_disabled_color", "Button", Color("7f6b60"))   # (apagado pero legible)
 
 	t.set_color("font_color", "Label", INK)
 

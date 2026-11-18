@@ -4,6 +4,8 @@ extends MiniGameBase
 const ROUNDS := 6
 const COLORS := [Color("ff6b7a"), Color("5bb8f5"), Color("5fd48a"), Color("ffd24d")]
 const DIM := 0.45
+## Un dibujo distinto en cada cuadrado: se distinguen sin depender del color (daltonismo).
+const ICONS := ["heart", "drop", "sprout", "star"]
 
 var _sequence: Array[int] = []
 var _input_index := 0
@@ -34,10 +36,13 @@ func _ready() -> void:
 	content.add_child(grid)
 	for i in 4:
 		var b := Button.new()
-		b.custom_minimum_size = Vector2(310, 310)
+		b.custom_minimum_size = Vector2(320, 320)
 		b.set_meta("silent", true)  # cada color suena con su propia nota
 		b.focus_mode = Control.FOCUS_NONE
 		_set_button_color(b, COLORS[i], DIM)
+		var kind: String = ICONS[i]
+		var tint: Color = COLORS[i]
+		b.draw.connect(func(): Hud.draw_icon(b, kind, b.size * 0.5, 160.0, Color.WHITE if b.has_meta("lit") else Color(tint.darkened(0.15), 0.85), tint))
 		b.pressed.connect(_on_color_pressed.bind(i))
 		grid.add_child(b)
 		_buttons.append(b)
@@ -59,6 +64,11 @@ func _set_button_color(b: Button, c: Color, brightness: float) -> void:
 	sb.shadow_offset = Vector2(0, 6)
 	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
 		b.add_theme_stylebox_override(state, sb)
+	if lit:
+		b.set_meta("lit", true)
+	else:
+		b.remove_meta("lit")
+	b.queue_redraw()
 
 
 func _flash(i: int, seconds := 0.45) -> void:

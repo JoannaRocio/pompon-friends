@@ -18,7 +18,9 @@ func _initialize() -> void:
 	var day_items: Array = catalog.daily_shop(now, "", [], [], 1)
 	print("tienda del nivel 1: ", day_items.size(), " items | todos desbloqueados=", day_items.all(func(i): return catalog.is_unlocked(i["id"], 1)))
 	var high: Array = catalog.daily_shop(now, "", [], [], 60)
-	print("tienda del nivel 60: ", high.size(), " items | hay de todos los niveles=", high.any(func(i): return catalog.unlock_level(i["id"]) > 30))
+	# (la tienda cambia cada dia: en una semana tiene que aparecer algo de nivel alto, sin depender de que dia corre el test)
+	var week_high := range(7).any(func(d): return catalog.daily_shop(now + d * 86400, "", [], [], 60).any(func(i): return catalog.unlock_level(i["id"]) > 30))
+	print("tienda del nivel 60: ", high.size(), " items | hay de todos los niveles=", week_high)
 	var locked: Array = catalog.locked_items(1, 6)
 	var ordered := true
 	for i in range(1, locked.size()):

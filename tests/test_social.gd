@@ -80,6 +80,13 @@ func _initialize() -> void:
 	gs.daily_gift_day -= 5  # faltaste varios dias: vuelve a 10, sin castigo
 	var g4: int = gs.claim_daily_gift()
 	print("tras faltar dias: ", g4, " racha=", gs.gift_streak)
+	gs.gift_streak = 5
+	gs.daily_gift_day -= 2  # falto un solo dia: la racha no se pierde
+	var g5: int = gs.claim_daily_gift()
+	print("falto un dia: ", g5, " racha=", gs.gift_streak)
+	gs.daily_gift_day -= 4  # falto tres dias: baja de a un escalon por dia
+	var g6: int = gs.claim_daily_gift()
+	print("falto tres dias: ", g6, " racha=", gs.gift_streak)
 	gs.gift_streak = 9
 	gs.daily_gift_day = int(Time.get_unix_time_from_system()) / 86400 - 1
 	print("racha larga: ", gs.claim_daily_gift(), " (tope 30)")

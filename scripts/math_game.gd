@@ -36,17 +36,19 @@ func _ready() -> void:
 	level_chip.add_child(_level_chip_label)
 	var card := PanelContainer.new()
 	card.add_theme_stylebox_override("panel", Hud.card(Color(1, 1, 1, 0.95), 44, Color.WHITE, 4, 12))
+	card.custom_minimum_size = Vector2(0, 300)   # cuenta y respuestas grandes: llenan la pantalla sin huecos
 	content.add_child(card)
 	_question_label = _label("", 118, Color("3f66b0"))
+	_question_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	card.add_child(_question_label)
 	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 16)
+	row.add_theme_constant_override("separation", 18)
 	content.add_child(row)
 	for i in 3:
 		var b := Button.new()
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.custom_minimum_size = Vector2(0, 190)
-		Hud.style_soft(b, 84)
+		b.custom_minimum_size = Vector2(0, 280)
+		Hud.style_soft(b, 96)
 		b.pressed.connect(_on_answer.bind(b))
 		row.add_child(b)
 		_answer_buttons.append(b)
